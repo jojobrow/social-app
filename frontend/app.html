@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Frontpage Prototype</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --bg: #f7efe7;
+      --line-soft: rgba(170, 142, 120, 0.10);
+      --text: #4f3d32;
+      --muted: #9d8575;
+      --shadow: 0 18px 38px rgba(180, 150, 126, 0.12);
+      --content-h: 100vh;
+      --radius-xl: 38px;
+      --radius-lg: 28px;
+      --radius-sm: 16px;
+      --media-ratio: 4 / 3;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(244, 220, 201, 0.70), transparent 26%),
+        radial-gradient(circle at top right, rgba(245, 210, 220, 0.50), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(232, 214, 198, 0.45), transparent 24%),
+        linear-gradient(180deg, #fffaf6 0%, #f7efe7 100%);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .select,
+    .field,
+    .textarea {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(170,142,120,0.12);
+      background: rgba(255,255,255,0.14);
+      color: #5b4639;
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .select:focus,
+    .field:focus,
+    .textarea:focus {
+      border-color: rgba(170,142,120,0.22);
+      background: rgba(255,255,255,0.80);
+    }
+
+    .field::placeholder,
+    .textarea::placeholder {
+      color: #b09582;
+    }
+
+    .textarea {
+      min-height: 104px;
+      resize: vertical;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(170,142,120,0.12);
+      background: rgba(255,255,255,0.22);
+      color: #6d5648;
+      backdrop-filter: blur(8px);
+    }
+
+    .badge.normal { background: rgba(255,255,255,0.22); }
+    .badge.recommended {
+      color: #8a684f;
+      background: rgba(234, 216, 198, 0.78);
+      border-color: rgba(205, 177, 154, 0.20);
+    }
+    .badge.promoted {
+      color: #8a655c;
+      background: rgba(239, 223, 217, 0.78);
+      border-color: rgba(205, 177, 154, 0.20);
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1;
+      transition: 0.18s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .btnPrimary {
+      background: linear-gradient(135deg, #fffdfb, #f4e7dc);
+      color: #5f493c;
+      border: 1px solid rgba(197,169,145,0.22);
+    }
+
+    .btnSoft {
+      background: rgba(255,255,255,0.34);
+      color: #6a5447;
+      border: 1px solid rgba(190,162,138,0.14);
+      backdrop-filter: blur(8px);
+    }
+
+    .btnDanger {
+      background: rgba(220, 38, 38, 0.10);
+      color: #9a5a5a;
+      border: 1px solid rgba(220, 38, 38, 0.15);
+    }
+
+    .btnSuccess {
+      background: rgba(22, 163, 74, 0.10);
+      color: #4f7b5d;
+      border: 1px solid rgba(22, 163, 74, 0.14);
+    }
+
+    .composePanel {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      width: min(520px, calc(100vw - 28px));
+      z-index: 40;
+      padding: 16px;
+      background: rgba(255, 250, 245, 0.46);
+      border: 1px solid rgba(190,162,138,0.12);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .composePanel.inline {
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      left: auto;
+      top: auto;
+      z-index: 1;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.14);
+      box-shadow: none;
+      backdrop-filter: blur(14px);
+    }
+
+    .creatorControlCard {
+      padding: 16px;
+      border-radius: 22px;
+      color: #5a463a;
+      background: linear-gradient(135deg, rgba(255,255,255,0.34), rgba(248,236,227,0.26));
+      border: 1px solid rgba(197, 169, 145, 0.16);
+      backdrop-filter: blur(10px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .creatorControlTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .creatorControlText {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .creatorControlLabel {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(113, 88, 72, 0.58);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .composeTitle {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .composeGrid {
+      display: grid;
+      gap: 9px;
+    }
+
+    .uploadStatus {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hidden { display: none !important; }
+
+    .viewportShell {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .modeViewport {
+      width: 100%;
+      height: 100%;
+    }
+
+    .feedViewport {
+      overflow: hidden;
+      scroll-behavior: auto;
+    }
+
+    .feedViewport::-webkit-scrollbar,
+    .homeViewport::-webkit-scrollbar,
+    .frontContentWrap::-webkit-scrollbar,
+    .homeContentWrap::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .feedViewport::-webkit-scrollbar-thumb,
+    .homeViewport::-webkit-scrollbar-thumb,
+    .frontContentWrap::-webkit-scrollbar-thumb,
+    .homeContentWrap::-webkit-scrollbar-thumb {
+      background: rgba(170,142,120,0.18);
+      border-radius: 999px;
+    }
+
+    .feedStream {
+      height: 100%;
+      display: block;
+    }
+
+    .pairRow {
+      height: var(--content-h);
+      min-height: var(--content-h);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      padding: 18px 70px;
+      align-items: stretch;
+    }
+
+    .pairRow.focusedPair .postCard {
+      border-color: rgba(197,169,145,0.24);
+      box-shadow: 0 0 0 1px rgba(205,177,154,0.10), var(--shadow);
+    }
+
+    .panelCard {
+      background: rgba(255, 255, 255, 0.24);
+      border: 1px solid rgba(182, 154, 132, 0.12);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(20px);
+    }
+
+    .postCard {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 242, 0.82), rgba(250, 241, 234, 0.68)),
+        rgba(255,255,255,0.38);
+      overflow: hidden;
+    }
+
+    .frontHeader,
+    .homeHeader {
+      padding: 16px 18px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid var(--line-soft);
+      flex: 0 0 auto;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .userLine {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #5e493c;
+      font-weight: 800;
+      font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 6px 16px rgba(180,150,126,0.10);
+    }
+
+    .avatar.large {
+      width: 56px;
+      height: 56px;
+      font-size: 20px;
+    }
+
+    .avatar.small {
+      width: 34px;
+      height: 34px;
+      font-size: 13px;
+    }
+
+    .userName {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .userHandle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .postMediaShell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      border-radius: 0;
+      overflow: hidden;
+      background: rgba(255,255,255,0.4);
+    }
+
+    .postMedia {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #f2ece6;
+    }
+
+    .postMedia img,
+    .postMedia video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      background: #f2ece6;
+    }
+
+    .postTextFill {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
+      background: linear-gradient(135deg, rgba(244,230,220,0.95), rgba(250,241,236,0.88));
+      color: #5b4639;
+      font-size: 28px;
+      line-height: 1.35;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .postGradientTop,
+    .postGradientBottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .postGradientTop {
+      top: 0;
+      height: 34%;
+      background: linear-gradient(180deg, rgba(35, 24, 16, 0.42) 0%, rgba(35, 24, 16, 0.18) 46%, rgba(35, 24, 16, 0) 100%);
+    }
+
+    .postGradientBottom {
+      bottom: 0;
+      height: 42%;
+      background: linear-gradient(180deg, rgba(35, 24, 16, 0) 0%, rgba(35, 24, 16, 0.14) 34%, rgba(35, 24, 16, 0.44) 100%);
+    }
+
+    .postOverlayTop,
+    .postOverlayBottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      padding: 18px;
+      color: #fffaf6;
+    }
+
+    .postOverlayTop {
+      top: 0;
+    }
+
+    .postOverlayBottom {
+      bottom: 60px;
+    }
+
+    .postOverlayCard {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: min(100%, 420px);
+      padding: 10px 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(14px);
+    }
+
+    .postOverlayMeta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .postOverlayName {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fffaf6;
+    }
+
+    .postOverlayHandle {
+      font-size: 12px;
+      color: rgba(255,250,245,0.82);
+      margin-top: 2px;
+    }
+
+    .overlayBadgeRow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .overlayBadge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fffaf6;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .postBottomPanel {
+      width: min(100%, 96%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .postCaptionOverlay {
+      display: inline-block;
+      max-width: min(100%, 640px);
+      padding: 12px 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(14px);
+      color: #fffaf6;
+      font-size: 15px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .postHashtagsOverlay,
+    .postActionOverlay {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .overlayTag {
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fffaf6;
+      font-size: 11px;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    .overlayButton {
+      background: rgba(255,255,255,0.16);
+      color: #fffaf6;
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .frontBio,
+    .reactionText,
+    .miniPostText,
+    .homeBio,
+    .modeHint {
+      white-space: pre-wrap;
+      line-height: 1.58;
+    }
+
+    .frontPageBg,
+    .homePageBg {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        radial-gradient(circle at top left, rgba(255,248,242,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(255,248,242,0.06), rgba(255,248,242,0.01));
+    }
+
+    .frontPageBg::before,
+    .homePageBg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: var(--user-bg, none);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.40;
+      transform: scale(1.02);
+      pointer-events: none;
+    }
+
+    .frontPageBg::after,
+    .homePageBg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,250,245,0.03), rgba(247,239,231,0.05)),
+        radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 60%);
+      pointer-events: none;
+    }
+
+    .frontContentWrap,
+    .homeContentWrap {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    .splitFrontContentWrap {
+      overflow: hidden;
+    }
+
+    .splitFrontContentWrap .homeSection,
+    .splitFrontContentWrap .miniPost,
+    .splitFrontContentWrap .reactionItem {
+      overflow: hidden;
+    }
+
+    .splitFrontContentWrap .miniList,
+    .splitFrontContentWrap .reactionList {
+      max-height: 100%;
+      overflow: hidden;
+    }
+
+    .frontContentWrap {
+      width: 100%;
+      max-width: 100%;
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas:
+        "hero stats"
+        "react recent"
+        "approved approved";
+      gap: 12px;
+      align-content: stretch;
+    }
+
+    .homeContentWrap {
+      width: 100%;
+      max-width: 100%;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas:
+        "hero stats"
+        "react recent"
+        "approved pending";
+      gap: 14px;
+      padding: 20px;
+      align-content: stretch;
+    }
+
+    .area-hero { grid-area: hero; }
+    .area-stats { grid-area: stats; }
+    .area-react { grid-area: react; }
+    .area-recent { grid-area: recent; }
+    .area-approved { grid-area: approved; }
+    .area-pending { grid-area: pending; }
+
+    .frontHero,
+    .homeHero {
+      padding: 14px;
+      border-radius: 22px;
+      color: #5a463a;
+      background: linear-gradient(135deg, rgba(255,255,255,0.58), rgba(248,236,227,0.50));
+      border: 1px solid rgba(197, 169, 145, 0.16);
+      backdrop-filter: blur(10px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .frontHeroName,
+    .homeHeroName {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 3px;
+      letter-spacing: -0.02em;
+    }
+
+    .frontBio,
+    .homeBio,
+    .modeHint {
+      font-size: 12px;
+      color: rgba(90, 70, 58, 0.72);
+      margin-top: 7px;
+    }
+
+    .metaRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metaChip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,250,245,0.44);
+      border: 1px solid rgba(198,170,148,0.14);
+      backdrop-filter: blur(8px);
+    }
+
+    .metaChipLabel {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      font-weight: 700;
+      color: rgba(113, 88, 72, 0.58);
+    }
+
+    .metaChipValue {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6a5243;
+    }
+
+    .sectionTitle {
+      font-size: 14px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .miniList,
+    .reactionList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .miniPost,
+    .reactionItem,
+    .homeSection {
+      border: 1px solid rgba(190, 162, 138, 0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.18);
+      padding: 11px;
+      backdrop-filter: blur(12px);
+      height: 100%;
+      overflow: auto;
+    }
+
+    .miniPost {
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .miniPost:hover {
+      border-color: rgba(197,169,145,0.22);
+      background: rgba(255,255,255,0.34);
+      transform: translateY(-1px);
+    }
+
+    .miniPost.activeLinkedContent {
+      border-color: rgba(205,177,154,0.30);
+      background: rgba(255,250,245,0.62);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10), 0 0 0 1px rgba(214, 190, 170, 0.14);
+    }
+
+    .miniPostType,
+    .pendingMeta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .miniPostText {
+      font-size: 13px;
+      color: #6a5447;
+    }
+
+    .reactionHead {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 8px;
+    }
+
+    .reactionName {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .reactionText {
+      font-size: 13px;
+      color: #6a5447;
+    }
+
+    .pendingCard {
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(190,162,138,0.12);
+      background: rgba(255,255,255,0.22);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pendingCard .reactionText { margin-top: 2px; }
+
+    .moderationNote {
+      font-size: 12px;
+      color: rgba(90, 70, 58, 0.72);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .floatingModeButtons {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    .modeButton {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 84px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.34);
+      color: #7a6354;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      box-shadow: 0 10px 24px rgba(180,150,126,0.12);
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+      border: 1px solid rgba(190,162,138,0.10);
+    }
+
+    .modeButton.left { left: 12px; }
+    .modeButton.right { right: 12px; }
+
+    .homeViewport {
+      overflow-y: auto;
+      padding: 18px 70px;
+    }
+
+    .homeShell {
+      min-height: var(--content-h);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .emptyState {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed rgba(190,162,138,0.16);
+      color: var(--muted);
+      background: rgba(255,255,255,0.14);
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .pairRow {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: auto;
+        padding: 16px;
+      }
+
+      .homeViewport { padding: 16px; }
+
+      .frontContentWrap,
+      .homeContentWrap {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "hero"
+          "stats"
+          "react"
+          "recent"
+          "approved"
+          "pending";
+      }
+
+      .modeButton {
+        width: 40px;
+        height: 70px;
+      }
+
+      .postOverlayTop,
+      .postOverlayBottom {
+        padding: 14px;
+      }
+
+      .postTextFill {
+        font-size: 22px;
+        padding: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="viewportShell">
+      <div class="floatingModeButtons">
+        <button class="modeButton left" onclick="toggleScreenMode()">‹</button>
+        <button class="modeButton right" onclick="toggleScreenMode()">›</button>
+      </div>
+
+      <div class="modeViewport feedViewport hidden" id="splitViewport">
+        <div class="feedStream" id="feedStream"></div>
+      </div>
+
+      <div class="modeViewport homeViewport hidden" id="homeViewport">
+        <div class="homeShell" id="homeShell"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./moderation-bot.js"></script>
+  <script>
+    const API_BASE = window.location.origin;
+
+    let users = [];
+    let feedItems = [];
+    let activeUserId = localStorage.getItem("socialPrototypeActiveUserId") || "";
+    let currentScreenIndex = 0;
+    let currentFocusedPostId = null;
+    let screenMode = "home";
+    let viewportObserver = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Request mislukt.");
+      return data;
+    }
+
+    function getInitials(name = "?") {
+      return name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
+    }
+
+    function getKindLabel(kind) {
+      if (kind === "promoted") return "Promoted";
+      if (kind === "recommended") return "Recommended";
+      return "Normal";
+    }
+
+    function cssUrl(url) {
+      return url ? `url('${String(url).replace(/'/g, "\\'")}')` : "none";
+    }
+
+    function shuffleArray(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function getUserBackground(user) {
+      if (user?.backgroundUrl) return cssUrl(user.backgroundUrl);
+      const hero = user?.heroColor || "#f4e5d8";
+      return `linear-gradient(135deg, ${hero}, rgba(255,255,255,0.12))`;
+    }
+
+    function getFrontendModeration(text) {
+      if (!window.ModerationBot || typeof window.ModerationBot.analyzeText !== "function") {
+        return {
+          status: "approved",
+          matchedTriggers: [],
+          reason: "ModerationBot niet geladen."
+        };
+      }
+      return window.ModerationBot.analyzeText(text);
+    }
+
+    function bindReactionEnterToSubmit(textarea, submitFn) {
+      if (!textarea || textarea.dataset.enterBound === "true") return;
+
+      textarea.addEventListener("keydown", async (event) => {
+        if (event.key !== "Enter" || event.shiftKey) return;
+        event.preventDefault();
+        await submitFn();
+      });
+
+      textarea.dataset.enterBound = "true";
+    }
+
+    function bindDynamicReactionInputs() {
+      document.querySelectorAll('textarea[id^="reactionInput-"]').forEach((textarea) => {
+        const parts = textarea.id.split("-");
+        const userId = parts[1];
+        bindReactionEnterToSubmit(textarea, async () => {
+          await submitFrontpageReaction(userId, textarea.id);
+        });
+      });
+    }
+
+    async function loadUsers() {
+      users = await fetchJson(`${API_BASE}/users`);
+      if (!users.find(user => user.id === activeUserId)) {
+        activeUserId = "";
+        localStorage.removeItem("socialPrototypeActiveUserId");
+      }
+    }
+
+    function pauseAllVideos(exceptPostId = null) {
+      document.querySelectorAll(".pairRow video").forEach(video => {
+        const pair = video.closest(".pairRow");
+        const postId = pair ? Number(pair.dataset.postId) : null;
+        if (!exceptPostId || postId !== exceptPostId) video.pause();
+      });
+    }
+
+    function syncActiveLinkedContent() {
+      document.querySelectorAll(".miniPost[data-link-post-id]").forEach(card => {
+        const linkedId = Number(card.dataset.linkPostId);
+        card.classList.toggle("activeLinkedContent", linkedId === currentFocusedPostId);
+      });
+
+      document.querySelectorAll(".pairRow").forEach(section => {
+        const sectionPostId = Number(section.dataset.postId);
+        section.classList.toggle("focusedPair", sectionPostId === currentFocusedPostId);
+      });
+    }
+
+    function goToSplitContent(postId) {
+      const index = feedItems.findIndex(item => item.id === postId);
+      if (index === -1) return;
+      screenMode = "split";
+      updateModeUI();
+      scrollToScreen(index);
+    }
+
+    function renderComposePanel({ inline = false } = {}) {
+      return `
+        <div id="composePanel" class="composePanel ${inline ? "inline" : "hidden"}">
+          <div class="composeTitle">Nieuwe post</div>
+          <div class="composeGrid">
+            <textarea id="captionInput" class="textarea" placeholder="Wat wil je delen op je homepage/feed?"></textarea>
+            <input id="hashtagsInput" class="field" placeholder="#homepage, #creator, #concept" />
+            <select id="feedKindSelect" class="select">
+              <option value="normal">Normal</option>
+              <option value="recommended">Recommended</option>
+              <option value="promoted">Promoted</option>
+            </select>
+            <input id="mediaFileInput" type="file" class="field" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+            <div class="uploadStatus" id="uploadStatus">Upload foto of video. Beeld wordt als 4:3 getoond. Video-doel: maximaal 1,5 minuut.</div>
+            <div class="postActionOverlay">
+              <button class="btnPrimary" onclick="publishPost()">Plaatsen</button>
+              <button class="btnSoft" onclick="toggleCompose()">Sluiten</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderOwnHomeScreen() {
+      const homeShell = document.getElementById("homeShell");
+      const front = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(activeUserId)}?viewerUserId=${encodeURIComponent(activeUserId)}`);
+      const user = front.user;
+      const userBg = getUserBackground(user);
+
+      homeShell.innerHTML = `
+        <article class="panelCard" style="min-height:calc(100vh - 36px);">
+          <div class="homeHeader">
+            <div class="userLine">
+              <div class="avatar large" style="background:${escapeHtml(user.avatarColor || "#d8c1ae")};">
+                ${getInitials(user.displayName)}
+              </div>
+              <div>
+                <div class="userName">${escapeHtml(user.displayName)}</div>
+                <div class="userHandle">${escapeHtml(user.handle)}</div>
+              </div>
+            </div>
+            <div class="postActionOverlay">
+              <button class="btnSoft" onclick="goToFeed()">Ga naar feed</button>
+            </div>
+          </div>
+
+          <div class="homePageBg" style="--user-bg:${userBg};">
+            <div class="homeContentWrap">
+              <div class="creatorControlCard area-hero">
+                <div class="creatorControlTop">
+                  <div class="creatorControlText">
+                    <div class="creatorControlLabel">Creator control</div>
+                    <div class="homeHeroName">Jouw maker-homepage</div>
+                    <div class="homeBio">Je landt nu eerst op je eigen homepage. Daarna ga je pas naar de feed / split screen.</div>
+                  </div>
+                  <div class="postActionOverlay">
+                    <button class="btnPrimary" onclick="toggleCompose()">Nieuwe post</button>
+                    <button class="btnSoft" onclick="triggerBackgroundUpload()">Upload achtergrond</button>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="creatorControlLabel">Actieve gebruiker</div>
+                  <select class="select" id="activeUserSelectHome"></select>
+                  <div class="modeHint">Wissel hier van gebruiker. De homepage blijft je centrale beheerplek.</div>
+                </div>
+
+                <input
+                  id="backgroundUploadInput"
+                  type="file"
+                  class="hidden"
+                  accept="image/jpeg,image/png,image/webp"
+                />
+
+                <div id="backgroundUploadStatus" class="uploadStatus">Homepage-achtergrond wordt gebruikt op fullscreen én splitscreen homepage.</div>
+
+                ${renderComposePanel({ inline: true })}
+              </div>
+
+              <div class="homeSection area-stats">
+                <div class="sectionTitle">Profiel & stats</div>
+                <div class="metaRow">
+                  <div class="metaChip"><span class="metaChipLabel">Posts</span><span class="metaChipValue">${front.stats.posts}</span></div>
+                  <div class="metaChip"><span class="metaChipLabel">Likes</span><span class="metaChipValue">${front.stats.homepageLikes}</span></div>
+                  <div class="metaChip"><span class="metaChipLabel">Reacties</span><span class="metaChipValue">${front.stats.reactions}</span></div>
+                  <div class="metaChip"><span class="metaChipLabel">Vrienden</span><span class="metaChipValue">${front.stats.friends}</span></div>
+                </div>
+                <div class="frontBio" style="margin-top:12px;">${escapeHtml(user.bio || "")}</div>
+              </div>
+
+              <div class="homeSection area-react">
+                <div class="sectionTitle">Publieke homepage-logica</div>
+                <div class="frontBio">Ook in je eigen beheerweergave blijft duidelijk dat publieke interactie via de homepage loopt, niet onder losse posts.</div>
+              </div>
+
+              <div class="homeSection area-recent">
+                <div class="sectionTitle">Recente content</div>
+                <div class="miniList" style="margin-top:10px;">
+                  ${front.recentPosts.length ? front.recentPosts.slice(0, 4).map(renderRecentPostLink).join("") : `<div class="emptyState" style="padding:0;">Nog geen posts.</div>`}
+                </div>
+              </div>
+
+              <div class="homeSection area-approved">
+                <div class="sectionTitle">Goedgekeurde reacties</div>
+                <div class="reactionList" style="margin-top:10px;">
+                  ${front.acceptedReactions.length ? front.acceptedReactions.map(reaction => `
+                    <div class="reactionItem">
+                      <div class="reactionHead">
+                        <div class="avatar small" style="background:${escapeHtml(reaction.fromUser?.avatarColor || "#d8c1ae")};">${getInitials(reaction.fromUser?.displayName || "?")}</div>
+                        <div>
+                          <div class="reactionName">${escapeHtml(reaction.fromUser?.displayName || "Onbekend")}</div>
+                          <div class="userHandle">${escapeHtml(reaction.fromUser?.handle || "")}</div>
+                        </div>
+                      </div>
+                      <div class="reactionText">${escapeHtml(reaction.text)}</div>
+                    </div>
+                  `).join("") : `<div class="emptyState" style="padding:0;">Nog geen goedgekeurde reacties.</div>`}
+                </div>
+              </div>
+
+              <div class="homeSection area-pending">
+                <div class="sectionTitle">Pending moderatie</div>
+                <div class="moderationNote">Frontend-moderatie draait bij reactieplaatsing op Enter of op de knop. Shift+Enter maakt een nieuwe regel.</div>
+                <div class="reactionList" style="margin-top:10px;">
+                  ${front.pendingReactions.length ? front.pendingReactions.map(reaction => `
+                    <div class="pendingCard">
+                      <div class="pendingMeta">Van ${escapeHtml(reaction.fromUser?.displayName || "Onbekend")}</div>
+                      <div class="reactionText">${escapeHtml(reaction.text)}</div>
+                      <div class="postActionOverlay">
+                        <button class="btnSuccess" onclick="approveReaction('${user.id}', ${reaction.id})">Goedkeuren</button>
+                        <button class="btnSoft" onclick="rejectReaction('${user.id}', ${reaction.id})">Afwijzen</button>
+                        <button class="btnDanger" onclick="blockReaction('${user.id}', ${reaction.id})">Blokkeren</button>
+                      </div>
+                    </div>
+                  `).join("") : `<div class="emptyState" style="padding:0;">Geen pending reacties.</div>`}
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+
+      const select = document.getElementById("activeUserSelectHome");
+      select.innerHTML = users.map(user => `<option value="${user.id}">${escapeHtml(user.displayName)} (${escapeHtml(user.handle)})</option>`).join("");
+      select.value = activeUserId;
+      select.addEventListener("change", async (event) => {
+        activeUserId = event.target.value;
+        localStorage.setItem("socialPrototypeActiveUserId", activeUserId);
+        currentScreenIndex = 0;
+        currentFocusedPostId = null;
+        pauseAllVideos();
+        await refreshAll();
+      });
+
+      const backgroundInput = document.getElementById("backgroundUploadInput");
+      backgroundInput.addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        await uploadHomepageBackground(file);
+        backgroundInput.value = "";
+      });
+
+      bindComposeInputListeners();
+    }
+
+    function updateModeUI() {
+      const splitViewport = document.getElementById("splitViewport");
+      const homeViewport = document.getElementById("homeViewport");
+
+      if (screenMode === "split") {
+        splitViewport.classList.remove("hidden");
+        homeViewport.classList.add("hidden");
+      } else {
+        splitViewport.classList.add("hidden");
+        homeViewport.classList.remove("hidden");
+        pauseAllVideos();
+      }
+    }
+
+    function toggleScreenMode() {
+      screenMode = screenMode === "split" ? "home" : "split";
+      updateModeUI();
+
+      if (screenMode === "home") {
+        renderOwnHomeScreen();
+      } else if (feedItems.length) {
+        requestAnimationFrame(() => scrollToScreen(currentScreenIndex, false));
+      }
+    }
+
+    function goToFeed() {
+      screenMode = "split";
+      updateModeUI();
+
+      if (feedItems.length) {
+        requestAnimationFrame(() => scrollToScreen(currentScreenIndex, false));
+      }
+    }
+
+    function triggerBackgroundUpload() {
+      const input = document.getElementById("backgroundUploadInput");
+      if (input) input.click();
+    }
+
+    async function uploadHomepageBackground(file) {
+      const statusEl = document.getElementById("backgroundUploadStatus");
+
+      try {
+        const validTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (!validTypes.includes(file.type)) {
+          throw new Error("Alleen jpg, jpeg, png en webp zijn toegestaan.");
+        }
+
+        if (file.size > 8 * 1024 * 1024) {
+          throw new Error("Afbeelding is te groot. Maximaal 8 MB.");
+        }
+
+        statusEl.textContent = "Achtergrond uploaden...";
+
+        const formData = new FormData();
+        formData.append("media", file);
+        formData.append("kind", "background");
+
+        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(activeUserId)}/profile-media`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || "Upload mislukt.");
+        }
+
+        statusEl.textContent = "Achtergrond opgeslagen.";
+        await refreshAll();
+      } catch (error) {
+        statusEl.textContent = error.message || "Upload mislukt.";
+        alert(error.message || "Upload mislukt.");
+      }
+    }
+
+    async function loadFeed() {
+      if (!activeUserId) {
+        feedItems = [];
+        return;
+      }
+
+      const data = await fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(activeUserId)}`);
+      const incoming = data.items || data || [];
+      const previousFocusedPostId = currentFocusedPostId;
+
+      feedItems = shuffleArray(incoming);
+
+      if (!feedItems.length) {
+        currentScreenIndex = 0;
+        currentFocusedPostId = null;
+        return;
+      }
+
+      if (previousFocusedPostId != null) {
+        const preservedIndex = feedItems.findIndex((item) => item.id === previousFocusedPostId);
+        if (preservedIndex >= 0) {
+          currentScreenIndex = preservedIndex;
+          currentFocusedPostId = previousFocusedPostId;
+          return;
+        }
+      }
+
+      currentScreenIndex = 0;
+      currentFocusedPostId = feedItems[0].id;
+    }
+
+    function renderPostMedia(item) {
+      if (item.postType === "video" && item.videoUrl) {
+        return `
+          <div class="postMedia">
+            <video src="${escapeHtml(item.videoUrl)}" controls preload="metadata"></video>
+          </div>
+        `;
+      }
+
+      if (item.postType === "image" && item.imageUrl) {
+        return `
+          <div class="postMedia">
+            <img src="${escapeHtml(item.imageUrl)}" alt="Post media" />
+          </div>
+        `;
+      }
+
+      return `
+        <div class="postMedia">
+          <div class="postTextFill">${escapeHtml(item.caption || "Tekstpost")}</div>
+        </div>
+      `;
+    }
+
+    function renderRecentPostLink(post) {
+      return `
+        <div class="miniPost" data-link-post-id="${post.id}" onclick="goToSplitContent(${post.id})">
+          <div class="miniPostType">${escapeHtml(post.feedKind)} · ${escapeHtml(post.postType)}</div>
+          <div class="miniPostText">${escapeHtml(post.caption || "")}</div>
+        </div>
+      `;
+    }
+
+    function bindActiveContentWheelZone() {
+      const postCard = document.querySelector(".pairRow .postCard");
+      if (!postCard || postCard.dataset.wheelBound === "true") return;
+
+      postCard.addEventListener("wheel", (event) => {
+        if (screenMode !== "split") return;
+        if (Math.abs(event.deltaY) < 20) return;
+        event.preventDefault();
+        pauseAllVideos();
+        if (event.deltaY > 0) scrollToNext();
+        else scrollToPrevious();
+      }, { passive: false });
+
+      postCard.dataset.wheelBound = "true";
+    }
+
+    async function renderFeedStream() {
+      const container = document.getElementById("feedStream");
+
+      if (!activeUserId) {
+        container.innerHTML = `<div class="emptyState" style="margin:24px;">Log eerst in om verder te gaan.</div>`;
+        return;
+      }
+
+      if (!feedItems.length) {
+        container.innerHTML = `<div class="emptyState">Geen feed-items beschikbaar.</div>`;
+        return;
+      }
+
+      const safeIndex = Math.max(0, Math.min(currentScreenIndex, feedItems.length - 1));
+      currentScreenIndex = safeIndex;
+      const item = feedItems[safeIndex];
+      currentFocusedPostId = item.id;
+
+      const front = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(item.owner.id)}?viewerUserId=${encodeURIComponent(activeUserId)}`);
+      const owner = item.owner || {};
+      const user = front.user;
+      const canAddFriend = user.id !== activeUserId && front.friendshipStatus !== "accepted";
+      const userBg = getUserBackground(user);
+
+      container.innerHTML = `
+        <section class="pairRow focusedPair" data-index="${safeIndex}" data-post-id="${item.id}">
+          <article class="panelCard postCard">
+            <div class="postMediaShell">
+              ${renderPostMedia(item)}
+              <div class="postGradientTop"></div>
+              <div class="postGradientBottom"></div>
+
+              <div class="postOverlayTop">
+                <div class="postOverlayCard">
+                  <div class="avatar" style="background:${escapeHtml(owner.avatarColor || "#e6d2c3")};">
+                    ${getInitials(owner.displayName)}
+                  </div>
+                  <div class="postOverlayMeta">
+                    <div class="postOverlayName">${escapeHtml(owner.displayName || "Onbekend")}</div>
+                    <div class="postOverlayHandle">${escapeHtml(owner.handle || "")}</div>
+                  </div>
+                </div>
+                <div class="overlayBadgeRow">
+                  <div class="overlayBadge">${getKindLabel(item.feedKind)}</div>
+                  <div class="overlayBadge">${escapeHtml(item.postType)}</div>
+                </div>
+              </div>
+
+              <div class="postOverlayBottom">
+                <div class="postBottomPanel">
+                  ${item.caption ? `<div class="postCaptionOverlay">${escapeHtml(item.caption)}</div>` : ""}
+                  <div class="postHashtagsOverlay">
+                    ${(item.hashtags || []).map(tag => `<div class="overlayTag">${escapeHtml(tag)}</div>`).join("")}
+                  </div>
+                  <div class="postActionOverlay">
+                    <button class="overlayButton" onclick="likePost(${item.id})">Like (${item.likes})</button>
+                    <button class="overlayButton" onclick="dislikePost(${item.id})">Dislike privé</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panelCard">
+            <div class="frontHeader">
+              <div class="userLine">
+                <div class="avatar" style="background:${escapeHtml(user.avatarColor || "#d8c1ae")};">${getInitials(user.displayName)}</div>
+                <div>
+                  <div class="userName">${escapeHtml(user.displayName)}</div>
+                  <div class="userHandle">${escapeHtml(user.handle)}</div>
+                </div>
+              </div>
+              <div class="postActionOverlay">
+                <button class="btnPrimary" onclick="likeFrontpage('${user.id}')">Like homepage</button>
+                ${canAddFriend ? `<button class="btnSoft" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+              </div>
+            </div>
+
+            <div class="frontPageBg" style="--user-bg:${userBg};">
+              <div class="frontContentWrap splitFrontContentWrap">
+                <div class="frontHero area-hero">
+                  <div>
+                    <div class="creatorControlLabel">Voorpagina</div>
+                    <div class="frontHeroName">${escapeHtml(user.displayName)}</div>
+                    <div class="userHandle">${escapeHtml(user.handle)}</div>
+                    <div class="frontBio">${escapeHtml(user.bio)}</div>
+                  </div>
+                  <div class="postActionOverlay">
+                    <div class="badge normal">Publieke ruimte</div>
+                    <div class="badge normal">Reacties via homepage</div>
+                  </div>
+                </div>
+
+                <div class="homeSection area-stats">
+                  <div class="sectionTitle">Profiel</div>
+                  <div class="metaRow">
+                    <div class="metaChip"><span class="metaChipLabel">Posts</span><span class="metaChipValue">${front.stats.posts}</span></div>
+                    <div class="metaChip"><span class="metaChipLabel">Likes</span><span class="metaChipValue">${front.stats.homepageLikes}</span></div>
+                    <div class="metaChip"><span class="metaChipLabel">Reacties</span><span class="metaChipValue">${front.stats.reactions}</span></div>
+                    <div class="metaChip"><span class="metaChipLabel">Vrienden</span><span class="metaChipValue">${front.stats.friends}</span></div>
+                  </div>
+                </div>
+
+                <div class="homeSection area-react">
+                  <div class="sectionTitle">Plaats reactie</div>
+                  <div class="moderationNote">Enter plaatst na moderatie. Shift+Enter maakt een nieuwe regel.</div>
+                  <div class="postActionOverlay" style="margin-top:10px; flex-direction:column; align-items:stretch;">
+                    <textarea id="reactionInput-${user.id}-${item.id}" class="textarea" placeholder="Publieke reactie voor de voorpagina"></textarea>
+                    <button class="btnPrimary" onclick="submitFrontpageReaction('${user.id}', 'reactionInput-${user.id}-${item.id}')">Reactie plaatsen</button>
+                  </div>
+                </div>
+
+                <div class="homeSection area-recent">
+                  <div class="sectionTitle">Recente content</div>
+                  <div class="miniList" style="margin-top:10px;">
+                    ${front.recentPosts.length ? front.recentPosts.slice(0, 2).map(renderRecentPostLink).join("") : `<div class="emptyState" style="padding:0;">Nog geen content.</div>`}
+                  </div>
+                </div>
+
+                <div class="homeSection area-approved">
+                  <div class="sectionTitle">Goedgekeurde reacties</div>
+                  <div class="reactionList" style="margin-top:10px;">
+                    ${front.acceptedReactions.length ? front.acceptedReactions.slice(0, 2).map(reaction => `
+                      <div class="reactionItem">
+                        <div class="reactionHead">
+                          <div class="avatar small" style="background:${escapeHtml(reaction.fromUser?.avatarColor || "#d8c1ae")};">${getInitials(reaction.fromUser?.displayName || "?")}</div>
+                          <div>
+                            <div class="reactionName">${escapeHtml(reaction.fromUser?.displayName || "Onbekend")}</div>
+                            <div class="userHandle">${escapeHtml(reaction.fromUser?.handle || "")}</div>
+                          </div>
+                        </div>
+                        <div class="reactionText">${escapeHtml(reaction.text)}</div>
+                      </div>
+                    `).join("") : `<div class="emptyState" style="padding:0;">Nog geen goedgekeurde reacties.</div>`}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+      `;
+
+      bindDynamicReactionInputs();
+      syncActiveLinkedContent();
+      pauseAllVideos();
+      bindActiveContentWheelZone();
+    }
+
+    function attachViewportTracking() {
+      return;
+    }
+
+    function scrollToScreen(index, smooth = true) {
+      if (screenMode !== "split" || !feedItems.length) return;
+      currentScreenIndex = Math.max(0, Math.min(index, feedItems.length - 1));
+      currentFocusedPostId = feedItems[currentScreenIndex].id;
+      renderFeedStream();
+    }
+
+    function scrollToNext() {
+      if (screenMode !== "split" || !feedItems.length) return;
+      const nextIndex = (currentScreenIndex + 1) % feedItems.length;
+      scrollToScreen(nextIndex);
+    }
+
+    function scrollToPrevious() {
+      if (screenMode !== "split" || !feedItems.length) return;
+      const previousIndex = (currentScreenIndex - 1 + feedItems.length) % feedItems.length;
+      scrollToScreen(previousIndex);
+    }
+
+    async function refreshAll() {
+      if (!activeUserId) return;
+
+      try {
+        await loadFeed();
+        await renderFeedStream();
+        if (screenMode === "home") await renderOwnHomeScreen();
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Verversen mislukt.");
+      }
+    }
+
+    async function likePost(postId) {
+      await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+      await refreshAll();
+    }
+
+    async function dislikePost(postId) {
+      await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ viewerUserId: activeUserId, actorUserId: activeUserId })
+      });
+      alert("Dislike is privé opgeslagen.");
+      await refreshAll();
+    }
+
+    async function likeFrontpage(userId) {
+      await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+      await refreshAll();
+    }
+
+    async function submitFrontpageReaction(userId, inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+
+      const text = input.value.trim();
+      const result = getFrontendModeration(text);
+
+      if (result.status === "empty") {
+        alert(window.ModerationBot ? window.ModerationBot.buildUserMessage(result) : "Typ eerst een reactie.");
+        return;
+      }
+
+      if (result.status === "blocked") {
+        alert(window.ModerationBot ? window.ModerationBot.buildUserMessage(result) : "Reactie is tegengehouden.");
+        return;
+      }
+
+      if (result.status === "review") {
+        const confirmed = confirm(
+          window.ModerationBot
+            ? window.ModerationBot.buildUserMessage(result)
+            : "Deze reactie is gemarkeerd voor handmatige check. Toch verzenden?"
+        );
+        if (!confirmed) return;
+      }
+
+      await fetchJson(`${API_BASE}/frontpage/${userId}/react`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUserId: activeUserId, text })
+      });
+
+      input.value = "";
+
+      if (result.status === "review") {
+        alert("Reactie is verzonden en gemarkeerd als twijfelgeval.");
+      } else {
+        alert("Reactie is verzonden.");
+      }
+
+      await refreshAll();
+    }
+
+    async function approveReaction(userId, reactionId) {
+      await fetchJson(`${API_BASE}/frontpage/${userId}/reactions/${reactionId}/approve`, { method: "POST" });
+      await refreshAll();
+    }
+
+    async function rejectReaction(userId, reactionId) {
+      await fetchJson(`${API_BASE}/frontpage/${userId}/reactions/${reactionId}/reject`, { method: "POST" });
+      await refreshAll();
+    }
+
+    async function blockReaction(userId, reactionId) {
+      await fetchJson(`${API_BASE}/frontpage/${userId}/reactions/${reactionId}/block`, { method: "POST" });
+      await refreshAll();
+    }
+
+    async function sendFriendRequest(targetUserId) {
+      if (targetUserId === activeUserId) return alert("Je kunt jezelf niet toevoegen.");
+      try {
+        await fetchJson(`${API_BASE}/friends/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requesterUserId: activeUserId, targetUserId })
+        });
+        alert("Vriendschapsverzoek verstuurd.");
+      } catch (error) {
+        alert(error.message);
+      }
+      await refreshAll();
+    }
+
+    async function uploadMediaFile(file) {
+      const statusEl = document.getElementById("uploadStatus");
+      const formData = new FormData();
+      formData.append("media", file);
+      formData.append("ownerUserId", activeUserId);
+      statusEl.textContent = "Uploaden...";
+
+      const response = await fetch(`${API_BASE}/upload-media`, { method: "POST", body: formData });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Upload mislukt.");
+      statusEl.textContent = `Upload klaar: ${data.originalName}`;
+      return data;
+    }
+
+    async function publishPost() {
+      const caption = document.getElementById("captionInput").value.trim();
+      const hashtagsInput = document.getElementById("hashtagsInput").value.trim();
+      const feedKind = document.getElementById("feedKindSelect").value;
+      const fileInput = document.getElementById("mediaFileInput");
+      const uploadStatus = document.getElementById("uploadStatus");
+      const hashtags = hashtagsInput ? hashtagsInput.split(",").map(tag => tag.trim()).filter(Boolean) : [];
+      let imageUrl = "";
+      let videoUrl = "";
+
+      try {
+        const file = fileInput.files[0];
+        if (file) {
+          const isImage = ["image/jpeg", "image/png", "image/webp"].includes(file.type);
+          const isVideo = ["video/mp4", "video/webm"].includes(file.type);
+          if (!isImage && !isVideo) throw new Error("Alleen jpg, jpeg, png, webp, mp4 en webm zijn toegestaan.");
+          if (isImage && file.size > 8 * 1024 * 1024) throw new Error("Afbeelding is te groot. Maximaal 8 MB.");
+          if (isVideo && file.size > 25 * 1024 * 1024) throw new Error("Video is te groot. Maximaal 25 MB.");
+          if (isVideo) uploadStatus.textContent = "Video gekozen. Doel: maximaal 1,5 minuut.";
+          const uploadResult = await uploadMediaFile(file);
+          if (uploadResult.postType === "image") imageUrl = uploadResult.url;
+          else if (uploadResult.postType === "video") videoUrl = uploadResult.url;
+        }
+
+        await fetchJson(`${API_BASE}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerUserId: activeUserId, caption, imageUrl, videoUrl, hashtags, feedKind })
+        });
+
+        document.getElementById("captionInput").value = "";
+        document.getElementById("hashtagsInput").value = "";
+        document.getElementById("feedKindSelect").value = "normal";
+        fileInput.value = "";
+        uploadStatus.textContent = "Upload foto of video. Beeld wordt als 4:3 getoond. Video-doel: maximaal 1,5 minuut.";
+        const composePanel = document.getElementById("composePanel");
+        if (composePanel) composePanel.classList.add("hidden");
+        await refreshAll();
+      } catch (error) {
+        uploadStatus.textContent = error.message;
+        alert(error.message);
+      }
+    }
+
+    function bindComposeInputListeners() {
+      const mediaInput = document.getElementById("mediaFileInput");
+      if (!mediaInput || mediaInput.dataset.bound === "true") return;
+      mediaInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        const uploadStatus = document.getElementById("uploadStatus");
+        if (!uploadStatus) return;
+        if (!file) {
+          uploadStatus.textContent = "Upload foto of video. Beeld wordt als 4:3 getoond. Video-doel: maximaal 1,5 minuut.";
+          return;
+        }
+        const isVideo = ["video/mp4", "video/webm"].includes(file.type);
+        const isImage = ["image/jpeg", "image/png", "image/webp"].includes(file.type);
+        if (isImage) uploadStatus.textContent = `Afbeelding gekozen: ${file.name}`;
+        else if (isVideo) uploadStatus.textContent = `Video gekozen: ${file.name}. Doel: maximaal 1,5 minuut.`;
+        else uploadStatus.textContent = "Ongeldig bestandstype.";
+      });
+      mediaInput.dataset.bound = "true";
+    }
+
+    function toggleCompose() {
+      if (screenMode !== "home") {
+        screenMode = "home";
+        updateModeUI();
+        renderOwnHomeScreen().then(() => {
+          const panel = document.getElementById("composePanel");
+          if (panel) panel.classList.remove("hidden");
+        });
+        return;
+      }
+
+      const panel = document.getElementById("composePanel");
+      if (panel) panel.classList.toggle("hidden");
+    }
+
+    // Scroll/wheel in split mode is intentionally bound only to the content panel.
+
+    async function startApp() {
+      try {
+        await loadUsers();
+
+        if (!activeUserId) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        await loadFeed();
+        await renderFeedStream();
+        updateModeUI();
+
+        if (screenMode === "home") {
+          await renderOwnHomeScreen();
+        }
+
+        if (feedItems.length && currentFocusedPostId == null) {
+          currentFocusedPostId = feedItems[0].id;
+          syncActiveLinkedContent();
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Kon de app niet laden. Controleer of server.js draait op poort 3001.");
+      }
+    }
+
+    startApp();
+  </script>
+</body>
+</html>

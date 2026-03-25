@@ -1,0 +1,306 @@
+{
+  "counters": {
+    "nextUserId": 4,
+    "nextPostId": 8,
+    "nextReactionId": 11,
+    "nextFriendRequestId": 1
+  },
+  "users": [
+    {
+      "id": "u1",
+      "displayName": "Johannes",
+      "handle": "@johannes",
+      "bio": "Bouwt aan een nieuw social concept waarin de homepage centraler is dan de feed.",
+      "avatarColor": "#dcc2ad",
+      "heroColor": "#f4e5d8",
+      "avatarUrl": "",
+      "backgroundUrl": "http://127.0.0.1:3001/uploads/1774389245446-WhatsApp_Image_2026-03-24_at_12.35.31.jpeg",
+      "homepageLikes": 14,
+      "blockedUsers": []
+    },
+    {
+      "id": "u2",
+      "displayName": "Emma",
+      "handle": "@emma",
+      "bio": "Visuele maker. Houdt van zachte layouts, beeld, sfeer en korte videoformats.",
+      "avatarColor": "#e7cfc4",
+      "heroColor": "#faeee7",
+      "avatarUrl": "",
+      "backgroundUrl": "",
+      "homepageLikes": 24,
+      "blockedUsers": []
+    },
+    {
+      "id": "u3",
+      "displayName": "Milan",
+      "handle": "@milan",
+      "bio": "Experimenteert met communities, reactiestructuren en sociale patronen.",
+      "avatarColor": "#d7c3b4",
+      "heroColor": "#efe2d7",
+      "avatarUrl": "",
+      "backgroundUrl": "",
+      "homepageLikes": 9,
+      "blockedUsers": []
+    },
+    {
+      "id": "u4",
+      "displayName": "pieter",
+      "handle": "@pieter",
+      "bio": "Nieuwe gebruiker op het prototype.",
+      "avatarColor": "#ddc6bc",
+      "heroColor": "#f6e7df",
+      "avatarUrl": "",
+      "backgroundUrl": "",
+      "homepageLikes": 0,
+      "blockedUsers": []
+    }
+  ],
+  "posts": [
+    {
+      "id": 1,
+      "ownerUserId": "u2",
+      "caption": "Nieuwe sfeerimpressie voor mijn pagina. De homepage moet echt voelen als mijn plek.",
+      "postType": "image",
+      "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+      "videoUrl": "",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "recommended",
+      "likes": 12,
+      "dislikes": [],
+      "hashtags": [
+        "#homepage",
+        "#visual",
+        "#creator"
+      ],
+      "createdAt": 1774377050194
+    },
+    {
+      "id": 2,
+      "ownerUserId": "u3",
+      "caption": "Tekstpost: reacties horen niet onder de post, maar op de homepage van de maker.",
+      "postType": "text",
+      "imageUrl": "",
+      "videoUrl": "",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "normal",
+      "likes": 6,
+      "dislikes": [],
+      "hashtags": [
+        "#concept",
+        "#social",
+        "#frontpage"
+      ],
+      "createdAt": 1774377060194
+    },
+    {
+      "id": 3,
+      "ownerUserId": "u1",
+      "caption": "Testbeeld voor de eigen homepage. Split screen blijft de kern van deze prototypefase.",
+      "postType": "image",
+      "imageUrl": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80",
+      "videoUrl": "",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "normal",
+      "likes": 7,
+      "dislikes": [],
+      "hashtags": [
+        "#prototype",
+        "#split",
+        "#design"
+      ],
+      "createdAt": 1774377070194
+    },
+    {
+      "id": 4,
+      "ownerUserId": "u2",
+      "caption": "Korte video’s mogen compact blijven. 90 seconden voelt voor nu als een goed maximum.",
+      "postType": "video",
+      "imageUrl": "",
+      "videoUrl": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "promoted",
+      "likes": 20,
+      "dislikes": [],
+      "hashtags": [
+        "#video",
+        "#format",
+        "#prototype"
+      ],
+      "createdAt": 1774377080194
+    },
+    {
+      "id": 5,
+      "ownerUserId": "u3",
+      "caption": "Als de homepage leeft, krijgt de feed meer context in plaats van alleen losse posts.",
+      "postType": "text",
+      "imageUrl": "",
+      "videoUrl": "",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "recommended",
+      "likes": 4,
+      "dislikes": [],
+      "hashtags": [
+        "#context",
+        "#community"
+      ],
+      "createdAt": 1774377090194
+    },
+    {
+      "id": 6,
+      "ownerUserId": "u1",
+      "caption": "Uploadtest komt nu dichterbij. Eerst lokaal opslaan, daarna later echte productie-opslag.",
+      "postType": "text",
+      "imageUrl": "",
+      "videoUrl": "",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "normal",
+      "likes": 5,
+      "dislikes": [],
+      "hashtags": [
+        "#upload",
+        "#local",
+        "#build"
+      ],
+      "createdAt": 1774377100194
+    },
+    {
+      "id": 7,
+      "ownerUserId": "u1",
+      "caption": "gckyhjkgjkgj",
+      "postType": "video",
+      "imageUrl": "",
+      "videoUrl": "http://127.0.0.1:3001/uploads/1774377359087-WhatsApp_Video_2026-03-24_at_12.21.33.mp4",
+      "mediaWidth": 4,
+      "mediaHeight": 3,
+      "feedKind": "normal",
+      "likes": 9,
+      "dislikes": [],
+      "hashtags": [],
+      "createdAt": 1774377359166
+    }
+  ],
+  "acceptedReactions": [
+    {
+      "id": 1,
+      "targetUserId": "u2",
+      "fromUserId": "u1",
+      "text": "Je homepage voelt meteen persoonlijker dan een gewone profielpagina.",
+      "createdAt": 1774377110194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 2,
+      "targetUserId": "u1",
+      "fromUserId": "u2",
+      "text": "Je split screen idee maakt de relatie tussen maker en content veel duidelijker.",
+      "createdAt": 1774377115194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 3,
+      "targetUserId": "u3",
+      "fromUserId": "u2",
+      "text": "Sterk punt dat reacties naar de homepage gaan in plaats van onder elk item.",
+      "createdAt": 1774377120194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 7,
+      "targetUserId": "u1",
+      "fromUserId": "u1",
+      "text": "xvbcvbcbcb",
+      "createdAt": 1774377458698,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 5,
+      "targetUserId": "u1",
+      "fromUserId": "u2",
+      "text": "Upload met vaste 4:3 zou deze flow veel consistenter maken.",
+      "createdAt": 1774377130194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 4,
+      "targetUserId": "u1",
+      "fromUserId": "u3",
+      "text": "Zullen we later ook thema-achtergronden per gebruiker testen?",
+      "createdAt": 1774377125194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    },
+    {
+      "id": 6,
+      "targetUserId": "u2",
+      "fromUserId": "u1",
+      "text": "Je pagina werkt goed als maker-homepage naast je feed.",
+      "createdAt": 1774377135194,
+      "botStatus": "approved",
+      "matchedTriggers": [],
+      "reason": "",
+      "releaseAt": null,
+      "publishedAt": null
+    }
+  ],
+  "pendingReactions": [
+    {
+      "id": 8,
+      "targetUserId": "u3",
+      "fromUserId": "u1",
+      "text": "hoihoi",
+      "createdAt": 1774465375127
+    },
+    {
+      "id": 9,
+      "targetUserId": "u3",
+      "fromUserId": "u1",
+      "text": "slet",
+      "createdAt": 1774465416364
+    },
+    {
+      "id": 10,
+      "targetUserId": "u2",
+      "fromUserId": "u1",
+      "text": "kut",
+      "createdAt": 1774466864503
+    }
+  ],
+  "friendRequests": [],
+  "friendships": [
+    {
+      "userA": "u1",
+      "userB": "u2",
+      "status": "accepted",
+      "createdAt": 1774463523887
+    }
+  ]
+}
