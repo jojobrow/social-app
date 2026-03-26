@@ -467,6 +467,18 @@ function getFriendCount(userId) {
   ).length;
 }
 
+function getAcceptedFriendshipsForUser(userId) {
+  return db.friendships.filter(
+    (item) => item.status === "accepted" && (item.userA === userId || item.userB === userId)
+  );
+}
+
+function getFriendIds(userId) {
+  return getAcceptedFriendshipsForUser(userId).map((item) =>
+    item.userA === userId ? item.userB : item.userA
+  );
+}
+
 function ensureMockData() {
   function ensureMockPassword(user) {
     const id = String(user?.id || "");
