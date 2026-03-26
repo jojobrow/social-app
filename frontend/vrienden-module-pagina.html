@@ -1,0 +1,204 @@
+<script>
+  const API_BASE = window.location.origin;
+  const ACTIVE_USER_KEY = "socialPrototypeActiveUserId";
+  const MAIN_APP_FILE = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+
+  let activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
+  let friendSearchResults = [];
+  let incomingFriendRequests = [];
+  let outgoingFriendRequests = [];
+  let friendsList = [];
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function initials(name) {
+    return String(name || "U").trim().charAt(0).toUpperCase() || "U";
+  }
+
+  async function fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || "Request mislukt.");
+    return data;
+  }
+
+  function goBack() {
+    window.location.href = MAIN_APP_FILE;
+  }
+
+  async function loadFriendsData() {
+    if (!activeUserId) return;
+
+    const [listResult, requestsResult] = await Promise.all([
+      fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(activeUserId)}`),
+      fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(activeUserId)}`)
+    ]);
+
+    friendsList = Array.isArray(listResult.items) ? listResult.items : [];
+    incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
+    outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
+  }
+
+  async function searchFriends() {
+    if (!activeUserId) return;
+
+    const query = document.getElementById("friendSearchInput").value.trim();
+    const result = await fetchJson(
+      `${API_BASE}/friends/search?userId=${encodeURIComponent(activeUserId)}&q=${encodeURIComponent(query)}`
+    );
+
+    friendSearchResults = Array.isArray(result.items) ? result.items : [];
+    renderSearchResults();
+  }
+
+  async function sendFriendRequest(targetUserId) {
+    await fetchJson(`${API_BASE}/friends/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requesterUserId: activeUserId,
+        targetUserId
+      })
+    });
+
+    await refreshAll();
+  }
+
+  async function acceptFriendRequest(requesterUserId) {
+    await fetchJson(`${API_BASE}/friends/accept`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requesterUserId,
+        targetUserId: activeUserId
+      })
+    });
+
+    await refreshAll();
+  }
+
+  async function removeFriend(friendUserId) {
+    if (!confirm("Weet je zeker dat je deze vriend wilt verwijderen?")) return;
+
+    await fetchJson(`${API_BASE}/friends/remove`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userA: activeUserId,
+        userB: friendUserId
+      })
+    });
+
+    await refreshAll();
+  }
+
+  function renderPersonCard(user, actionHtml, extra = "") {
+    return `
+      <div class="item">
+        <div class="itemTop">
+          <div class="person">
+            <div class="avatar">${escapeHtml(initials(user.displayName))}</div>
+            <div>
+              <div class="name">${escapeHtml(user.displayName || "Gebruiker")}</div>
+              <div class="handle">${escapeHtml(user.handle || "")}</div>
+            </div>
+          </div>
+          <div class="actions">${actionHtml}</div>
+        </div>
+        ${extra ? `<div class="mini" style="margin-top:8px">${extra}</div>` : ""}
+        <div class="bio">${escapeHtml(user.bio || "")}</div>
+      </div>
+    `;
+  }
+
+  function renderSearchResults() {
+    const el = document.getElementById("searchResults");
+
+    if (!friendSearchResults.length) {
+      el.innerHTML = `<div class="empty">Nog geen zoekresultaten. Zoek op naam of @handle.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div class="list">
+        ${friendSearchResults.map((user) => {
+          const actionHtml =
+            user.friendshipStatus === "accepted"
+              ? `<button class="ghostBtn" onclick="removeFriend('${user.id}')">Verwijder</button>`
+              : user.friendshipStatus === "pending"
+              ? `<button class="ghostBtn" disabled>Pending</button>`
+              : `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Toevoegen</button>`;
+
+          return renderPersonCard(user, actionHtml);
+        }).join("")}
+      </div>
+    `;
+  }
+
+  function renderIncomingRequests() {
+    const el = document.getElementById("incomingRequests");
+
+    if (!incomingFriendRequests.length) {
+      el.innerHTML = `<div class="empty">Nog geen inkomende vriendschapsverzoeken.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div class="list">
+        ${incomingFriendRequests.map((request) =>
+          renderPersonCard(
+            request.requester || {},
+            `<button class="solidBtn" onclick="acceptFriendRequest('${request.requesterUserId}')">Accepteren</button>`
+          )
+        ).join("")}
+      </div>
+    `;
+  }
+
+  function renderFriendsList() {
+    const el = document.getElementById("friendsList");
+
+    if (!friendsList.length) {
+      el.innerHTML = `<div class="empty">Nog geen vrienden toegevoegd.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div class="list">
+        ${friendsList.map((friend) =>
+          renderPersonCard(
+            friend,
+            `<button class="ghostBtn" onclick="removeFriend('${friend.id}')">Verwijder</button>`
+          )
+        ).join("")}
+      </div>
+    `;
+  }
+
+  async function refreshAll() {
+    if (!activeUserId) {
+      document.getElementById("searchResults").innerHTML =
+        `<div class="empty">Geen actieve gebruiker gevonden. Log eerst in.</div>`;
+      document.getElementById("incomingRequests").innerHTML = "";
+      document.getElementById("friendsList").innerHTML = "";
+      return;
+    }
+
+    await loadFriendsData();
+    renderSearchResults();
+    renderIncomingRequests();
+    renderFriendsList();
+  }
+
+  refreshAll().catch((error) => {
+    document.getElementById("searchResults").innerHTML =
+      `<div class="empty">${escapeHtml(error.message || "Kon vriendenmodule niet laden.")}</div>`;
+  });
+</script>

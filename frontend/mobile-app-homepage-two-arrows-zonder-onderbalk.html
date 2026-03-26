@@ -886,6 +886,10 @@
       });
     }
 
+    function openFriendsModule() {
+      window.location.href = "vrienden-module-pagina.html";
+    }
+
     function switchAccount() {
       localStorage.removeItem(LOGIN_STORAGE_KEY);
       localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
@@ -1514,6 +1518,7 @@
               <div class="buttonGroup">
                 <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
                 <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                <button class="ghostBtn" onclick="openFriendsModule()">Vrienden</button>
                 <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
               </div>
             </div>
