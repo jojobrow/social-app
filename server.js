@@ -467,18 +467,6 @@ function getFriendCount(userId) {
   ).length;
 }
 
-function getAcceptedFriendshipsForUser(userId) {
-  return db.friendships.filter(
-    (item) => item.status === "accepted" && (item.userA === userId || item.userB === userId)
-  );
-}
-
-function getFriendIds(userId) {
-  return getAcceptedFriendshipsForUser(userId).map((item) =>
-    item.userA === userId ? item.userB : item.userA
-  );
-}
-
 function ensureMockData() {
   function ensureMockPassword(user) {
     const id = String(user?.id || "");
@@ -1065,8 +1053,7 @@ app.get("/friends/list", (req, res) => {
     return res.status(404).json({ message: "Gebruiker niet gevonden." });
   }
 
-  const friendIds = getFriendIds(userId);
-  const items = friendIds
+  const items = getFriendIds(userId)
     .map((id) => toSafeUser(findUser(id)))
     .filter(Boolean)
     .sort((a, b) => String(a.displayName || "").localeCompare(String(b.displayName || ""), "nl"));
