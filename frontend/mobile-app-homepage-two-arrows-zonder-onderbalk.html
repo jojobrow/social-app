@@ -801,6 +801,12 @@
       overflow: hidden;
     }
 
+    #homeScreen .screenScroll {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .chip,
     .statCard,
     .menuBtn,
@@ -1064,10 +1070,6 @@
       transform: translateY(-50%) scale(0.98);
     }
 
-    .hiddenInline {
-      display: none !important;
-    }
-
     .feedViewportMobile {
       position: relative;
       height: 100%;
@@ -1255,7 +1257,7 @@
             <div class="title" id="homeScreenTitle">Jouw voorpagina</div>
           </div>
           <div class="topbarActions">
-            <button class="iconBtn hiddenInline" id="homeReturnToFeedBtn" onclick="returnToFeedFromOwnHome()">→ Feed</button>
+            <button class="iconBtn" id="homeBackToFeedBtn" onclick="returnToFeedFromOwnHome()" style="display:none;">→ Feed</button>
             <button class="iconBtn" onclick="refreshAll()">Vernieuw</button>
           </div>
         </div>
@@ -1331,9 +1333,9 @@
     let homepageSourceUserId = "";
     let homepageReturnScopeUserId = "";
     let homepageReturnFeedIndex = 0;
+    let ownHomeOpenedFromFeed = false;
     let homepageMode = "full";
     let drawerOpen = false;
-    let ownHomeReturnToFeedVisible = false;
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1370,12 +1372,11 @@
       return "linear-gradient(135deg, rgba(248,236,227,0.86), rgba(255,245,238,0.78))";
     }
 
-    function syncOwnHomeReturnButton() {
-      const button = document.getElementById("homeReturnToFeedBtn");
-      if (!button) return;
-      button.classList.toggle("hiddenInline", !ownHomeReturnToFeedVisible);
+    function updateOwnHomeTopbar() {
+      const btn = document.getElementById("homeBackToFeedBtn");
+      if (!btn) return;
+      btn.style.display = ownHomeOpenedFromFeed ? "inline-flex" : "none";
     }
-
 
     function setActiveScreen(screenId) {
       activeScreen = screenId;
@@ -1396,7 +1397,7 @@
 
       closeDrawer();
       pauseAllVideos();
-      syncOwnHomeReturnButton();
+      updateOwnHomeTopbar();
     }
 
     function pauseAllVideos() {
@@ -1663,7 +1664,9 @@
 
       bindComposeInputListeners();
       syncFrontpageMenuUi();
-      setStatus("Je landt mobiel eerst op je eigen voorpagina. In de feed brengt de pijl links je terug naar je eigen homepage en de pijl rechts opent de homepage van de maker. Vanaf je eigen homepage ga je met de knop rechts terug naar de feed.");
+      updateOwnHomeTopbar();
+      bindHomepageGestures("homeScreen");
+      setStatus("Je landt mobiel eerst op je eigen voorpagina. In de feed brengt de pijl links je terug naar je eigen homepage en de pijl rechts opent de homepage van de maker. Swipe je op een homepage omhoog of omlaag, dan gaat de gewone feed weer verder.");
     }
 
     async function renderCreatorScreen(userId) {
@@ -1773,59 +1776,59 @@
       setActiveScreen("content");
     }
 
-    function openOwnHome(fromFeed = false) {
+    function openOwnHome() {
       currentViewedFrontpageUserId = activeUserId;
       homepageEntryDirection = 0;
       homepageSourceUserId = activeUserId;
-      homepageReturnScopeUserId = fromFeed ? (currentFeedScopeUserId || "") : "";
+      homepageReturnScopeUserId = "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "full";
-      ownHomeReturnToFeedVisible = fromFeed;
+      ownHomeOpenedFromFeed = false;
       setActiveScreen("home");
     }
 
     function goHomeFromFeedButton() {
-      openOwnHome(true);
+      currentViewedFrontpageUserId = activeUserId;
+      homepageEntryDirection = 0;
+      homepageSourceUserId = activeUserId;
+      homepageReturnScopeUserId = "";
+      homepageReturnFeedIndex = currentFeedIndex;
+      homepageMode = "full";
+      ownHomeOpenedFromFeed = true;
+      setActiveScreen("home");
     }
 
     async function returnToFeedFromOwnHome() {
-      ownHomeReturnToFeedVisible = false;
-      currentFeedScopeUserId = homepageReturnScopeUserId || "";
-
-      let visibleItems = currentFeedScopeUserId
-        ? feedItems.filter(item => item.owner?.id === currentFeedScopeUserId)
-        : feedItems;
-      if (!visibleItems.length) visibleItems = feedItems;
-      currentFeedIndex = Math.max(0, Math.min(homepageReturnFeedIndex, Math.max(visibleItems.length - 1, 0)));
-
-      await renderFeedScreen();
-      setActiveScreen("feed");
+      if (!ownHomeOpenedFromFeed) return;
+      await openFeedFromHomepage(0);
+      ownHomeOpenedFromFeed = false;
+      updateOwnHomeTopbar();
     }
 
     async function openFeed() {
+      ownHomeOpenedFromFeed = false;
       currentFeedScopeUserId = "";
       lastFeedDirection = 0;
       homepageMode = "full";
-      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
     }
 
     async function openFeedFromUser(userId) {
+      ownHomeOpenedFromFeed = false;
       currentFeedScopeUserId = userId || "";
       currentFeedIndex = 0;
       lastFeedDirection = 0;
       homepageMode = "full";
-      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
     }
 
     async function openFeedAtPost(postId, scopeUserId = "") {
+      ownHomeOpenedFromFeed = false;
       currentFeedScopeUserId = scopeUserId || "";
       lastFeedDirection = 0;
       homepageMode = "full";
-      ownHomeReturnToFeedVisible = false;
       const visibleItems = currentFeedScopeUserId ? feedItems.filter(item => item.owner?.id === currentFeedScopeUserId) : feedItems;
       const index = visibleItems.findIndex(item => item.id === postId);
       currentFeedIndex = index >= 0 ? index : 0;
@@ -1862,6 +1865,7 @@
     }
 
     async function openFeedFromHomepage(direction) {
+      ownHomeOpenedFromFeed = false;
       currentFeedScopeUserId = homepageReturnScopeUserId || "";
       if (!feedItems.length) {
         await openFeed();
@@ -1875,7 +1879,6 @@
       if (!visibleItems.length) visibleItems = feedItems;
 
       currentFeedIndex = Math.max(0, Math.min(homepageReturnFeedIndex, visibleItems.length - 1));
-      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
       await scrollFeed(direction);
@@ -1884,7 +1887,6 @@
     async function openOwnerStreamFromHomepage(ownerId, direction) {
       currentFeedScopeUserId = ownerId || "";
       currentFeedIndex = 0;
-      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
       if (direction) await scrollFeed(direction);
@@ -1965,7 +1967,6 @@
       homepageReturnScopeUserId = currentFeedScopeUserId || "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "simple";
-      ownHomeReturnToFeedVisible = false;
       await renderCreatorScreen(userId);
     }
 
@@ -1976,7 +1977,6 @@
       homepageReturnScopeUserId = currentFeedScopeUserId || "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "full";
-      ownHomeReturnToFeedVisible = false;
       await renderCreatorScreen(userId);
     }
 
