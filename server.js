@@ -57,6 +57,54 @@ function getBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
 
+function pickPalette(index) {
+  const palettes = [
+    { avatarColor: "#dcc2ad", heroColor: "#f4e5d8" },
+    { avatarColor: "#e7cfc4", heroColor: "#faeee7" },
+    { avatarColor: "#d7c3b4", heroColor: "#efe2d7" },
+    { avatarColor: "#d9c7b8", heroColor: "#f5ebe2" },
+    { avatarColor: "#cfb39e", heroColor: "#f0dfd1" }
+  ];
+  return palettes[index % palettes.length];
+}
+
+function buildUniqueHandle(displayName, users) {
+  const base =
+    String(displayName || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 16) || "user";
+
+  let candidate = `@${base}`;
+  let suffix = 1;
+
+  while (users.some((user) => String(user.handle || "").toLowerCase() === candidate.toLowerCase())) {
+    suffix += 1;
+    candidate = `@${base}${suffix}`;
+  }
+
+  return candidate;
+}
+
+function hashPassword(password, salt) {
+  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
+}
+
+function createPasswordFields(password) {
+  const safePassword = String(password || "");
+  const salt = crypto.randomBytes(16).toString("hex");
+  return {
+    passwordSalt: salt,
+    passwordHash: hashPassword(safePassword, salt)
+  };
+}
+
+function verifyPassword(user, password) {
+  if (!user?.passwordSalt || !user?.passwordHash) return false;
+  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
+}
+
 function createInitialData() {
   return {
     counters: {
@@ -76,8 +124,7 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 14,
-        blockedUsers: []
-      ,
+        blockedUsers: [],
         passwordSalt: "seed-johannes-salt",
         passwordHash: "5eae07ccf419e24015a4d0492386b1c262b11f29ed029596e1be9f80e295cef2"
       },
@@ -330,40 +377,62 @@ function saveDb() {
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), "utf8");
 }
 
-function hashPassword(password, salt) {
-  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
-}
-
-function createPasswordFields(password) {
-  const safePassword = String(password || "");
-  const salt = crypto.randomBytes(16).toString("hex");
-  return {
-    passwordSalt: salt,
-    passwordHash: hashPassword(safePassword, salt)
-  };
-}
-
-function verifyPassword(user, password) {
-  if (!user?.passwordSalt || !user?.passwordHash) return false;
-  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
-}
-
 function findUser(userId) {
   return db.users.find((user) => user.id === userId);
+}
+
+function toSafeUser(user) {
+  if (!user) return null;
+  const { passwordHash, passwordSalt, ...safeUser } = user;
+  return safeUser;
+}
+
+function findUserByDisplayName(displayName) {
+  const value = String(displayName || "").trim().toLowerCase();
+  return db.users.find(
+    (user) =>
+      String(user.displayName || "").trim().toLowerCase() === value ||
+      String(user.handle || "").replace(/^@/, "").trim().toLowerCase() === value
+  );
+}
+
+function createUserFromName(displayName, password) {
+  const trimmedName = String(displayName || "").trim();
+  const palette = pickPalette(db.users.length);
+  const auth = createPasswordFields(password);
+
+  const newUser = {
+    id: `u${db.counters.nextUserId++}`,
+    displayName: trimmedName,
+    handle: buildUniqueHandle(trimmedName, db.users),
+    bio: "Nieuwe gebruiker op het prototype.",
+    avatarColor: palette.avatarColor,
+    heroColor: palette.heroColor,
+    avatarUrl: "",
+    backgroundUrl: "",
+    homepageLikes: 0,
+    blockedUsers: [],
+    passwordSalt: auth.passwordSalt,
+    passwordHash: auth.passwordHash
+  };
+
+  db.users.push(newUser);
+  saveDb();
+  return newUser;
 }
 
 function mapReactionForClient(reaction) {
   return {
     ...reaction,
-    fromUser: findUser(reaction.fromUserId) || null,
-    targetUser: findUser(reaction.targetUserId) || null
+    fromUser: toSafeUser(findUser(reaction.fromUserId)),
+    targetUser: toSafeUser(findUser(reaction.targetUserId))
   };
 }
 
 function mapPostForClient(post) {
   return {
     ...post,
-    owner: findUser(post.ownerUserId) || null
+    owner: toSafeUser(findUser(post.ownerUserId))
   };
 }
 
@@ -398,6 +467,156 @@ function getFriendCount(userId) {
   ).length;
 }
 
+function getAcceptedFriendshipsForUser(userId) {
+  return db.friendships.filter(
+    (item) => item.status === "accepted" && (item.userA === userId || item.userB === userId)
+  );
+}
+
+function getFriendIds(userId) {
+  return getAcceptedFriendshipsForUser(userId).map((item) =>
+    item.userA === userId ? item.userB : item.userA
+  );
+}
+
+function ensureMockData() {
+  function ensureMockPassword(user) {
+    const id = String(user?.id || "");
+    const isMockUser = /^u10\d$/.test(id) || /^u11\d$/.test(id);
+    if (isMockUser && (!user.passwordSalt || !user.passwordHash)) {
+      user.passwordSalt = "seed-mock-salt";
+      user.passwordHash = hashPassword("1234", "seed-mock-salt");
+      return true;
+    }
+    return false;
+  }
+
+  const mockUsers = [
+    { id: "u100", displayName: "Noor", handle: "@noor", bio: "Fotografie, zachte tinten en kleine observaties.", avatarColor: "#d7bea6", heroColor: "#f2e4d7", homepageLikes: 17 },
+    { id: "u101", displayName: "Levi", handle: "@levi", bio: "Korte video’s, montage en ritme.", avatarColor: "#d7c8bb", heroColor: "#f0e6dd", homepageLikes: 11 },
+    { id: "u102", displayName: "Sara", handle: "@sara", bio: "Tekst, sfeer en publieke notities.", avatarColor: "#d6b9a7", heroColor: "#f3e0d6", homepageLikes: 24 },
+    { id: "u103", displayName: "Ruben", handle: "@ruben", bio: "Maakt visuele dagboeken en experimenten.", avatarColor: "#cdb39d", heroColor: "#ebdacd", homepageLikes: 7 },
+    { id: "u104", displayName: "Yara", handle: "@yara", bio: "Lichte layouts, modebeelden en detailshots.", avatarColor: "#e3cdbd", heroColor: "#f7ece3", homepageLikes: 28 },
+    { id: "u105", displayName: "Daan", handle: "@daan", bio: "Ziet community meer als ruimte dan als feed.", avatarColor: "#c7b09d", heroColor: "#e9ddd4", homepageLikes: 9 },
+    { id: "u106", displayName: "Lotte", handle: "@lotte", bio: "Korte captions, rustige beelden, zachte video.", avatarColor: "#dcc9bb", heroColor: "#f6ece5", homepageLikes: 19 },
+    { id: "u107", displayName: "Sam", handle: "@sam", bio: "Test nieuwe formats voor makers en vrienden.", avatarColor: "#cdbdac", heroColor: "#f0e7df", homepageLikes: 13 },
+    { id: "u108", displayName: "Tess", handle: "@tess", bio: "Portretten, achtergronden en homepage-sfeer.", avatarColor: "#dec9b8", heroColor: "#f6e7dc", homepageLikes: 22 },
+    { id: "u109", displayName: "Mats", handle: "@mats", bio: "Bouwt aan ritme in feeds zonder chaos.", avatarColor: "#ccb49f", heroColor: "#ebddd2", homepageLikes: 6 },
+    { id: "u110", displayName: "Nina", handle: "@nina", bio: "Kleine essays in captionvorm.", avatarColor: "#dcc6b5", heroColor: "#f5e8de", homepageLikes: 27 },
+    { id: "u111", displayName: "Bram", handle: "@bram", bio: "Vriendschap eerst, algoritme later.", avatarColor: "#c8af99", heroColor: "#eadbd0", homepageLikes: 8 },
+    { id: "u112", displayName: "Zoë", handle: "@zoe", bio: "Publieke reacties horen bij de maker, niet bij de losse post.", avatarColor: "#e1cec1", heroColor: "#f9eee7", homepageLikes: 31 },
+    { id: "u113", displayName: "Jules", handle: "@jules", bio: "Werkt met text-only kaarten en kleurvlakken.", avatarColor: "#d2bdad", heroColor: "#f0e1d6", homepageLikes: 12 },
+    { id: "u114", displayName: "Isa", handle: "@isa", bio: "Mengt video en tekst in rustige series.", avatarColor: "#dbc7b8", heroColor: "#f4e8df", homepageLikes: 16 },
+    { id: "u115", displayName: "Floris", handle: "@floris", bio: "Nuchtere notities over hoe socials anders kunnen.", avatarColor: "#cab39e", heroColor: "#ebddd1", homepageLikes: 10 },
+    { id: "u116", displayName: "Lina", handle: "@lina", bio: "Verzamelt zachte beelden uit alledaagse momenten.", avatarColor: "#e4d1c4", heroColor: "#fbf1ea", homepageLikes: 26 },
+    { id: "u117", displayName: "Mika", handle: "@mika", bio: "Wil dat makers weer als mensen voelen.", avatarColor: "#cfbaa8", heroColor: "#efe1d7", homepageLikes: 14 },
+    { id: "u118", displayName: "Fien", handle: "@fien", bio: "Combineert screenshots, quotes en stille video.", avatarColor: "#d8c3b2", heroColor: "#f3e6dc", homepageLikes: 18 },
+    { id: "u119", displayName: "Olivier", handle: "@olivier", bio: "Bouwt aan social flows met minder verslavend gedrag.", avatarColor: "#cdb4a3", heroColor: "#ecddd1", homepageLikes: 15 }
+  ];
+
+  const imagePool = [
+    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1200&q=80"
+  ];
+
+  const textCaptions = [
+    "Mijn homepage voelt meer als een kamer dan als een profiel.",
+    "De feed is handig, maar de maker moet voelbaar centraal blijven.",
+    "Publieke reacties horen hier op de voorpagina van de maker.",
+    "Ik wil dat vrienden eerst voelen wie iemand is, pas daarna wat iemand post.",
+    "Niet elke post hoeft een los eiland te zijn.",
+    "Een zachte feed voelt minder agressief dan eindeloos losse prikkels.",
+    "Als je de maker vindt, krijgt de content meer betekenis.",
+    "Social hoeft niet altijd lawaaierig te zijn."
+  ];
+
+  const hashtagsPool = [
+    ["#homepage", "#maker", "#concept"],
+    ["#creator", "#feed", "#social"],
+    ["#frontpage", "#friends", "#context"],
+    ["#video", "#image", "#text"],
+    ["#community", "#prototype", "#maker"],
+    ["#design", "#homepage", "#social"]
+  ];
+
+  let changed = false;
+
+  mockUsers.forEach((mock, index) => {
+    const existingUser = db.users.find((user) => user.id === mock.id);
+    if (existingUser) {
+      if (ensureMockPassword(existingUser)) changed = true;
+    }
+
+    if (!existingUser) {
+      db.users.push({
+        id: mock.id,
+        displayName: mock.displayName,
+        handle: mock.handle,
+        bio: mock.bio,
+        avatarColor: mock.avatarColor,
+        heroColor: mock.heroColor,
+        avatarUrl: "",
+        backgroundUrl: "",
+        homepageLikes: mock.homepageLikes,
+        blockedUsers: [],
+        passwordSalt: "seed-mock-salt",
+        passwordHash: hashPassword("1234", "seed-mock-salt")
+      });
+      changed = true;
+    }
+
+    const hasMockPosts = db.posts.some((post) => post.ownerUserId === mock.id);
+    if (!hasMockPosts) {
+      const baseCreatedAt = Date.now() - ((index + 10) * 55000);
+      const imageUrl = imagePool[index % imagePool.length];
+      const hashtags = hashtagsPool[index % hashtagsPool.length];
+      const feedKind = index % 5 === 0 ? "recommended" : index % 7 === 0 ? "promoted" : "normal";
+
+      db.posts.push({
+        id: db.counters.nextPostId++,
+        ownerUserId: mock.id,
+        caption: textCaptions[index % textCaptions.length],
+        postType: "image",
+        imageUrl,
+        videoUrl: "",
+        mediaWidth: 4,
+        mediaHeight: 3,
+        feedKind,
+        likes: 3 + (index % 12),
+        dislikes: [],
+        hashtags,
+        createdAt: baseCreatedAt
+      });
+
+      db.posts.push({
+        id: db.counters.nextPostId++,
+        ownerUserId: mock.id,
+        caption: `${mock.displayName} deelt een tweede moment vanuit dezelfde makerswereld.`,
+        postType: index % 4 === 0 ? "video" : "text",
+        imageUrl: "",
+        videoUrl: index % 4 === 0 ? "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" : "",
+        mediaWidth: 4,
+        mediaHeight: 3,
+        feedKind: "normal",
+        likes: 1 + (index % 8),
+        dislikes: [],
+        hashtags: ["#maker", "#flow", "#frontpage"],
+        createdAt: baseCreatedAt - 17000
+      });
+
+      changed = true;
+    }
+  });
+
+  if (changed) saveDb();
+}
+
+ensureMockData();
+
 function sortFeedPosts(posts) {
   const feedWeight = {
     promoted: 3,
@@ -417,9 +636,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/users", (_req, res) => {
-  res.json(
-    db.users.map(({ passwordHash, passwordSalt, ...safeUser }) => safeUser)
-  );
+  res.json(db.users.map(toSafeUser));
 });
 
 app.post("/auth/name-login", (req, res) => {
@@ -454,13 +671,65 @@ app.post("/auth/name-login", (req, res) => {
     }
   }
 
-  const { passwordHash, passwordSalt, ...safeUser } = user;
   res.json({
     success: true,
     created,
     remember,
-    user: safeUser
+    user: toSafeUser(user)
   });
+});
+
+app.patch("/users/:userId/profile", (req, res) => {
+  const user = findUser(req.params.userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "Gebruiker niet gevonden." });
+  }
+
+  if (req.body?.displayName !== undefined) {
+    const nextDisplayName = String(req.body.displayName || "").trim();
+    if (!nextDisplayName) {
+      return res.status(400).json({ message: "Naam mag niet leeg zijn." });
+    }
+    user.displayName = nextDisplayName;
+  }
+
+  if (req.body?.handle !== undefined) {
+    const nextHandleRaw = String(req.body.handle || "").trim();
+    if (!nextHandleRaw) {
+      return res.status(400).json({ message: "Handle mag niet leeg zijn." });
+    }
+
+    const nextHandle = nextHandleRaw.startsWith("@") ? nextHandleRaw : `@${nextHandleRaw}`;
+    const conflict = db.users.find(
+      (item) =>
+        item.id !== user.id &&
+        String(item.handle || "").toLowerCase() === nextHandle.toLowerCase()
+    );
+
+    if (conflict) {
+      return res.status(400).json({ message: "Deze handle bestaat al." });
+    }
+
+    user.handle = nextHandle;
+  }
+
+  if (req.body?.bio !== undefined) {
+    user.bio = String(req.body.bio || "").trim();
+  }
+
+  if (req.body?.password !== undefined) {
+    const nextPassword = String(req.body.password || "");
+    if (nextPassword.length < 1) {
+      return res.status(400).json({ message: "Wachtwoord moet minimaal 1 teken hebben." });
+    }
+    const auth = createPasswordFields(nextPassword);
+    user.passwordSalt = auth.passwordSalt;
+    user.passwordHash = auth.passwordHash;
+  }
+
+  saveDb();
+  res.json({ success: true, user: toSafeUser(user) });
 });
 
 app.post("/users/:userId/profile-media", upload.fields([
@@ -485,8 +754,7 @@ app.post("/users/:userId/profile-media", upload.fields([
   }
 
   saveDb();
-  const { passwordHash, passwordSalt, ...safeUser } = user;
-  res.json({ success: true, user: safeUser });
+  res.json({ success: true, user: toSafeUser(user) });
 });
 
 app.get("/feed", (req, res) => {
@@ -526,7 +794,7 @@ app.get("/frontpage/:userId", (req, res) => {
     .map(mapReactionForClient);
 
   res.json({
-    user,
+    user: toSafeUser(user),
     friendshipStatus: getFriendshipStatus(viewerUserId, targetUserId),
     stats: {
       posts: userPosts.length,
