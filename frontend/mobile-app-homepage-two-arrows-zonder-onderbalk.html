@@ -6,28 +6,28 @@
   <title>Social Prototype Mobile</title>
   <style>
     :root {
-      --bg: #f7f0e8;
-      --bg-2: #f2e8de;
-      --bg-3: #ebdfd2;
-      --panel: rgba(255, 251, 246, 0.78);
-      --panel-2: rgba(255, 252, 248, 0.88);
-      --panel-3: rgba(250, 243, 236, 0.94);
-      --glass: rgba(255,255,255,0.42);
-      --line: rgba(164, 133, 108, 0.14);
-      --line-strong: rgba(164, 133, 108, 0.22);
-      --text: #45352b;
-      --text-soft: #7a6657;
-      --text-dim: #9b8574;
-      --accent: #b8926d;
-      --accent-2: #f3e5d2;
-      --accent-3: #a57b59;
-      --accent-deep: #876246;
-      --ok: #5f9878;
-      --danger: #bf6d6d;
-      --shadow: 0 18px 42px rgba(132, 104, 80, 0.14);
-      --shadow-soft: 0 10px 24px rgba(132, 104, 80, 0.10);
-      --radius: 22px;
-      --radius-sm: 16px;
+      --bg: #09070f;
+      --bg-2: #120f19;
+      --bg-3: #19141f;
+      --panel: rgba(20, 17, 25, 0.84);
+      --panel-2: rgba(28, 24, 35, 0.92);
+      --panel-3: rgba(36, 30, 43, 0.96);
+      --glass: rgba(255,255,255,0.07);
+      --line: rgba(255,255,255,0.10);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #f7f3ef;
+      --text-soft: #d8d0c6;
+      --text-dim: #a99f95;
+      --accent: #c8a97e;
+      --accent-2: #f1dfc8;
+      --accent-3: #8e6c4f;
+      --accent-deep: #6f543e;
+      --ok: #94d4b7;
+      --danger: #f0a9a9;
+      --shadow: 0 24px 60px rgba(0,0,0,0.36);
+      --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
+      --radius: 26px;
+      --radius-sm: 18px;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -38,9 +38,9 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.14), transparent 26%),
-        radial-gradient(circle at 82% 14%, rgba(255,255,255,0.52), transparent 24%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
+        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
+        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -66,8 +66,8 @@
       margin: 0 auto;
       position: relative;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.30), rgba(250,243,236,0.54)),
-        radial-gradient(circle at top, rgba(255,255,255,0.52), transparent 34%);
+        linear-gradient(180deg, rgba(8,7,11,0.58), rgba(18,15,25,0.58)),
+        radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 34%);
       backdrop-filter: blur(20px);
     }
 
@@ -81,12 +81,12 @@
     }
 
     .page {
-      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 22px);
+      padding: calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 28px);
     }
 
     .stack {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .card {
@@ -94,7 +94,7 @@
       overflow: hidden;
       border-radius: var(--radius);
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.34)),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
         linear-gradient(180deg, var(--panel-2), var(--panel));
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
@@ -106,15 +106,15 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.18), transparent 26%);
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
+        radial-gradient(circle at top right, rgba(241,223,200,0.05), transparent 26%);
       pointer-events: none;
     }
 
     .cardBody {
       position: relative;
       z-index: 1;
-      padding: 14px;
+      padding: 16px;
     }
 
     .topRow,
@@ -138,7 +138,7 @@
 
     .pageTitle {
       margin: 0;
-      font-size: 27px;
+      font-size: 30px;
       line-height: 1.02;
       letter-spacing: -0.055em;
       font-weight: 900;
@@ -163,9 +163,9 @@
     .ghostBtn,
     .solidBtn,
     .dangerBtn {
-      min-height: 39px;
+      min-height: 42px;
       border-radius: 999px;
-      padding: 0 13px;
+      padding: 0 15px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -185,16 +185,16 @@
     .pill,
     .ghostBtn {
       color: var(--text);
-      background: rgba(255,255,255,0.52);
-      border: 1px solid rgba(164,133,108,0.16);
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.12);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
     }
 
     .solidBtn {
-      color: #3b2a1e;
+      color: #18130f;
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      box-shadow: 0 10px 24px rgba(184,146,109,0.18);
+      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
     }
 
     .dangerBtn {
@@ -205,8 +205,8 @@
 
     .hero {
       position: relative;
-      padding: 16px;
-      min-height: 204px;
+      padding: 18px;
+      min-height: 228px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -233,8 +233,8 @@
     }
 
     .avatar {
-      width: 54px;
-      height: 54px;
+      width: 60px;
+      height: 60px;
       border-radius: 18px;
       display: grid;
       place-items: center;
@@ -264,7 +264,7 @@
 
     .identityHandle {
       margin-top: 4px;
-      color: #6e5d4f;
+      color: rgba(255,255,255,0.82);
       font-size: 13px;
     }
 
@@ -283,7 +283,7 @@
     }
 
     .stat {
-      padding: 10px;
+      padding: 12px;
       border-radius: 18px;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
@@ -340,15 +340,15 @@
     }
 
     .textarea {
-      min-height: 98px;
+      min-height: 112px;
       resize: vertical;
     }
 
     .uploadBox {
       display: grid;
       gap: 10px;
-      padding: 12px;
-      border-radius: 18px;
+      padding: 14px;
+      border-radius: 22px;
       background:
         linear-gradient(135deg, rgba(200,169,126,0.12), rgba(255,255,255,0.03));
       border: 1px dashed rgba(200,169,126,0.26);
@@ -372,7 +372,7 @@
 
     .postCard {
       overflow: hidden;
-      border-radius: 18px;
+      border-radius: 22px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.045);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
@@ -421,14 +421,14 @@
       padding: 7px 10px;
       border-radius: 999px;
       font-size: 11px;
-      color: #4d3a2d;
-      background: rgba(255,250,246,0.52);
-      border: 1px solid rgba(164,133,108,0.16);
+      color: rgba(255,255,255,0.95);
+      background: rgba(10,9,13,0.44);
+      border: 1px solid rgba(255,255,255,0.12);
       backdrop-filter: blur(12px);
     }
 
     .postMeta {
-      padding: 11px 11px 12px;
+      padding: 12px 12px 14px;
       display: grid;
       gap: 10px;
     }
@@ -487,7 +487,7 @@
 
     .reactionItem,
     .simpleItem {
-      padding: 10px;
+      padding: 12px;
       border-radius: 18px;
       background: rgba(255,255,255,0.045);
       border: 1px solid rgba(255,255,255,0.09);
@@ -521,7 +521,7 @@
       position: relative;
       height: 100dvh;
       overflow: hidden;
-      background: linear-gradient(180deg, #f5ede4 0%, #eadfd3 100%);
+      background: #09070f;
       touch-action: pan-y;
     }
 
@@ -567,17 +567,17 @@
       font-weight: 900;
       color: #fff;
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.20), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(200,169,126,0.22), transparent 32%),
-        linear-gradient(135deg, rgba(184,146,109,0.92), rgba(92,68,50,0.96));
+        radial-gradient(circle at top left, rgba(241,223,200,0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(200,169,126,0.16), transparent 32%),
+        linear-gradient(135deg, rgba(89,69,50,0.96), rgba(14,12,18,0.98));
     }
 
     .feedShade {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 28%, rgba(50,34,22,0.22) 100%),
-        radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 28%);
+        linear-gradient(180deg, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.05) 28%, rgba(0,0,0,0.34) 100%),
+        radial-gradient(circle at top right, rgba(255,244,232,0.08), transparent 28%);
     }
 
     .feedOverlay {
@@ -594,49 +594,54 @@
     .feedOverlay * { pointer-events: auto; }
 
     .feedInfo {
-      max-width: calc(100% - 124px);
-      padding: 11px 13px;
-      border-radius: 20px;
-      background: rgba(255,250,246,0.42);
-      border: 1px solid rgba(255,255,255,0.42);
-      backdrop-filter: blur(16px);
+      max-width: calc(100% - 132px);
+      padding: 8px 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
+      box-shadow: none;
     }
 
     .feedTitle {
       margin: 0;
-      font-size: 18px;
+      font-size: 17px;
       letter-spacing: -0.03em;
       font-weight: 900;
+      color: #fffaf6;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.30);
     }
 
     .feedSubtitle {
-      margin-top: 5px;
-      color: #6e5d4f;
-      font-size: 12px;
-      line-height: 1.45;
+      margin-top: 4px;
+      color: rgba(255,255,255,0.92);
+      font-size: 11px;
+      line-height: 1.4;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.28);
     }
 
     .feedBottom {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .feedContentMeta {
       display: grid;
-      gap: 10px;
-      width: min(100%, 420px);
-      padding: 14px;
-      border-radius: 24px;
-      background: rgba(8,7,11,0.36);
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(18px);
+      gap: 8px;
+      width: min(100%, 410px);
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
+      box-shadow: none;
     }
 
     .feedCaption {
-      font-size: 15px;
-      line-height: 1.58;
-      color: #3f3026;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.20);
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.98);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.30);
       white-space: pre-wrap;
     }
 
@@ -649,39 +654,107 @@
     .feedTapHint,
     .feedLoopHint {
       align-self: flex-start;
-      padding: 10px 12px;
-      border-radius: 18px;
-      font-size: 12px;
-      line-height: 1.48;
-      color: #5d4a3c;
-      background: rgba(8,7,11,0.36);
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(14px);
+      padding: 0;
+      border-radius: 0;
+      font-size: 11px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.94);
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
     }
 
     .feedLoopHint {
       font-weight: 700;
-      color: #5c4636;
+      color: #fff2e7;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.24);
     }
 
     .arrowBtn {
-      width: 46px;
-      height: 46px;
+      width: 54px;
+      height: 54px;
       display: grid;
       place-items: center;
       border-radius: 999px;
       font-size: 22px;
-      color: #3f3026;
-      background: rgba(8,7,11,0.34);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      color: #4f3525;
+      background: linear-gradient(180deg, rgba(255,250,246,0.92), rgba(243,229,216,0.80));
+      border: 1px solid rgba(124,88,58,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 28px rgba(72,50,33,0.12);
     }
 
     .likeBtn {
       background: rgba(8,7,11,0.34);
       color: rgba(255,255,255,0.96);
       border: 1px solid rgba(255,255,255,0.12);
+    }
+
+
+    .feedSideArrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 6;
+    }
+
+    .feedSideArrow.leftSide {
+      left: 14px;
+    }
+
+    .feedSideArrow.rightSide {
+      right: 14px;
+    }
+
+    .feedBackUpBtn {
+      position: absolute;
+      right: 18px;
+      bottom: calc(var(--safe-bottom) + 206px);
+      z-index: 6;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.70);
+      color: #5c3f2c;
+      border: 1px solid rgba(120,84,53,0.16);
+      box-shadow: 0 10px 22px rgba(72,50,33,0.10);
+      backdrop-filter: blur(8px);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .feedVideoControlsInline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 16px;
+      background: rgba(255,248,242,0.56);
+      border: 1px solid rgba(120,84,53,0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    .feedVideoInlineBtn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(111,84,62,0.96);
+      color: #fff8f2;
+      border: 1px solid rgba(111,84,62,0.96);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .feedVideoInlineBtn.ghost {
+      background: rgba(255,255,255,0.82);
+      color: #5f4330;
+      border: 1px solid rgba(120,84,53,0.14);
     }
 
     .hidden { display: none !important; }
@@ -704,6 +777,8 @@
   <script>
     const API_BASE = window.location.origin;
     const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+    const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+    const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 
     const state = {
       activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -715,6 +790,7 @@
       feedMode: "global",
       makerModeUserId: "",
       makerModeReturnPostId: null,
+      homeEntryPostId: null,
       viewedCreatorUserId: "",
       ownFrontpage: null,
       creatorFrontpage: null,
@@ -810,6 +886,13 @@
       });
     }
 
+    function switchAccount() {
+      localStorage.removeItem(LOGIN_STORAGE_KEY);
+      localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
+      localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
+      window.location.href = "index.html";
+    }
+
     async function loadUsers() {
       state.users = await fetchJson(`${API_BASE}/users`);
     }
@@ -832,10 +915,18 @@
       if (state.feedMode === "creator" && state.makerModeUserId) {
         return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
       }
+
+      if (state.homeEntryPostId) {
+        const featured = state.feedItems.find((item) => item.id === state.homeEntryPostId);
+        const remainder = state.feedItems.filter((item) => item.id !== state.homeEntryPostId);
+        return featured ? [featured, ...remainder] : state.feedItems;
+      }
+
       if (state.currentFeedScopeUserId) {
         const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
         return scoped.length ? scoped : state.feedItems;
       }
+
       return state.feedItems;
     }
 
@@ -858,7 +949,7 @@
     function scrollFeedByIntent(direction) {
       const now = Date.now();
       if (now < state.wheelLockUntil) return;
-      state.wheelLockUntil = now + 280;
+      state.wheelLockUntil = now + 420;
       if (direction > 0) moveFeed(1);
       if (direction < 0) moveFeed(-1);
     }
@@ -872,6 +963,8 @@
 
     function onFeedTouchStart(event) {
       if (state.activeScreen !== "feed") return;
+      const target = event.target;
+      if (target && target.closest(".feedVideoControlsInline")) return;
       state.touchActive = true;
       state.touchStartY = event.touches?.[0]?.clientY ?? null;
     }
@@ -879,12 +972,17 @@
     function onFeedTouchMove(event) {
       if (state.activeScreen !== "feed") return;
       if (!state.touchActive || state.touchStartY == null) return;
+      const target = event.target;
+      if (target && target.closest(".feedVideoControlsInline")) return;
+
       const currentY = event.touches?.[0]?.clientY ?? state.touchStartY;
       const delta = state.touchStartY - currentY;
-      if (Math.abs(delta) < 42) return;
+      if (Math.abs(delta) < 58) return;
+
       event.preventDefault();
       scrollFeedByIntent(delta > 0 ? 1 : -1);
-      state.touchStartY = currentY;
+      state.touchActive = false;
+      state.touchStartY = null;
     }
 
     function onFeedTouchEnd() {
@@ -969,46 +1067,6 @@
       }
     }
 
-
-    async function deletePost(postId) {
-      const confirmed = window.confirm("Weet je zeker dat je dit bericht wilt verwijderen?");
-      if (!confirmed) return;
-
-      try {
-        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ownerUserId: state.activeUserId })
-        });
-
-        await loadFeed();
-        await loadOwnFrontpage();
-        if (state.viewedCreatorUserId) {
-          await loadCreatorFrontpage(state.viewedCreatorUserId);
-        }
-
-        const items = getCurrentFeedItems();
-        if (!items.length) {
-          openOwnHomepage();
-          return;
-        }
-
-        if (state.currentFeedIndex >= items.length) {
-          state.currentFeedIndex = 0;
-        }
-
-        if (state.activeScreen === "feed") {
-          renderFeedScreen();
-        } else if (state.activeScreen === "home") {
-          renderHomeScreen();
-        } else if (state.activeScreen === "creator") {
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Verwijderen mislukt.");
-      }
-    }
-
     async function likePost(postId) {
       try {
         await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
@@ -1024,6 +1082,48 @@
         }
       } catch (error) {
         alert(error.message || "Liken mislukt.");
+      }
+    }
+
+
+    async function deletePost(postId) {
+      const currentIndexBeforeDelete = state.currentFeedIndex;
+
+      if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) {
+        return;
+      }
+
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerUserId: state.activeUserId })
+        });
+
+        await loadFeed();
+        await loadOwnFrontpage();
+        if (state.viewedCreatorUserId) {
+          await loadCreatorFrontpage(state.viewedCreatorUserId);
+        }
+
+        const updatedItems = getCurrentFeedItems();
+        if (!updatedItems.length) {
+          state.currentFeedIndex = 0;
+          openOwnHomepage();
+          return;
+        }
+
+        state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
+
+        if (state.activeScreen === "feed") {
+          renderFeedScreen();
+        } else if (state.activeScreen === "home") {
+          renderHomeScreen();
+        } else if (state.activeScreen === "creator") {
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Verwijderen mislukt.");
       }
     }
 
@@ -1107,10 +1207,108 @@
       }
     }
 
+    async function saveProfile() {
+      const displayName = $("profileDisplayName")?.value.trim() || "";
+      const handleRaw = $("profileHandle")?.value.trim() || "";
+      const bio = $("profileBio")?.value.trim() || "";
+      const password = $("profilePassword")?.value || "";
+
+      if (!displayName) {
+        setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
+        return;
+      }
+
+      if (!handleRaw) {
+        setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
+        return;
+      }
+
+      const payload = {
+        displayName,
+        handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
+        bio
+      };
+
+      if (password.length > 0) {
+        payload.password = password;
+      }
+
+      setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+
+      try {
+        const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (result?.user?.displayName) {
+          localStorage.setItem("socialPrototypeActiveUserName", result.user.displayName);
+        }
+
+        if ($("profilePassword")) {
+          $("profilePassword").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
+      }
+    }
+
+    async function uploadProfileBackground() {
+      const file = $("profileBackgroundFile")?.files?.[0] || null;
+      if (!file) {
+        setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
+        return;
+      }
+
+      setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
+
+      try {
+        const formData = new FormData();
+        formData.append("background", file);
+
+        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || "Upload mislukt.");
+
+        if ($("profileBackgroundFile")) {
+          $("profileBackgroundFile").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
+      }
+    }
+
     function openGlobalFeed() {
       state.feedMode = "global";
       state.currentFeedScopeUserId = "";
       state.makerModeUserId = "";
+      state.homeEntryPostId = null;
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    function openHomepageEntryFeed() {
+      const ownPosts = state.feedItems
+        .filter((item) => item.owner?.id === state.activeUserId)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const firstOwnPost = ownPosts[0] || null;
+
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
       state.currentFeedIndex = 0;
       setActiveScreen("feed");
       renderFeedScreen();
@@ -1120,6 +1318,7 @@
       state.feedMode = "global";
       state.currentFeedScopeUserId = "";
       state.makerModeUserId = "";
+      state.homeEntryPostId = null;
       state.currentFeedIndex = 0;
       setActiveScreen("home");
       renderHomeScreen();
@@ -1172,9 +1371,16 @@
       state.feedMode = "global";
       state.makerModeUserId = "";
       state.currentFeedScopeUserId = "";
-      state.currentFeedIndex = findFeedIndexByPostId(returnPostId);
+      const items = getCurrentFeedItems();
+      const indexInCurrentList = items.findIndex((item) => item.id === returnPostId);
+      state.currentFeedIndex = indexInCurrentList >= 0 ? indexInCurrentList : findFeedIndexByPostId(returnPostId);
       vibrateTick([14, 30, 14]);
       renderFeedScreen();
+    }
+
+    function jumpFeedUpOne(event) {
+      if (event) event.stopPropagation();
+      moveFeed(-1);
     }
 
     function handleFeedLeftArrow() {
@@ -1249,6 +1455,10 @@
           </div>
         </article>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function renderReactionList(reactions, showModeration = false) {
@@ -1279,6 +1489,10 @@
           }).join("")}
         </div>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function renderHomeScreen() {
@@ -1299,7 +1513,8 @@
               </div>
               <div class="buttonGroup">
                 <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
-                <button class="solidBtn" onclick="openOwnContentFeed()">Feed</button>
+                <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
               </div>
             </div>
 
@@ -1319,7 +1534,7 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Jouw basis</h3>
-                    <div class="sectionText">Vanuit hier ga je eerst je eigen content in. Daarna kun je door de loopende feed heen bewegen.</div>
+                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
                   </div>
                   <div class="buttonGroup">
                     <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
@@ -1387,6 +1602,26 @@
                   </div>
                 </div>
                 ${renderReactionList(pendingReactions, true)}
+              </div>
+            </section>
+
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Profiel bewerken</h3>
+                    <div class="sectionText">Pas je naam, handle, bio en wachtwoord aan vanaf je eigen homepage.</div>
+                  </div>
+                </div>
+                <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
+                <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
+                <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
+                <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
+                <div class="composerActions">
+                  <div id="profileStatus" class="statusLine"></div>
+                  <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
+                </div>
               </div>
             </section>
 
@@ -1501,6 +1736,51 @@
       `;
     }
 
+    function getFeedVideo() {
+      return document.getElementById("feedVideoElement");
+    }
+
+    function updateFeedVideoUi() {
+      const video = getFeedVideo();
+      const playBtn = document.getElementById("feedVideoPlayBtn");
+      const muteBtn = document.getElementById("feedVideoMuteBtn");
+      if (!video || !playBtn || !muteBtn) return;
+      playBtn.textContent = video.paused ? "▶" : "❚❚";
+      muteBtn.textContent = video.muted ? "🔇" : "🔊";
+    }
+
+    function bindFeedVideoControls() {
+      const video = getFeedVideo();
+      if (!video) return;
+      const safeUpdate = () => updateFeedVideoUi();
+      video.addEventListener("play", safeUpdate);
+      video.addEventListener("pause", safeUpdate);
+      video.addEventListener("loadedmetadata", safeUpdate);
+      video.addEventListener("volumechange", safeUpdate);
+      video.addEventListener("ended", safeUpdate);
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoPlay(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoMute(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      video.muted = !video.muted;
+      updateFeedVideoUi();
+    }
+
     function renderFeedScreen() {
       const items = getCurrentFeedItems();
       const item = getCurrentFeedItem();
@@ -1520,13 +1800,13 @@
       const mediaHtml = item.postType === "image" && item.imageUrl
         ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
         : item.postType === "video" && item.videoUrl
-        ? `<div class="feedMediaWrap"><video src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline controls></video></div>`
+        ? `<div class="feedMediaWrap" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"><video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video></div>`
         : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
 
       const scopeLabel = state.feedMode === "creator"
         ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
-        : state.currentFeedScopeUserId
-        ? `eigen contentlaag · ${escapeHtml(owner.displayName || 'jij')}`
+        : state.homeEntryPostId && state.currentFeedIndex === 0
+        ? `start vanuit homepage · eerst jouw content`
         : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
 
       $("feedScreen").innerHTML = `
@@ -1536,14 +1816,16 @@
               ${mediaHtml}
               <div class="feedShade"></div>
               <div class="feedOverlay">
-                <div class="feedOverlayRow">
-                  <button class="arrowBtn" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
+                <div class="feedOverlayRow" style="justify-content:center;">
                   <div class="feedInfo">
                     <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
                     <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
                   </div>
-                  <button class="arrowBtn" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
                 </div>
+
+                <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
+                <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
+                <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
 
                 <div class="feedBottom">
                   <div class="feedContentMeta">
@@ -1561,14 +1843,20 @@
                       <button class="pill likeBtn" onclick="event.stopPropagation(); likePost(${Number(item.id)})">Like</button>
                       <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
                       ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
+                      ${item.postType === "video" && item.videoUrl ? `
+                        <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+                          <button id="feedVideoPlayBtn" class="feedVideoInlineBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
+                          <button id="feedVideoMuteBtn" class="feedVideoInlineBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
+                        </div>
+                      ` : ``}
                     </div>
                     <div class="feedLoopHint" onclick="event.stopPropagation();">
-                      Feed loopt door · swipe of scroll ↑↓
+                      Loopende feed · swipe ↑↓
                     </div>
                   </div>
 
                   <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed waar je was. Op je eigen posts kun je hier ook direct verwijderen.
+                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
                   </div>
                 </div>
               </div>
