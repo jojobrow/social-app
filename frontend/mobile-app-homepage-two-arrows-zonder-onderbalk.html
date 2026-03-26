@@ -8,13 +8,13 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
-      --bg: #efe2d6;
-      --card: rgba(255, 250, 246, 0.88);
+      --bg: #e7d7ca;
+      --card: rgba(255, 250, 246, 0.94);
       --card-strong: rgba(255, 250, 246, 0.94);
       --line: rgba(120, 92, 72, 0.24);
       --line-soft: rgba(120, 92, 72, 0.16);
-      --text: #241812;
-      --muted: #4d382c;
+      --text: #1b120d;
+      --muted: #3f2e24;
       --shadow: 0 22px 48px rgba(95, 66, 47, 0.18);
       --radius-xl: 28px;
       --radius-lg: 22px;
@@ -296,7 +296,7 @@
     .infoText,
     .drawerText,
     .postMeta {
-      color: #6d5648;
+      color: #4f3b2f;
       line-height: 1.55;
     }
 
@@ -965,7 +965,29 @@
 
     .field,
     .textarea,
-    .select,
+    .select {
+      width: 100%;
+      border: 1px solid rgba(125, 101, 82, 0.24);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      background: rgba(255, 248, 240, 0.90);
+      color: #3f2c22;
+      outline: none;
+      display: block;
+    }
+
+    .textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .select {
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
     .fileInput {
       position: absolute;
       width: 1px;
