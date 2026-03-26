@@ -8,14 +8,14 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
-      --bg: #f7efe7;
-      --card: rgba(255, 251, 247, 0.72);
-      --card-strong: rgba(255, 251, 247, 0.84);
-      --line: rgba(170, 142, 120, 0.14);
-      --line-soft: rgba(170, 142, 120, 0.10);
-      --text: #35271f;
-      --muted: #6e5648;
-      --shadow: 0 22px 48px rgba(155, 124, 101, 0.16);
+      --bg: #efe2d6;
+      --card: rgba(255, 250, 246, 0.88);
+      --card-strong: rgba(255, 250, 246, 0.94);
+      --line: rgba(120, 92, 72, 0.24);
+      --line-soft: rgba(120, 92, 72, 0.16);
+      --text: #241812;
+      --muted: #4d382c;
+      --shadow: 0 22px 48px rgba(95, 66, 47, 0.18);
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 18px;
@@ -37,7 +37,8 @@
     }
 
     body {
-      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     button,
@@ -303,7 +304,7 @@
     .small,
     .muted,
     .postMeta {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
     }
 
@@ -1269,6 +1270,7 @@
             <div class="title" id="homeScreenTitle">Jouw voorpagina</div>
           </div>
           <div class="topbarActions">
+            <button class="iconBtn" onclick="openFeed()">Feed</button>
             <button class="iconBtn" onclick="refreshAll()">Vernieuw</button>
           </div>
         </div>
@@ -1296,6 +1298,7 @@
             <div class="title" id="creatorScreenTitle">Maker</div>
           </div>
           <div class="topbarActions">
+            <button class="iconBtn" onclick="openFeed()">Feed</button>
             <button class="iconBtn" onclick="openOwnHome()">Eigen home</button>
           </div>
         </div>
@@ -2077,11 +2080,12 @@
           uploadStatus.textContent = "Media uploaden...";
           const formData = new FormData();
           formData.append("media", file);
+          formData.append("ownerUserId", activeUserId);
           const uploadResult = await fetch(`${API_BASE}/upload-media`, { method: "POST", body: formData });
           const uploadData = await uploadResult.json().catch(() => ({}));
           if (!uploadResult.ok) throw new Error(uploadData.message || "Media upload mislukt.");
-          if (uploadData.mediaType === "image") imageUrl = uploadData.url || "";
-          if (uploadData.mediaType === "video") videoUrl = uploadData.url || "";
+          if (uploadData.postType === "image") imageUrl = uploadData.url || "";
+          if (uploadData.postType === "video") videoUrl = uploadData.url || "";
         }
 
         const hashtags = hashtagsInput.value.split(",").map(tag => tag.trim()).filter(Boolean);
@@ -2117,7 +2121,7 @@
         await fetchJson(`${API_BASE}/posts/${postId}/like`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: activeUserId })
+          body: JSON.stringify({ viewerUserId: activeUserId })
         });
         await refreshAll();
       } catch (error) {
@@ -2130,7 +2134,7 @@
         await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: activeUserId })
+          body: JSON.stringify({ viewerUserId: activeUserId })
         });
       } catch (error) {
         alert(error.message || "Dislike mislukt.");
@@ -2299,6 +2303,25 @@
         alert("Bericht is naar pending moderatie gestuurd.");
       } catch (error) {
         alert(error.message || "Versturen mislukt.");
+      }
+    }
+
+    async function submitHomepageComment(targetUserId) {
+      const textarea = document.getElementById("homepageCommentInput");
+      if (!textarea) return;
+      const text = textarea.value.trim();
+      if (!text) {
+        alert("Typ eerst een reactie.");
+        return;
+      }
+
+      try {
+        await sendFrontpageReaction(targetUserId, text);
+        textarea.value = "";
+        await refreshAll();
+        alert("Reactie is verzonden en staat nu in moderatie.");
+      } catch (error) {
+        alert(error.message || "Reactie plaatsen mislukt.");
       }
     }
 
