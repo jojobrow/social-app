@@ -55,13 +55,13 @@
       flex-wrap:wrap;
     }
 
-    .backBtn,.ghostBtn,.solidBtn,.chipBtn{
+    .backBtn,.ghostBtn,.solidBtn{
       min-height:42px;
       padding:0 14px;
       border-radius:999px;
     }
 
-    .backBtn,.ghostBtn,.chipBtn{
+    .backBtn,.ghostBtn{
       background:rgba(255,255,255,.08);
       color:var(--text);
       border:1px solid var(--line);
@@ -139,6 +139,47 @@
       font-size:18px;
     }
 
+    .collapsibleHeader{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:0;
+      background:transparent;
+      color:var(--text);
+      border:0;
+      text-align:left;
+    }
+
+    .collapseMeta{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .collapseChevron{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      transition:transform .18s ease;
+      flex:0 0 auto;
+    }
+
+    .collapseChevron.isOpen{
+      transform:rotate(180deg);
+    }
+
+    .collapsibleBody{
+      margin-top:12px;
+    }
     .searchRow{
       display:flex;
       gap:10px;
@@ -287,19 +328,6 @@
       color:rgba(255,255,255,.78);
     }
 
-    .statusPill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:700;
-      color:#fff7ef;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
-    }
-
     .footerSpace{height:8px}
 
     @media (max-width: 460px){
@@ -322,8 +350,8 @@
       <div class="eyebrow">Vrienden</div>
       <h1>Sociale updates</h1>
       <div class="sub">
-        Zelfde sfeer als je hoofdapp. Eerst pending, daarna vrienden en hun nieuwste content in rastervorm.
-        Tik op een vriend of post om terug te springen naar je hoofdapp.
+        Eerst pending. Daarna je vriendenlijst en de nieuwste content van vrienden in rastervorm.
+        Tik op een vriend of content om terug te gaan naar de hoofdapp.
       </div>
     </section>
 
@@ -342,8 +370,14 @@
     </section>
 
     <section class="card">
-      <h2 class="sectionTitle">Vrienden</h2>
-      <div id="friendsList"></div>
+      <button class="collapsibleHeader" onclick="toggleFriendsList()">
+        <h2 class="sectionTitle" style="margin:0;">Vriendenlijst</h2>
+        <div class="collapseMeta">
+          <span>${friendsList.length || 0} vrienden</span>
+          <span id="friendsChevron" class="collapseChevron ${friendsListOpen ? 'isOpen' : ''}">⌄</span>
+        </div>
+      </button>
+      <div id="friendsList" class="collapsibleBody"></div>
     </section>
 
     <section class="card">
@@ -367,6 +401,7 @@
     let outgoingFriendRequests = [];
     let friendsList = [];
     let friendsFeedItems = [];
+    let friendsListOpen = false;
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -422,6 +457,12 @@
       return Array.from(newestByFriend.values()).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
     }
 
+    function goBack() {
+      localStorage.removeItem(FRIEND_TARGET_KEY);
+      localStorage.removeItem(FEED_ENTRY_POST_KEY);
+      window.location.href = MAIN_APP_FILE;
+    }
+
     function openFriendHomepage(friendUserId) {
       localStorage.setItem(FRIEND_TARGET_KEY, friendUserId);
       localStorage.removeItem(FEED_ENTRY_POST_KEY);
@@ -431,11 +472,6 @@
     function openFriendPost(postId, friendUserId) {
       localStorage.setItem(FRIEND_TARGET_KEY, friendUserId);
       localStorage.setItem(FEED_ENTRY_POST_KEY, String(postId));
-      window.location.href = MAIN_APP_FILE;
-    }
-
-    function goBack() {
-      localStorage.removeItem(FRIEND_TARGET_KEY);
       window.location.href = MAIN_APP_FILE;
     }
 
@@ -507,6 +543,11 @@
       await refreshAll();
     }
 
+    function toggleFriendsList() {
+      friendsListOpen = !friendsListOpen;
+      renderFriendsList();
+    }
+
     function renderPersonCard(user, actionHtml, extra = "") {
       return `
         <div class="item">
@@ -573,9 +614,19 @@
 
     function renderFriendsList() {
       const el = document.getElementById("friendsList");
+      const chevron = document.getElementById("friendsChevron");
+
+      if (chevron) {
+        chevron.classList.toggle("isOpen", friendsListOpen);
+      }
 
       if (!friendsList.length) {
         el.innerHTML = `<div class="empty">Nog geen vrienden toegevoegd.</div>`;
+        return;
+      }
+
+      if (!friendsListOpen) {
+        el.innerHTML = `<div class="empty">Tik om je vriendenlijst open te klappen.</div>`;
         return;
       }
 
