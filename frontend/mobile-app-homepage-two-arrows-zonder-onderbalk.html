@@ -6,28 +6,28 @@
   <title>Social Prototype Mobile</title>
   <style>
     :root {
-      --bg: #f7f0e8;
-      --bg-2: #f2e8de;
-      --bg-3: #ebdfd2;
-      --panel: rgba(255, 251, 246, 0.78);
-      --panel-2: rgba(255, 252, 248, 0.88);
-      --panel-3: rgba(250, 243, 236, 0.94);
-      --glass: rgba(255,255,255,0.42);
-      --line: rgba(164, 133, 108, 0.14);
-      --line-strong: rgba(164, 133, 108, 0.22);
-      --text: #45352b;
-      --text-soft: #7a6657;
-      --text-dim: #9b8574;
-      --accent: #b8926d;
-      --accent-2: #f3e5d2;
-      --accent-3: #a57b59;
-      --accent-deep: #876246;
-      --ok: #5f9878;
-      --danger: #bf6d6d;
-      --shadow: 0 18px 42px rgba(132, 104, 80, 0.14);
-      --shadow-soft: 0 10px 24px rgba(132, 104, 80, 0.10);
-      --radius: 22px;
-      --radius-sm: 16px;
+      --bg: #09070f;
+      --bg-2: #120f19;
+      --bg-3: #19141f;
+      --panel: rgba(20, 17, 25, 0.84);
+      --panel-2: rgba(28, 24, 35, 0.92);
+      --panel-3: rgba(36, 30, 43, 0.96);
+      --glass: rgba(255,255,255,0.07);
+      --line: rgba(255,255,255,0.10);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #f7f3ef;
+      --text-soft: #d8d0c6;
+      --text-dim: #a99f95;
+      --accent: #c8a97e;
+      --accent-2: #f1dfc8;
+      --accent-3: #8e6c4f;
+      --accent-deep: #6f543e;
+      --ok: #94d4b7;
+      --danger: #f0a9a9;
+      --shadow: 0 24px 60px rgba(0,0,0,0.36);
+      --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
+      --radius: 26px;
+      --radius-sm: 18px;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -38,9 +38,9 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.14), transparent 26%),
-        radial-gradient(circle at 82% 14%, rgba(255,255,255,0.52), transparent 24%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
+        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
+        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -66,8 +66,8 @@
       margin: 0 auto;
       position: relative;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.30), rgba(250,243,236,0.54)),
-        radial-gradient(circle at top, rgba(255,255,255,0.52), transparent 34%);
+        linear-gradient(180deg, rgba(8,7,11,0.58), rgba(18,15,25,0.58)),
+        radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 34%);
       backdrop-filter: blur(20px);
     }
 
@@ -81,12 +81,12 @@
     }
 
     .page {
-      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 22px);
+      padding: calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 28px);
     }
 
     .stack {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .card {
@@ -94,7 +94,7 @@
       overflow: hidden;
       border-radius: var(--radius);
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.34)),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
         linear-gradient(180deg, var(--panel-2), var(--panel));
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
@@ -106,15 +106,15 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.18), transparent 26%);
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
+        radial-gradient(circle at top right, rgba(241,223,200,0.05), transparent 26%);
       pointer-events: none;
     }
 
     .cardBody {
       position: relative;
       z-index: 1;
-      padding: 14px;
+      padding: 16px;
     }
 
     .topRow,
@@ -138,7 +138,7 @@
 
     .pageTitle {
       margin: 0;
-      font-size: 27px;
+      font-size: 30px;
       line-height: 1.02;
       letter-spacing: -0.055em;
       font-weight: 900;
@@ -163,9 +163,9 @@
     .ghostBtn,
     .solidBtn,
     .dangerBtn {
-      min-height: 39px;
+      min-height: 42px;
       border-radius: 999px;
-      padding: 0 13px;
+      padding: 0 15px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -185,16 +185,16 @@
     .pill,
     .ghostBtn {
       color: var(--text);
-      background: rgba(255,255,255,0.52);
-      border: 1px solid rgba(164,133,108,0.16);
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.12);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
     }
 
     .solidBtn {
-      color: #3b2a1e;
+      color: #18130f;
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      box-shadow: 0 10px 24px rgba(184,146,109,0.18);
+      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
     }
 
     .dangerBtn {
@@ -205,8 +205,8 @@
 
     .hero {
       position: relative;
-      padding: 16px;
-      min-height: 204px;
+      padding: 18px;
+      min-height: 228px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -233,8 +233,8 @@
     }
 
     .avatar {
-      width: 54px;
-      height: 54px;
+      width: 60px;
+      height: 60px;
       border-radius: 18px;
       display: grid;
       place-items: center;
@@ -264,7 +264,7 @@
 
     .identityHandle {
       margin-top: 4px;
-      color: #6e5d4f;
+      color: rgba(255,255,255,0.82);
       font-size: 13px;
     }
 
@@ -283,7 +283,7 @@
     }
 
     .stat {
-      padding: 10px;
+      padding: 12px;
       border-radius: 18px;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
@@ -340,15 +340,15 @@
     }
 
     .textarea {
-      min-height: 98px;
+      min-height: 112px;
       resize: vertical;
     }
 
     .uploadBox {
       display: grid;
       gap: 10px;
-      padding: 12px;
-      border-radius: 18px;
+      padding: 14px;
+      border-radius: 22px;
       background:
         linear-gradient(135deg, rgba(200,169,126,0.12), rgba(255,255,255,0.03));
       border: 1px dashed rgba(200,169,126,0.26);
@@ -372,7 +372,7 @@
 
     .postCard {
       overflow: hidden;
-      border-radius: 18px;
+      border-radius: 22px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(255,255,255,0.045);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
@@ -421,14 +421,14 @@
       padding: 7px 10px;
       border-radius: 999px;
       font-size: 11px;
-      color: #4d3a2d;
-      background: rgba(255,250,246,0.52);
-      border: 1px solid rgba(164,133,108,0.16);
+      color: rgba(255,255,255,0.95);
+      background: rgba(10,9,13,0.44);
+      border: 1px solid rgba(255,255,255,0.12);
       backdrop-filter: blur(12px);
     }
 
     .postMeta {
-      padding: 11px 11px 12px;
+      padding: 12px 12px 14px;
       display: grid;
       gap: 10px;
     }
@@ -487,7 +487,7 @@
 
     .reactionItem,
     .simpleItem {
-      padding: 10px;
+      padding: 12px;
       border-radius: 18px;
       background: rgba(255,255,255,0.045);
       border: 1px solid rgba(255,255,255,0.09);
@@ -521,7 +521,7 @@
       position: relative;
       height: 100dvh;
       overflow: hidden;
-      background: linear-gradient(180deg, #f5ede4 0%, #eadfd3 100%);
+      background: #09070f;
       touch-action: pan-y;
     }
 
@@ -567,17 +567,17 @@
       font-weight: 900;
       color: #fff;
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.20), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(200,169,126,0.22), transparent 32%),
-        linear-gradient(135deg, rgba(184,146,109,0.92), rgba(92,68,50,0.96));
+        radial-gradient(circle at top left, rgba(241,223,200,0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(200,169,126,0.16), transparent 32%),
+        linear-gradient(135deg, rgba(89,69,50,0.96), rgba(14,12,18,0.98));
     }
 
     .feedShade {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 28%, rgba(50,34,22,0.22) 100%),
-        radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 28%);
+        linear-gradient(180deg, rgba(0,0,0,0.24) 0%, rgba(0,0,0,0.04) 28%, rgba(0,0,0,0.58) 100%),
+        radial-gradient(circle at top right, rgba(241,223,200,0.08), transparent 28%);
     }
 
     .feedOverlay {
@@ -597,8 +597,8 @@
       max-width: calc(100% - 124px);
       padding: 11px 13px;
       border-radius: 20px;
-      background: rgba(255,250,246,0.42);
-      border: 1px solid rgba(255,255,255,0.42);
+      background: rgba(8,7,11,0.34);
+      border: 1px solid rgba(255,255,255,0.10);
       backdrop-filter: blur(16px);
     }
 
@@ -611,14 +611,14 @@
 
     .feedSubtitle {
       margin-top: 5px;
-      color: #6e5d4f;
+      color: rgba(255,255,255,0.82);
       font-size: 12px;
       line-height: 1.45;
     }
 
     .feedBottom {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .feedContentMeta {
@@ -635,7 +635,7 @@
     .feedCaption {
       font-size: 15px;
       line-height: 1.58;
-      color: #3f3026;
+      color: rgba(255,255,255,0.98);
       text-shadow: 0 2px 10px rgba(0,0,0,0.20);
       white-space: pre-wrap;
     }
@@ -653,7 +653,7 @@
       border-radius: 18px;
       font-size: 12px;
       line-height: 1.48;
-      color: #5d4a3c;
+      color: rgba(255,255,255,0.92);
       background: rgba(8,7,11,0.36);
       border: 1px solid rgba(255,255,255,0.10);
       backdrop-filter: blur(14px);
@@ -661,7 +661,7 @@
 
     .feedLoopHint {
       font-weight: 700;
-      color: #5c4636;
+      color: #f2e8da;
     }
 
     .arrowBtn {
@@ -671,7 +671,7 @@
       place-items: center;
       border-radius: 999px;
       font-size: 22px;
-      color: #3f3026;
+      color: rgba(255,255,255,0.98);
       background: rgba(8,7,11,0.34);
       border: 1px solid rgba(255,255,255,0.12);
       backdrop-filter: blur(12px);
@@ -685,314 +685,6 @@
     }
 
     .hidden { display: none !important; }
-
-
-    .pageTitle,
-    .identityName,
-    .sectionTitle,
-    .homeHeroTitle,
-    .homeChipValue {
-      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-    }
-
-    .page.homePage {
-      padding-top: calc(var(--safe-top) + 12px);
-    }
-
-    .homeHeader {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .homeHeader .pageTitle {
-      font-size: 28px;
-      line-height: 0.98;
-      margin-bottom: 6px;
-    }
-
-    .homeHeader .pageIntro {
-      font-size: 12px;
-      max-width: 24ch;
-      margin-top: 0;
-      color: #6f5c4f;
-    }
-
-    .homeTopActions {
-      display: grid;
-      gap: 8px;
-      justify-items: end;
-    }
-
-    .homeTopActions .pill,
-    .homeTopActions .solidBtn,
-    .homeTopActions .ghostBtn {
-      min-height: 38px;
-      padding: 0 14px;
-      font-size: 13px;
-    }
-
-    .homeHero {
-      padding: 16px;
-      min-height: 0;
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.26), transparent 26%),
-        linear-gradient(135deg, rgba(215,169,120,0.95), rgba(218,141,95,0.92) 38%, rgba(216,97,118,0.88) 72%, rgba(129,119,201,0.9) 100%);
-      border: 1px solid rgba(255,255,255,0.42);
-      box-shadow: 0 16px 34px rgba(182,114,90,0.18);
-    }
-
-    .homeHero::before {
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 24%),
-        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0));
-    }
-
-    .homeHeroGrid {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .homeHero .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.24);
-      backdrop-filter: blur(8px);
-    }
-
-    .homeHeroIdentity {
-      display: grid;
-      gap: 6px;
-    }
-
-    .homeHeroTitle {
-      margin: 0;
-      font-size: 28px;
-      line-height: 0.95;
-      color: #2f1f19;
-      letter-spacing: -0.05em;
-      font-weight: 900;
-    }
-
-    .homeHeroHandle {
-      color: rgba(61,38,30,0.78);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .homeHeroBio {
-      margin: 4px 0 0;
-      color: rgba(44,28,22,0.88);
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 28ch;
-    }
-
-    .homeHeroChips {
-      display: grid;
-      gap: 8px;
-    }
-
-    .homeHeroChip {
-      padding: 10px 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.3);
-      border: 1px solid rgba(255,255,255,0.34);
-      backdrop-filter: blur(10px);
-    }
-
-    .homeChipLabel {
-      font-size: 10px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: rgba(56,34,27,0.6);
-      margin-bottom: 4px;
-      font-weight: 800;
-    }
-
-    .homeChipValue {
-      font-size: 20px;
-      line-height: 1;
-      color: #311f18;
-      font-weight: 800;
-    }
-
-    .homeMosaic {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    .homeCardTight .cardBody {
-      padding: 14px;
-    }
-
-    .homeCardTight .sectionTitle {
-      font-size: 22px;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .homeCardTight .sectionText {
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .miniStatsGrid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .miniStat {
-      padding: 10px 10px 11px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.46));
-      border: 1px solid rgba(168,126,96,0.16);
-      box-shadow: 0 8px 18px rgba(174,132,102,0.08);
-    }
-
-    .miniStatValue {
-      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-      font-size: 21px;
-      line-height: 1;
-      color: #52392d;
-      font-weight: 900;
-    }
-
-    .miniStatLabel {
-      margin-top: 4px;
-      color: #7b6556;
-      font-size: 11px;
-      line-height: 1.25;
-    }
-
-    .homeActionStack {
-      display: grid;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .homeActionStack .ghostBtn,
-    .homeActionStack .solidBtn {
-      width: 100%;
-      justify-content: center;
-      min-height: 40px;
-      font-size: 13px;
-    }
-
-    .homeComposer.card,
-    .homeSocial.card,
-    .homePending.card,
-    .homePosts.card {
-      border-radius: 24px;
-    }
-
-    .homeComposer .cardBody,
-    .homeSocial .cardBody,
-    .homePending .cardBody,
-    .homePosts .cardBody {
-      padding: 14px;
-    }
-
-    .homeComposerHead,
-    .homeSectionHead {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .homeComposerHead .sectionTitle,
-    .homeSectionHead .sectionTitle {
-      font-size: 24px;
-      line-height: 0.98;
-      margin: 0;
-    }
-
-    .homeComposerHead .sectionText,
-    .homeSectionHead .sectionText {
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .homeComposer .textarea {
-      min-height: 84px;
-      border-radius: 16px;
-      padding: 12px 13px;
-      background: rgba(255,255,255,0.62);
-    }
-
-    .homeComposer .field,
-    .homeComposer .select,
-    .homeComposer .fileInput {
-      border-radius: 16px;
-      min-height: 46px;
-      padding: 12px 13px;
-      background: rgba(255,255,255,0.62);
-    }
-
-    .homeComposer .uploadBox {
-      border-radius: 18px;
-      padding: 12px;
-      background: linear-gradient(135deg, rgba(255,196,131,0.18), rgba(255,255,255,0.42));
-      border-color: rgba(186,122,90,0.26);
-    }
-
-    .homeComposerGrid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .homeComposerFooter {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      margin-top: 10px;
-    }
-
-    .homeComposerFooter .solidBtn {
-      min-height: 42px;
-      padding: 0 18px;
-    }
-
-    .homeSocial .reactionList,
-    .homePending .reactionList {
-      gap: 10px;
-    }
-
-    .homeSocial .reactionItem,
-    .homePending .reactionItem {
-      padding: 10px 11px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.42));
-    }
-
-    .homePosts .postList {
-      gap: 10px;
-    }
-
-    .homePosts .postCard {
-      border-radius: 18px;
-    }
-
-    .homePosts .postMedia,
-    .homePosts .postTextOnly {
-      aspect-ratio: 4 / 3;
-    }
-
-    .homePosts .postMeta {
-      padding: 10px 10px 12px;
-    }
-
 
     @media (min-width: 461px) {
       .appShell {
@@ -1277,46 +969,6 @@
       }
     }
 
-
-    async function deletePost(postId) {
-      const confirmed = window.confirm("Weet je zeker dat je dit bericht wilt verwijderen?");
-      if (!confirmed) return;
-
-      try {
-        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ownerUserId: state.activeUserId })
-        });
-
-        await loadFeed();
-        await loadOwnFrontpage();
-        if (state.viewedCreatorUserId) {
-          await loadCreatorFrontpage(state.viewedCreatorUserId);
-        }
-
-        const items = getCurrentFeedItems();
-        if (!items.length) {
-          openOwnHomepage();
-          return;
-        }
-
-        if (state.currentFeedIndex >= items.length) {
-          state.currentFeedIndex = 0;
-        }
-
-        if (state.activeScreen === "feed") {
-          renderFeedScreen();
-        } else if (state.activeScreen === "home") {
-          renderHomeScreen();
-        } else if (state.activeScreen === "creator") {
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Verwijderen mislukt.");
-      }
-    }
-
     async function likePost(postId) {
       try {
         await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
@@ -1412,6 +1064,56 @@
         renderCreatorScreen();
       } catch (error) {
         alert(error.message || "Vriendschapsverzoek mislukt.");
+      }
+    }
+
+    async function saveProfile() {
+      const displayName = $("profileDisplayName")?.value.trim() || "";
+      const handleRaw = $("profileHandle")?.value.trim() || "";
+      const bio = $("profileBio")?.value.trim() || "";
+      const password = $("profilePassword")?.value || "";
+
+      if (!displayName) {
+        setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
+        return;
+      }
+
+      if (!handleRaw) {
+        setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
+        return;
+      }
+
+      const payload = {
+        displayName,
+        handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
+        bio
+      };
+
+      if (password.length > 0) {
+        payload.password = password;
+      }
+
+      setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+
+      try {
+        const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (result?.user?.displayName) {
+          localStorage.setItem("socialPrototypeActiveUserName", result.user.displayName);
+        }
+
+        if ($("profilePassword")) {
+          $("profilePassword").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
       }
     }
 
@@ -1598,139 +1300,132 @@
       const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
 
       $("homeScreen").innerHTML = `
-        <div class="page homePage">
+        <div class="page">
           <div class="stack">
-            <div class="homeHeader">
+            <div class="topRow">
               <div>
                 <h1 class="pageTitle">Jouw homepage</h1>
-                <div class="pageIntro">Speelser en compacter opgebouwd, met meer kleur en meer ritme tussen je basis, je composer en je posts.</div>
+                <div class="pageIntro">Eleganter en rustiger opgebouwd. Je homepage blijft je rijke basisplek, terwijl de feed fullscreen en loopend blijft.</div>
               </div>
-              <div class="homeTopActions">
+              <div class="buttonGroup">
                 <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
-                <button class="solidBtn" onclick="openOwnContentFeed()">Feed</button>
-                <button class="ghostBtn" onclick="switchAccount()">Wissel</button>
+                <button class="solidBtn" onclick="openGlobalFeed()">Feed</button>
               </div>
             </div>
 
-            <section class="card homeHero">
-              <div class="homeHeroGrid">
-                <div class="homeHeroIdentity">
-                  <div class="avatarRow" style="gap:10px;">
-                    ${getAvatarHtml(user)}
-                    <div>
-                      <h2 class="homeHeroTitle">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
-                      <div class="homeHeroHandle">${escapeHtml(user.handle || '')}</div>
-                    </div>
-                  </div>
-                  <p class="homeHeroBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
-                </div>
-                <div class="homeHeroChips">
-                  <div class="homeHeroChip">
-                    <div class="homeChipLabel">Start</div>
-                    <div class="homeChipValue">${Number(stats.posts || 0)}</div>
-                  </div>
-                  <div class="homeHeroChip">
-                    <div class="homeChipLabel">Likes</div>
-                    <div class="homeChipValue">${Number(stats.homepageLikes || 0)}</div>
-                  </div>
+            <section class="card hero" style="background:${getUserBackground(user)};">
+              <div class="avatarRow">
+                ${getAvatarHtml(user)}
+                <div class="identityBlock">
+                  <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
                 </div>
               </div>
+              <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
             </section>
 
-            <div class="homeMosaic">
-              <section class="card homeCardTight">
-                <div class="cardBody">
-                  <h3 class="sectionTitle">Basis</h3>
-                  <div class="sectionText">Vanuit je homepage start de feed eerst op één eigen post. Daarna vloeit hij direct over in de gewone feed.</div>
-                  <div class="miniStatsGrid">
-                    <div class="miniStat">
-                      <div class="miniStatValue">${Number(stats.reactions || 0)}</div>
-                      <div class="miniStatLabel">Publieke reacties</div>
-                    </div>
-                    <div class="miniStat">
-                      <div class="miniStatValue">${Number(stats.friends || 0)}</div>
-                      <div class="miniStatLabel">Vrienden</div>
-                    </div>
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Jouw basis</h3>
+                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
                   </div>
-                </div>
-              </section>
-
-              <section class="card homeCardTight">
-                <div class="cardBody">
-                  <h3 class="sectionTitle">Snelle acties</h3>
-                  <div class="sectionText">Open je eigen content of geef je homepage direct een signaal.</div>
-                  <div class="homeActionStack">
+                  <div class="buttonGroup">
                     <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
                     <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
                   </div>
                 </div>
-              </section>
-            </div>
+                <div class="gridStats">
+                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+                </div>
+              </div>
+            </section>
 
-            <section class="card homeComposer">
-              <div class="cardBody">
-                <div class="homeComposerHead">
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Nieuw bericht</h3>
-                    <div class="sectionText">Kleiner, sneller en direct bruikbaar. Alles staat samen in één compacte composer.</div>
+                    <div class="sectionText">Caption, upload en feedtype staan direct samen zichtbaar in één rustige composer.</div>
                   </div>
                 </div>
-
-                <div class="homeComposerGrid">
-                  <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
-                  <div class="uploadBox">
-                    <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
-                    <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
-                  </div>
-                  <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
-                  <select id="composeFeedKind" class="select">
-                    <option value="normal">Normal</option>
-                    <option value="recommended">Recommended</option>
-                    <option value="promoted">Promoted</option>
-                  </select>
+                <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
+                <div class="uploadBox">
+                  <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+                  <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
                 </div>
-
-                <div class="homeComposerFooter">
+                <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
+                <select id="composeFeedKind" class="select">
+                  <option value="normal">Normal</option>
+                  <option value="recommended">Recommended</option>
+                  <option value="promoted">Promoted</option>
+                </select>
+                <div class="composerActions">
                   <div id="composeStatus" class="statusLine"></div>
                   <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
                 </div>
               </div>
             </section>
 
-            <section class="card homeSocial">
-              <div class="cardBody">
-                <div class="homeSectionHead">
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Publieke interactie</h3>
-                    <div class="sectionText">Reacties leven hier op je homepage, niet onder losse posts.</div>
+                    <h3 class="sectionTitle">Publieke interactie op je homepage</h3>
+                    <div class="sectionText">Reacties leven hier, niet onder losse posts.</div>
                   </div>
+                </div>
+                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
+                <div class="actionRow">
+                  <div class="smallNote">Berichten komen eerst in pending moderatie.</div>
                   <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Naar pending</button>
                 </div>
-
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
-                <div class="smallNote" style="margin:8px 0 10px;">Berichten komen eerst in pending moderatie.</div>
                 ${renderReactionList(acceptedReactions, false)}
               </div>
             </section>
 
-            <section class="card homePending">
-              <div class="cardBody">
-                <div class="homeSectionHead">
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Pending</h3>
-                    <div class="sectionText">Kleinere moderatiekaart voor reacties die nog niet live staan.</div>
+                    <h3 class="sectionTitle">Pending moderatie</h3>
+                    <div class="sectionText">Hier keur je homepage-reacties goed, af of blokkeer je afzenders.</div>
                   </div>
                 </div>
                 ${renderReactionList(pendingReactions, true)}
               </div>
             </section>
 
-            <section class="card homePosts">
-              <div class="cardBody">
-                <div class="homeSectionHead">
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Profiel bewerken</h3>
+                    <div class="sectionText">Pas je naam, handle, bio en wachtwoord aan vanaf je eigen homepage.</div>
+                  </div>
+                </div>
+                <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
+                <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
+                <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
+                <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
+                <div class="composerActions">
+                  <div id="profileStatus" class="statusLine"></div>
+                  <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Jouw recente posts</h3>
-                    <div class="sectionText">Compacter en levendiger, zodat je homepage minder als een stapel saaie blokken voelt.</div>
+                    <div class="sectionText">Je homepage blijft rijker dan die van andere makers.</div>
                   </div>
                 </div>
                 <div class="postList">
@@ -1895,7 +1590,6 @@
                     <div class="buttonGroup">
                       <button class="pill likeBtn" onclick="event.stopPropagation(); likePost(${Number(item.id)})">Like</button>
                       <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
-                      ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
                     </div>
                     <div class="feedLoopHint" onclick="event.stopPropagation();">
                       Feed loopt door · swipe of scroll ↑↓
@@ -1903,7 +1597,7 @@
                   </div>
 
                   <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed waar je was. Op je eigen posts kun je hier ook direct verwijderen.
+                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
                   </div>
                 </div>
               </div>
