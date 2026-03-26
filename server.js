@@ -665,6 +665,60 @@ app.post("/auth/name-login", (req, res) => {
   });
 });
 
+
+app.patch("/users/:userId/profile", (req, res) => {
+  const user = findUser(req.params.userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "Gebruiker niet gevonden." });
+  }
+
+  if (req.body?.displayName !== undefined) {
+    const nextDisplayName = String(req.body.displayName || "").trim();
+    if (!nextDisplayName) {
+      return res.status(400).json({ message: "Naam mag niet leeg zijn." });
+    }
+    user.displayName = nextDisplayName;
+  }
+
+  if (req.body?.handle !== undefined) {
+    const nextHandleRaw = String(req.body.handle || "").trim();
+    if (!nextHandleRaw) {
+      return res.status(400).json({ message: "Handle mag niet leeg zijn." });
+    }
+
+    const nextHandle = nextHandleRaw.startsWith("@") ? nextHandleRaw : `@${nextHandleRaw}`;
+    const conflict = db.users.find(
+      (item) =>
+        item.id !== user.id &&
+        String(item.handle || "").toLowerCase() === nextHandle.toLowerCase()
+    );
+
+    if (conflict) {
+      return res.status(400).json({ message: "Deze handle bestaat al." });
+    }
+
+    user.handle = nextHandle;
+  }
+
+  if (req.body?.bio !== undefined) {
+    user.bio = String(req.body.bio || "").trim();
+  }
+
+  if (req.body?.password !== undefined) {
+    const nextPassword = String(req.body.password || "");
+    if (nextPassword.length < 1) {
+      return res.status(400).json({ message: "Wachtwoord moet minimaal 1 teken hebben." });
+    }
+    const auth = createPasswordFields(nextPassword);
+    user.passwordSalt = auth.passwordSalt;
+    user.passwordHash = auth.passwordHash;
+  }
+
+  saveDb();
+  res.json({ success: true, user: toSafeUser(user) });
+});
+
 app.post("/users/:userId/profile-media", upload.fields([
   { name: "avatar", maxCount: 1 },
   { name: "background", maxCount: 1 }
