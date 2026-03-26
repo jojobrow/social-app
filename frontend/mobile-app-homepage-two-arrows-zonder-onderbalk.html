@@ -684,6 +684,82 @@
       border: 1px solid rgba(255,255,255,0.12);
     }
 
+
+    .feedVideoShell {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: #110d15;
+    }
+
+    .feedVideoMedia {
+      position: absolute;
+      inset: 0;
+    }
+
+    .feedVideoMedia video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .feedVideoControls {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: calc(var(--safe-bottom) + 124px);
+      z-index: 4;
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(255, 248, 242, 0.78);
+      border: 1px solid rgba(120,84,53,0.16);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 12px 28px rgba(72,50,33,0.10);
+    }
+
+    .feedVideoControlBtn {
+      min-width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(111,84,62,0.96);
+      color: #fff8f2;
+      border: 1px solid rgba(111,84,62,0.96);
+      font-size: 16px;
+      font-weight: 900;
+      padding: 0 12px;
+    }
+
+    .feedVideoControlBtn.ghost {
+      background: rgba(255,255,255,0.72);
+      color: #5f4330;
+      border: 1px solid rgba(120,84,53,0.14);
+    }
+
+    .feedVideoTimeline {
+      width: 100%;
+      accent-color: #7a573d;
+      margin: 0;
+    }
+
+    .feedVideoTime {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6d5038;
+      white-space: nowrap;
+      min-width: 68px;
+      text-align: center;
+    }
+
     .hidden { display: none !important; }
 
     @media (min-width: 461px) {
@@ -1268,6 +1344,10 @@
           </div>
         </article>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function renderReactionList(reactions, showModeration = false) {
@@ -1550,6 +1630,83 @@
       `;
     }
 
+
+    function formatVideoTime(seconds) {
+      const safe = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+      const mins = Math.floor(safe / 60);
+      const secs = Math.floor(safe % 60);
+      return `${mins}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function getFeedVideo() {
+      return document.getElementById("feedVideoElement");
+    }
+
+    function updateFeedVideoUi() {
+      const video = getFeedVideo();
+      const playBtn = document.getElementById("feedVideoPlayBtn");
+      const muteBtn = document.getElementById("feedVideoMuteBtn");
+      const timeline = document.getElementById("feedVideoTimeline");
+      const timeLabel = document.getElementById("feedVideoTime");
+
+      if (!video || !playBtn || !muteBtn || !timeline || !timeLabel) return;
+
+      playBtn.textContent = video.paused ? "▶" : "❚❚";
+      muteBtn.textContent = video.muted ? "🔇" : "🔊";
+
+      const duration = Number.isFinite(video.duration) ? video.duration : 0;
+      const current = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+
+      timeline.max = duration || 0;
+      timeline.value = current;
+      timeLabel.textContent = `${formatVideoTime(current)} / ${formatVideoTime(duration)}`;
+    }
+
+    function bindFeedVideoControls() {
+      const video = getFeedVideo();
+      if (!video) return;
+
+      const safeUpdate = () => updateFeedVideoUi();
+
+      video.addEventListener("play", safeUpdate);
+      video.addEventListener("pause", safeUpdate);
+      video.addEventListener("timeupdate", safeUpdate);
+      video.addEventListener("loadedmetadata", safeUpdate);
+      video.addEventListener("volumechange", safeUpdate);
+      video.addEventListener("ended", safeUpdate);
+
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoPlay(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoMute(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      video.muted = !video.muted;
+      updateFeedVideoUi();
+    }
+
+    function seekFeedVideo(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      const timeline = document.getElementById("feedVideoTimeline");
+      if (!video || !timeline) return;
+      video.currentTime = Number(timeline.value || 0);
+      updateFeedVideoUi();
+    }
+
     function renderFeedScreen() {
       const items = getCurrentFeedItems();
       const item = getCurrentFeedItem();
@@ -1569,7 +1726,17 @@
       const mediaHtml = item.postType === "image" && item.imageUrl
         ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
         : item.postType === "video" && item.videoUrl
-        ? `<div class="feedMediaWrap"><video src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline controls></video></div>`
+        ? `<div class="feedVideoShell">
+            <div class="feedVideoMedia" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+              <video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video>
+            </div>
+            <div class="feedVideoControls" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+              <button id="feedVideoPlayBtn" class="feedVideoControlBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
+              <input id="feedVideoTimeline" class="feedVideoTimeline" type="range" min="0" max="0" value="0" step="0.1" oninput="seekFeedVideo(event)" />
+              <div id="feedVideoTime" class="feedVideoTime">0:00 / 0:00</div>
+              <button id="feedVideoMuteBtn" class="feedVideoControlBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
+            </div>
+          </div>`
         : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
 
       const scopeLabel = state.feedMode === "creator"
