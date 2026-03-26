@@ -203,6 +203,39 @@
       border: 1px solid rgba(240,169,169,0.18);
     }
 
+    .notifyBtn {
+      position: relative;
+      color: #18130f;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 14px 32px rgba(200,169,126,0.20);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .notifyBtn.isHot {
+      box-shadow:
+        0 0 0 1px rgba(241,223,200,0.24),
+        0 0 18px rgba(241,223,200,0.42),
+        0 0 34px rgba(200,169,126,0.32),
+        0 14px 32px rgba(200,169,126,0.24);
+      animation: notifyPulse 1.9s ease-in-out infinite;
+    }
+
+    .notifyDot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #6f543e;
+      box-shadow: 0 0 0 4px rgba(111,84,62,0.10);
+      margin-right: 8px;
+      display: inline-block;
+    }
+
+    @keyframes notifyPulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(0) scale(1.035); }
+    }
+
     .hero {
       position: relative;
       padding: 18px;
@@ -802,6 +835,9 @@
       touchStartY: null,
       touchActive: false
     };
+
+    let homepageFriendCount = 0;
+    let homepageHasUpdates = false;
 
     const $ = (id) => document.getElementById(id);
 
@@ -1518,7 +1554,8 @@
               <div class="buttonGroup">
                 <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
                 <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
-                <button class="ghostBtn" onclick="openFriendsModule()">Vrienden</button>
+                <button class="pill" onclick="openFriendsModule()">Vrienden ${homepageFriendCount}</button>
+                <button class="notifyBtn ${homepageHasUpdates ? 'isHot' : ''}" onclick="openFriendsModule()">${homepageHasUpdates ? '<span class="notifyDot"></span>Nieuw' : 'Nieuw'}</button>
                 <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
               </div>
             </div>
@@ -1539,7 +1576,7 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Jouw basis</h3>
-                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
+                    <div class="sectionText">Van hieruit open je de feed, zie je hoeveel vrienden je hebt en zie je via één oplichtende knop of er iets nieuws is.</div>
                   </div>
                   <div class="buttonGroup">
                     <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
@@ -1550,7 +1587,7 @@
                   <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
                   <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
                   <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+                  <div class="stat"><div class="statValue">${homepageFriendCount}</div><div class="statLabel">Vrienden</div></div>
                 </div>
               </div>
             </section>
@@ -1882,11 +1919,37 @@
       renderFeedScreen();
     }
 
+    async function loadHomepageFriendCounts() {
+      if (!state.activeUserId) {
+        homepageFriendCount = 0;
+        homepageHasUpdates = false;
+        return;
+      }
+
+      try {
+        const [friendListResult, requestsResult] = await Promise.all([
+          fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(state.activeUserId)}`),
+          fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(state.activeUserId)}`)
+        ]);
+
+        homepageFriendCount = Array.isArray(friendListResult.items) ? friendListResult.items.length : 0;
+        const incomingCount = Array.isArray(requestsResult.incoming) ? requestsResult.incoming.length : 0;
+
+        // Voor nu is er "iets nieuws" als er inkomende vriendschapsverzoeken zijn.
+        // Later kun je hier ook nieuwe berichten / nieuwe content van vrienden aan toevoegen.
+        homepageHasUpdates = incomingCount > 0;
+      } catch (_error) {
+        homepageFriendCount = 0;
+        homepageHasUpdates = false;
+      }
+    }
+
     async function refreshAll(options = {}) {
       const keepScreen = options.keepScreen || state.activeScreen;
       await loadUsers();
       await loadFeed();
       await loadOwnFrontpage();
+      await loadHomepageFriendCounts();
       if (state.viewedCreatorUserId) {
         await loadCreatorFrontpage(state.viewedCreatorUserId);
       }

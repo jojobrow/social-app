@@ -1,204 +1,654 @@
-<script>
-  const API_BASE = window.location.origin;
-  const ACTIVE_USER_KEY = "socialPrototypeActiveUserId";
-  const MAIN_APP_FILE = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Vrienden</title>
+  <style>
+    :root{
+      --bg:#0d0b10;
+      --bg-2:#17121b;
+      --panel:rgba(255,255,255,.055);
+      --panel-2:rgba(255,255,255,.075);
+      --line:rgba(255,255,255,.10);
+      --text:#f6efe8;
+      --muted:rgba(255,255,255,.68);
+      --accent:#dcc2ad;
+      --accent-2:#efe2d7;
+      --accentText:#3d2a1d;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius-xl:24px;
+      --radius-lg:18px;
+      --radius-md:14px;
+      --shadow:0 18px 38px rgba(0,0,0,.22);
+    }
 
-  let activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
-  let friendSearchResults = [];
-  let incomingFriendRequests = [];
-  let outgoingFriendRequests = [];
-  let friendsList = [];
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      background:
+        radial-gradient(circle at top right, rgba(220,194,173,0.10), transparent 28%),
+        linear-gradient(180deg,var(--bg),var(--bg-2) 58%,#1d1523);
+      color:var(--text);
+      font-family:Inter,system-ui,sans-serif;
+      -webkit-tap-highlight-color:transparent;
+    }
+    body{min-height:100vh}
+    button,input{font:inherit}
+    button{cursor:pointer;border:0}
+    img,video{display:block;max-width:100%}
 
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
+    .page{
+      max-width:720px;
+      margin:0 auto;
+      padding:calc(var(--safe-top) + 16px) 14px calc(var(--safe-bottom) + 24px);
+    }
 
-  function initials(name) {
-    return String(name || "U").trim().charAt(0).toUpperCase() || "U";
-  }
+    .topbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
 
-  async function fetchJson(url, options = {}) {
-    const response = await fetch(url, options);
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.message || "Request mislukt.");
-    return data;
-  }
+    .backBtn,.ghostBtn,.solidBtn,.chipBtn{
+      min-height:42px;
+      padding:0 14px;
+      border-radius:999px;
+    }
 
-  function goBack() {
-    window.location.href = MAIN_APP_FILE;
-  }
+    .backBtn,.ghostBtn,.chipBtn{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid var(--line);
+      backdrop-filter:blur(8px);
+    }
 
-  async function loadFriendsData() {
-    if (!activeUserId) return;
+    .solidBtn{
+      background:linear-gradient(135deg,var(--accent-2),var(--accent));
+      color:var(--accentText);
+      font-weight:800;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 12px 28px rgba(200,169,126,.18);
+    }
 
-    const [listResult, requestsResult] = await Promise.all([
-      fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(activeUserId)}`),
-      fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(activeUserId)}`)
-    ]);
+    .hero,.card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius-xl);
+      backdrop-filter:blur(10px);
+      box-shadow:var(--shadow);
+    }
 
-    friendsList = Array.isArray(listResult.items) ? listResult.items : [];
-    incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
-    outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
-  }
+    .hero{
+      padding:18px;
+      margin-bottom:14px;
+      overflow:hidden;
+      position:relative;
+    }
 
-  async function searchFriends() {
-    if (!activeUserId) return;
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:auto -10% -30% auto;
+      width:180px;
+      height:180px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(220,194,173,.18), transparent 70%);
+      pointer-events:none;
+    }
 
-    const query = document.getElementById("friendSearchInput").value.trim();
-    const result = await fetchJson(
-      `${API_BASE}/friends/search?userId=${encodeURIComponent(activeUserId)}&q=${encodeURIComponent(query)}`
-    );
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+      position:relative;
+      z-index:1;
+    }
 
-    friendSearchResults = Array.isArray(result.items) ? result.items : [];
-    renderSearchResults();
-  }
+    h1{
+      margin:0;
+      font-size:28px;
+      line-height:1.04;
+      position:relative;
+      z-index:1;
+    }
 
-  async function sendFriendRequest(targetUserId) {
-    await fetchJson(`${API_BASE}/friends/request`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requesterUserId: activeUserId,
-        targetUserId
-      })
-    });
+    .sub{
+      margin-top:8px;
+      font-size:14px;
+      line-height:1.5;
+      color:var(--muted);
+      position:relative;
+      z-index:1;
+    }
 
-    await refreshAll();
-  }
+    .card{
+      padding:14px;
+      margin-bottom:14px;
+    }
 
-  async function acceptFriendRequest(requesterUserId) {
-    await fetchJson(`${API_BASE}/friends/accept`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requesterUserId,
-        targetUserId: activeUserId
-      })
-    });
+    .sectionTitle{
+      margin:0 0 10px;
+      font-size:18px;
+    }
 
-    await refreshAll();
-  }
+    .searchRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
 
-  async function removeFriend(friendUserId) {
-    if (!confirm("Weet je zeker dat je deze vriend wilt verwijderen?")) return;
+    .field{
+      width:100%;
+      min-height:46px;
+      padding:0 14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      outline:none;
+    }
 
-    await fetchJson(`${API_BASE}/friends/remove`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userA: activeUserId,
-        userB: friendUserId
-      })
-    });
+    .field::placeholder{color:rgba(255,255,255,.42)}
 
-    await refreshAll();
-  }
+    .grid{
+      display:grid;
+      gap:10px;
+    }
 
-  function renderPersonCard(user, actionHtml, extra = "") {
-    return `
-      <div class="item">
-        <div class="itemTop">
-          <div class="person">
-            <div class="avatar">${escapeHtml(initials(user.displayName))}</div>
-            <div>
-              <div class="name">${escapeHtml(user.displayName || "Gebruiker")}</div>
-              <div class="handle">${escapeHtml(user.handle || "")}</div>
+    .item{
+      padding:12px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+    }
+
+    .itemTop{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .person{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width:0;
+      flex:1;
+    }
+
+    .avatar{
+      width:42px;
+      height:42px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,#d7bea6,#f2e4d7);
+      color:#3d2a1d;
+      font-weight:800;
+      flex:0 0 auto;
+      overflow:hidden;
+    }
+
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .name{
+      font-weight:800;
+      line-height:1.15;
+    }
+
+    .handle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:3px;
+    }
+
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .bio{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .empty{
+      padding:12px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px dashed var(--line);
+      color:var(--muted);
+    }
+
+    .friendTiles{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .friendTile{
+      position:relative;
+      overflow:hidden;
+      border-radius:18px;
+      aspect-ratio:1/1;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      padding:0;
+    }
+
+    .friendTile img,
+    .friendTileVideo{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .friendTileOverlay{
+      position:absolute;
+      inset:auto 0 0 0;
+      padding:10px 10px 9px;
+      background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.68));
+      text-align:left;
+    }
+
+    .friendTileName{
+      font-size:12px;
+      font-weight:800;
+      color:#fff9f3;
+    }
+
+    .friendTileMeta{
+      margin-top:2px;
+      font-size:11px;
+      color:rgba(255,255,255,.78);
+    }
+
+    .statusPill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      color:#fff7ef;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .footerSpace{height:8px}
+
+    @media (max-width: 460px){
+      .friendTiles{grid-template-columns:repeat(2,1fr)}
+      .searchRow{flex-direction:column}
+      .searchRow .solidBtn{width:100%}
+      .actions{justify-content:flex-start}
+      .itemTop{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <button class="backBtn" onclick="goBack()">← Homepage</button>
+      <button class="ghostBtn" onclick="refreshAll()">Vernieuw</button>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">Vrienden</div>
+      <h1>Sociale updates</h1>
+      <div class="sub">
+        Zelfde sfeer als je hoofdapp. Eerst pending, daarna vrienden en hun nieuwste content in rastervorm.
+        Tik op een vriend of post om terug te springen naar je hoofdapp.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Vriend zoeken</h2>
+      <div class="searchRow">
+        <input id="friendSearchInput" class="field" placeholder="Zoek op naam of @handle" />
+        <button class="solidBtn" onclick="searchFriends()">Zoeken</button>
+      </div>
+      <div id="searchResults" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Pending</h2>
+      <div id="incomingRequests"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Vrienden</h2>
+      <div id="friendsList"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">Nieuwe content van vrienden</h2>
+      <div id="friendsContentGrid"></div>
+    </section>
+
+    <div class="footerSpace"></div>
+  </main>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const ACTIVE_USER_KEY = "socialPrototypeActiveUserId";
+    const MAIN_APP_FILE = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+    const FRIEND_TARGET_KEY = "socialPrototypeFriendTargetUserId";
+    const FEED_ENTRY_POST_KEY = "socialPrototypeFriendEntryPostId";
+
+    let activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
+    let friendSearchResults = [];
+    let incomingFriendRequests = [];
+    let outgoingFriendRequests = [];
+    let friendsList = [];
+    let friendsFeedItems = [];
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function initials(name) {
+      return String(name || "U").trim().charAt(0).toUpperCase() || "U";
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Request mislukt.");
+      return data;
+    }
+
+    function getAvatarHtml(user = {}) {
+      if (user.avatarUrl) {
+        return `<img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || "avatar")}" />`;
+      }
+      return escapeHtml(initials(user.displayName));
+    }
+
+    function timeAgo(timestamp) {
+      const ms = Date.now() - Number(timestamp || 0);
+      const minutes = Math.max(1, Math.floor(ms / 60000));
+      if (minutes < 60) return `${minutes} min geleden`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} uur geleden`;
+      const days = Math.floor(hours / 24);
+      return `${days} d geleden`;
+    }
+
+    function getNewestFriendPosts() {
+      const friendIds = new Set(friendsList.map((friend) => friend.id));
+      const filtered = friendsFeedItems.filter((item) => friendIds.has(item.owner?.id));
+
+      const newestByFriend = new Map();
+      for (const item of filtered) {
+        const ownerId = item.owner?.id;
+        if (!ownerId) continue;
+        const existing = newestByFriend.get(ownerId);
+        if (!existing || Number(item.createdAt || 0) > Number(existing.createdAt || 0)) {
+          newestByFriend.set(ownerId, item);
+        }
+      }
+
+      return Array.from(newestByFriend.values()).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    }
+
+    function openFriendHomepage(friendUserId) {
+      localStorage.setItem(FRIEND_TARGET_KEY, friendUserId);
+      localStorage.removeItem(FEED_ENTRY_POST_KEY);
+      window.location.href = MAIN_APP_FILE;
+    }
+
+    function openFriendPost(postId, friendUserId) {
+      localStorage.setItem(FRIEND_TARGET_KEY, friendUserId);
+      localStorage.setItem(FEED_ENTRY_POST_KEY, String(postId));
+      window.location.href = MAIN_APP_FILE;
+    }
+
+    function goBack() {
+      localStorage.removeItem(FRIEND_TARGET_KEY);
+      window.location.href = MAIN_APP_FILE;
+    }
+
+    async function loadFriendsData() {
+      if (!activeUserId) return;
+
+      const [listResult, requestsResult, feedResult] = await Promise.all([
+        fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(activeUserId)}`),
+        fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(activeUserId)}`),
+        fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(activeUserId)}`)
+      ]);
+
+      friendsList = Array.isArray(listResult.items) ? listResult.items : [];
+      incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
+      outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
+      friendsFeedItems = Array.isArray(feedResult.items) ? feedResult.items : [];
+    }
+
+    async function searchFriends() {
+      if (!activeUserId) return;
+
+      const query = document.getElementById("friendSearchInput").value.trim();
+      const result = await fetchJson(
+        `${API_BASE}/friends/search?userId=${encodeURIComponent(activeUserId)}&q=${encodeURIComponent(query)}`
+      );
+
+      friendSearchResults = Array.isArray(result.items) ? result.items : [];
+      renderSearchResults();
+    }
+
+    async function sendFriendRequest(targetUserId) {
+      await fetchJson(`${API_BASE}/friends/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterUserId: activeUserId,
+          targetUserId
+        })
+      });
+
+      await refreshAll();
+    }
+
+    async function acceptFriendRequest(requesterUserId) {
+      await fetchJson(`${API_BASE}/friends/accept`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterUserId,
+          targetUserId: activeUserId
+        })
+      });
+
+      await refreshAll();
+    }
+
+    async function removeFriend(friendUserId) {
+      if (!confirm("Weet je zeker dat je deze vriend wilt verwijderen?")) return;
+
+      await fetchJson(`${API_BASE}/friends/remove`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userA: activeUserId,
+          userB: friendUserId
+        })
+      });
+
+      await refreshAll();
+    }
+
+    function renderPersonCard(user, actionHtml, extra = "") {
+      return `
+        <div class="item">
+          <div class="itemTop">
+            <div class="person" onclick="openFriendHomepage('${user.id || ""}')" style="cursor:pointer;">
+              <div class="avatar">${getAvatarHtml(user)}</div>
+              <div>
+                <div class="name">${escapeHtml(user.displayName || "Gebruiker")}</div>
+                <div class="handle">${escapeHtml(user.handle || "")}</div>
+              </div>
             </div>
+            <div class="actions">${actionHtml}</div>
           </div>
-          <div class="actions">${actionHtml}</div>
+          ${extra ? `<div class="mini">${extra}</div>` : ""}
+          <div class="bio">${escapeHtml(user.bio || "")}</div>
         </div>
-        ${extra ? `<div class="mini" style="margin-top:8px">${extra}</div>` : ""}
-        <div class="bio">${escapeHtml(user.bio || "")}</div>
-      </div>
-    `;
-  }
-
-  function renderSearchResults() {
-    const el = document.getElementById("searchResults");
-
-    if (!friendSearchResults.length) {
-      el.innerHTML = `<div class="empty">Nog geen zoekresultaten. Zoek op naam of @handle.</div>`;
-      return;
+      `;
     }
 
-    el.innerHTML = `
-      <div class="list">
-        ${friendSearchResults.map((user) => {
-          const actionHtml =
-            user.friendshipStatus === "accepted"
-              ? `<button class="ghostBtn" onclick="removeFriend('${user.id}')">Verwijder</button>`
-              : user.friendshipStatus === "pending"
-              ? `<button class="ghostBtn" disabled>Pending</button>`
-              : `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Toevoegen</button>`;
+    function renderSearchResults() {
+      const el = document.getElementById("searchResults");
 
-          return renderPersonCard(user, actionHtml);
-        }).join("")}
-      </div>
-    `;
-  }
+      if (!friendSearchResults.length) {
+        el.innerHTML = `<div class="empty">Nog geen zoekresultaten. Zoek op naam of @handle.</div>`;
+        return;
+      }
 
-  function renderIncomingRequests() {
-    const el = document.getElementById("incomingRequests");
+      el.innerHTML = `
+        <div class="grid">
+          ${friendSearchResults.map((user) => {
+            const actionHtml =
+              user.friendshipStatus === "accepted"
+                ? `<button class="ghostBtn" onclick="removeFriend('${user.id}')">Verwijder</button>`
+                : user.friendshipStatus === "pending"
+                ? `<button class="ghostBtn" disabled>Pending</button>`
+                : `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Toevoegen</button>`;
 
-    if (!incomingFriendRequests.length) {
-      el.innerHTML = `<div class="empty">Nog geen inkomende vriendschapsverzoeken.</div>`;
-      return;
+            return renderPersonCard(user, actionHtml);
+          }).join("")}
+        </div>
+      `;
     }
 
-    el.innerHTML = `
-      <div class="list">
-        ${incomingFriendRequests.map((request) =>
-          renderPersonCard(
-            request.requester || {},
-            `<button class="solidBtn" onclick="acceptFriendRequest('${request.requesterUserId}')">Accepteren</button>`
-          )
-        ).join("")}
-      </div>
-    `;
-  }
+    function renderIncomingRequests() {
+      const el = document.getElementById("incomingRequests");
 
-  function renderFriendsList() {
-    const el = document.getElementById("friendsList");
+      if (!incomingFriendRequests.length) {
+        el.innerHTML = `<div class="empty">Nog geen inkomende vriendschapsverzoeken.</div>`;
+        return;
+      }
 
-    if (!friendsList.length) {
-      el.innerHTML = `<div class="empty">Nog geen vrienden toegevoegd.</div>`;
-      return;
+      el.innerHTML = `
+        <div class="grid">
+          ${incomingFriendRequests.map((request) =>
+            renderPersonCard(
+              request.requester || {},
+              `<button class="solidBtn" onclick="acceptFriendRequest('${request.requesterUserId}')">Accepteren</button>`,
+              request.createdAt ? timeAgo(request.createdAt) : ""
+            )
+          ).join("")}
+        </div>
+      `;
     }
 
-    el.innerHTML = `
-      <div class="list">
-        ${friendsList.map((friend) =>
-          renderPersonCard(
-            friend,
-            `<button class="ghostBtn" onclick="removeFriend('${friend.id}')">Verwijder</button>`
-          )
-        ).join("")}
-      </div>
-    `;
-  }
+    function renderFriendsList() {
+      const el = document.getElementById("friendsList");
 
-  async function refreshAll() {
-    if (!activeUserId) {
-      document.getElementById("searchResults").innerHTML =
-        `<div class="empty">Geen actieve gebruiker gevonden. Log eerst in.</div>`;
-      document.getElementById("incomingRequests").innerHTML = "";
-      document.getElementById("friendsList").innerHTML = "";
-      return;
+      if (!friendsList.length) {
+        el.innerHTML = `<div class="empty">Nog geen vrienden toegevoegd.</div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="grid">
+          ${friendsList.map((friend) =>
+            renderPersonCard(
+              friend,
+              `<button class="ghostBtn" onclick="removeFriend('${friend.id}')">Verwijder</button>`
+            )
+          ).join("")}
+        </div>
+      `;
     }
 
-    await loadFriendsData();
-    renderSearchResults();
-    renderIncomingRequests();
-    renderFriendsList();
-  }
+    function renderFriendsContentGrid() {
+      const el = document.getElementById("friendsContentGrid");
+      const items = getNewestFriendPosts();
 
-  refreshAll().catch((error) => {
-    document.getElementById("searchResults").innerHTML =
-      `<div class="empty">${escapeHtml(error.message || "Kon vriendenmodule niet laden.")}</div>`;
-  });
-</script>
+      if (!items.length) {
+        el.innerHTML = `<div class="empty">Nog geen nieuwe content van vrienden gevonden.</div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="friendTiles">
+          ${items.map((item) => {
+            const owner = item.owner || {};
+            const mediaHtml =
+              item.postType === "video" && item.videoUrl
+                ? `<video class="friendTileVideo" src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video>`
+                : item.imageUrl
+                ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.caption || "post")}" />`
+                : `<div class="friendTileVideo" style="display:grid;place-items:center;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));color:rgba(255,255,255,.84);font-weight:700;text-align:center;">${escapeHtml((item.caption || "Tekstpost").slice(0, 56))}</div>`;
+
+            return `
+              <button class="friendTile" onclick="openFriendPost('${item.id}','${owner.id || ""}')">
+                ${mediaHtml}
+                <div class="friendTileOverlay">
+                  <div class="friendTileName">${escapeHtml(owner.displayName || "Vriend")}</div>
+                  <div class="friendTileMeta">${escapeHtml(timeAgo(item.createdAt))}</div>
+                </div>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    async function refreshAll() {
+      if (!activeUserId) {
+        document.getElementById("searchResults").innerHTML =
+          `<div class="empty">Geen actieve gebruiker gevonden. Log eerst in.</div>`;
+        document.getElementById("incomingRequests").innerHTML = "";
+        document.getElementById("friendsList").innerHTML = "";
+        document.getElementById("friendsContentGrid").innerHTML = "";
+        return;
+      }
+
+      await loadFriendsData();
+      renderSearchResults();
+      renderIncomingRequests();
+      renderFriendsList();
+      renderFriendsContentGrid();
+    }
+
+    refreshAll().catch((error) => {
+      const msg = escapeHtml(error.message || "Kon vriendenmodule niet laden.");
+      document.getElementById("searchResults").innerHTML = `<div class="empty">${msg}</div>`;
+      document.getElementById("incomingRequests").innerHTML = `<div class="empty">${msg}</div>`;
+      document.getElementById("friendsList").innerHTML = `<div class="empty">${msg}</div>`;
+      document.getElementById("friendsContentGrid").innerHTML = `<div class="empty">${msg}</div>`;
+    });
+  </script>
+</body>
+</html>
