@@ -401,6 +401,16 @@ function getFriendCount(userId) {
 
 
 function ensureMockData() {
+  function ensureMockPassword(user) {
+    const id = String(user?.id || "");
+    const isMockUser = /^u10\d$/.test(id) || /^u11\d$/.test(id);
+    if (isMockUser && (!user.passwordSalt || !user.passwordHash)) {
+      user.passwordSalt = "seed-mock-salt";
+      user.passwordHash = hashPassword("1234", "seed-mock-salt");
+      return true;
+    }
+    return false;
+  }
   const mockUsers = [
     { id: "u100", displayName: "Noor", handle: "@noor", bio: "Fotografie, zachte tinten en kleine observaties.", avatarColor: "#d7bea6", heroColor: "#f2e4d7", homepageLikes: 17 },
     { id: "u101", displayName: "Levi", handle: "@levi", bio: "Korte video’s, montage en ritme.", avatarColor: "#d7c8bb", heroColor: "#f0e6dd", homepageLikes: 11 },
@@ -456,7 +466,12 @@ function ensureMockData() {
   let changed = false;
 
   mockUsers.forEach((mock, index) => {
-    if (!db.users.some((user) => user.id === mock.id)) {
+    const existingUser = db.users.find((user) => user.id === mock.id);
+    if (existingUser) {
+      if (ensureMockPassword(existingUser)) changed = true;
+    }
+
+    if (!existingUser) {
       db.users.push({
         id: mock.id,
         displayName: mock.displayName,
@@ -467,7 +482,9 @@ function ensureMockData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: mock.homepageLikes,
-        blockedUsers: []
+        blockedUsers: [],
+        passwordSalt: "seed-mock-salt",
+        passwordHash: hashPassword("1234", "seed-mock-salt")
       });
       changed = true;
     }
