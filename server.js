@@ -87,6 +87,24 @@ function buildUniqueHandle(displayName, users) {
   return candidate;
 }
 
+function hashPassword(password, salt) {
+  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
+}
+
+function createPasswordFields(password) {
+  const safePassword = String(password || "");
+  const salt = crypto.randomBytes(16).toString("hex");
+  return {
+    passwordSalt: salt,
+    passwordHash: hashPassword(safePassword, salt)
+  };
+}
+
+function verifyPassword(user, password) {
+  if (!user?.passwordSalt || !user?.passwordHash) return false;
+  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
+}
+
 function createInitialData() {
   return {
     counters: {
@@ -106,8 +124,7 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 14,
-        blockedUsers: []
-      ,
+        blockedUsers: [],
         passwordSalt: "seed-johannes-salt",
         passwordHash: "5eae07ccf419e24015a4d0492386b1c262b11f29ed029596e1be9f80e295cef2"
       },
@@ -355,32 +372,19 @@ function loadDb() {
 }
 
 let db = loadDb();
-ensureMockData();
 
 function saveDb() {
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), "utf8");
 }
 
-function hashPassword(password, salt) {
-  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
-}
-
-function createPasswordFields(password) {
-  const safePassword = String(password || "");
-  const salt = crypto.randomBytes(16).toString("hex");
-  return {
-    passwordSalt: salt,
-    passwordHash: hashPassword(safePassword, salt)
-  };
-}
-
-function verifyPassword(user, password) {
-  if (!user?.passwordSalt || !user?.passwordHash) return false;
-  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
-}
-
 function findUser(userId) {
   return db.users.find((user) => user.id === userId);
+}
+
+function toSafeUser(user) {
+  if (!user) return null;
+  const { passwordHash, passwordSalt, ...safeUser } = user;
+  return safeUser;
 }
 
 function findUserByDisplayName(displayName) {
@@ -417,19 +421,18 @@ function createUserFromName(displayName, password) {
   return newUser;
 }
 
-
 function mapReactionForClient(reaction) {
   return {
     ...reaction,
-    fromUser: findUser(reaction.fromUserId) || null,
-    targetUser: findUser(reaction.targetUserId) || null
+    fromUser: toSafeUser(findUser(reaction.fromUserId)),
+    targetUser: toSafeUser(findUser(reaction.targetUserId))
   };
 }
 
 function mapPostForClient(post) {
   return {
     ...post,
-    owner: findUser(post.ownerUserId) || null
+    owner: toSafeUser(findUser(post.ownerUserId))
   };
 }
 
@@ -464,7 +467,6 @@ function getFriendCount(userId) {
   ).length;
 }
 
-
 function ensureMockData() {
   function ensureMockPassword(user) {
     const id = String(user?.id || "");
@@ -476,6 +478,7 @@ function ensureMockData() {
     }
     return false;
   }
+
   const mockUsers = [
     { id: "u100", displayName: "Noor", handle: "@noor", bio: "Fotografie, zachte tinten en kleine observaties.", avatarColor: "#d7bea6", heroColor: "#f2e4d7", homepageLikes: 17 },
     { id: "u101", displayName: "Levi", handle: "@levi", bio: "Korte video’s, montage en ritme.", avatarColor: "#d7c8bb", heroColor: "#f0e6dd", homepageLikes: 11 },
@@ -600,6 +603,8 @@ function ensureMockData() {
   if (changed) saveDb();
 }
 
+ensureMockData();
+
 function sortFeedPosts(posts) {
   const feedWeight = {
     promoted: 3,
@@ -619,9 +624,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/users", (_req, res) => {
-  res.json(
-    db.users.map(({ passwordHash, passwordSalt, ...safeUser }) => safeUser)
-  );
+  res.json(db.users.map(toSafeUser));
 });
 
 app.post("/auth/name-login", (req, res) => {
@@ -656,15 +659,13 @@ app.post("/auth/name-login", (req, res) => {
     }
   }
 
-  const { passwordHash, passwordSalt, ...safeUser } = user;
   res.json({
     success: true,
     created,
     remember,
-    user: safeUser
+    user: toSafeUser(user)
   });
 });
-
 
 app.patch("/users/:userId/profile", (req, res) => {
   const user = findUser(req.params.userId);
@@ -741,8 +742,7 @@ app.post("/users/:userId/profile-media", upload.fields([
   }
 
   saveDb();
-  const { passwordHash, passwordSalt, ...safeUser } = user;
-  res.json({ success: true, user: safeUser });
+  res.json({ success: true, user: toSafeUser(user) });
 });
 
 app.get("/feed", (req, res) => {
@@ -782,7 +782,7 @@ app.get("/frontpage/:userId", (req, res) => {
     .map(mapReactionForClient);
 
   res.json({
-    user,
+    user: toSafeUser(user),
     friendshipStatus: getFriendshipStatus(viewerUserId, targetUserId),
     stats: {
       posts: userPosts.length,
