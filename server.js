@@ -22,6 +22,7 @@ function ensureDir(dirPath) {
   }
 }
 
+ensureDir(frontendDir);
 ensureDir(uploadsDir);
 ensureDir(dataDir);
 
@@ -33,11 +34,9 @@ const videoMimeTypes = ["video/mp4", "video/webm"];
 const allowedMimeTypes = [...imageMimeTypes, ...videoMimeTypes];
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const safeName = String(file.originalname || "upload").replace(/[^a-zA-Z0-9.\-_]/g, "_");
     cb(null, `${Date.now()}-${safeName}`);
   }
 });
@@ -57,7 +56,57 @@ function getBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
 
+function hashPassword(password, salt) {
+  return crypto.createHash("sha256").update(`${salt}:${String(password || "")}`).digest("hex");
+}
+
+function createPasswordFields(password) {
+  const safePassword = String(password || "");
+  const salt = crypto.randomBytes(16).toString("hex");
+  return {
+    passwordSalt: salt,
+    passwordHash: hashPassword(safePassword, salt)
+  };
+}
+
+function verifyPassword(user, password) {
+  if (!user?.passwordSalt || !user?.passwordHash) return false;
+  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
+}
+
+function pickPalette(index) {
+  const palettes = [
+    { avatarColor: "#dcc2ad", heroColor: "#f4e5d8" },
+    { avatarColor: "#e7cfc4", heroColor: "#faeee7" },
+    { avatarColor: "#d7c3b4", heroColor: "#efe2d7" },
+    { avatarColor: "#d9c7b8", heroColor: "#f5ebe2" },
+    { avatarColor: "#cfb39e", heroColor: "#f0dfd1" }
+  ];
+  return palettes[index % palettes.length];
+}
+
+function buildUniqueHandle(displayName, users) {
+  const base =
+    String(displayName || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 16) || "user";
+
+  let candidate = `@${base}`;
+  let suffix = 1;
+
+  while (users.some((user) => String(user.handle || "").toLowerCase() === candidate.toLowerCase())) {
+    suffix += 1;
+    candidate = `@${base}${suffix}`;
+  }
+
+  return candidate;
+}
+
 function createInitialData() {
+  const johannesPasswordSalt = "seed-johannes-salt";
+
   return {
     counters: {
       nextUserId: 4,
@@ -76,10 +125,9 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 14,
-        blockedUsers: []
-      ,
-        passwordSalt: "seed-johannes-salt",
-        passwordHash: "5eae07ccf419e24015a4d0492386b1c262b11f29ed029596e1be9f80e295cef2"
+        blockedUsers: [],
+        passwordSalt: johannesPasswordSalt,
+        passwordHash: hashPassword("1234", johannesPasswordSalt)
       },
       {
         id: "u2",
@@ -279,25 +327,19 @@ function normalizeUser(user, fallbackUser = {}) {
 
 function normalizeDb(raw) {
   const fallback = createInitialData();
-
   return {
     counters: {
       nextUserId: Number(raw?.counters?.nextUserId) || fallback.counters.nextUserId,
       nextPostId: Number(raw?.counters?.nextPostId) || fallback.counters.nextPostId,
       nextReactionId: Number(raw?.counters?.nextReactionId) || fallback.counters.nextReactionId,
-      nextFriendRequestId:
-        Number(raw?.counters?.nextFriendRequestId) || fallback.counters.nextFriendRequestId
+      nextFriendRequestId: Number(raw?.counters?.nextFriendRequestId) || fallback.counters.nextFriendRequestId
     },
     users: Array.isArray(raw?.users)
       ? raw.users.map((user, index) => normalizeUser(user, fallback.users[index] || {}))
       : fallback.users,
     posts: Array.isArray(raw?.posts) ? raw.posts : fallback.posts,
-    acceptedReactions: Array.isArray(raw?.acceptedReactions)
-      ? raw.acceptedReactions
-      : fallback.acceptedReactions,
-    pendingReactions: Array.isArray(raw?.pendingReactions)
-      ? raw.pendingReactions
-      : fallback.pendingReactions,
+    acceptedReactions: Array.isArray(raw?.acceptedReactions) ? raw.acceptedReactions : fallback.acceptedReactions,
+    pendingReactions: Array.isArray(raw?.pendingReactions) ? raw.pendingReactions : fallback.pendingReactions,
     friendRequests: Array.isArray(raw?.friendRequests) ? raw.friendRequests : fallback.friendRequests,
     friendships: Array.isArray(raw?.friendships) ? raw.friendships : fallback.friendships
   };
@@ -330,40 +372,62 @@ function saveDb() {
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), "utf8");
 }
 
-function hashPassword(password, salt) {
-  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
-}
-
-function createPasswordFields(password) {
-  const safePassword = String(password || "");
-  const salt = crypto.randomBytes(16).toString("hex");
-  return {
-    passwordSalt: salt,
-    passwordHash: hashPassword(safePassword, salt)
-  };
-}
-
-function verifyPassword(user, password) {
-  if (!user?.passwordSalt || !user?.passwordHash) return false;
-  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
-}
-
 function findUser(userId) {
   return db.users.find((user) => user.id === userId);
+}
+
+function findUserByDisplayName(displayName) {
+  const value = String(displayName || "").trim().toLowerCase();
+  return db.users.find(
+    (user) =>
+      String(user.displayName || "").trim().toLowerCase() === value ||
+      String(user.handle || "").replace(/^@/, "").trim().toLowerCase() === value
+  );
+}
+
+function createUserFromName(displayName, password) {
+  const trimmedName = String(displayName || "").trim();
+  const palette = pickPalette(db.users.length);
+  const auth = createPasswordFields(password);
+
+  const newUser = {
+    id: `u${db.counters.nextUserId++}`,
+    displayName: trimmedName,
+    handle: buildUniqueHandle(trimmedName, db.users),
+    bio: "Nieuwe gebruiker op het prototype.",
+    avatarColor: palette.avatarColor,
+    heroColor: palette.heroColor,
+    avatarUrl: "",
+    backgroundUrl: "",
+    homepageLikes: 0,
+    blockedUsers: [],
+    passwordSalt: auth.passwordSalt,
+    passwordHash: auth.passwordHash
+  };
+
+  db.users.push(newUser);
+  saveDb();
+  return newUser;
+}
+
+function toSafeUser(user) {
+  if (!user) return null;
+  const { passwordHash, passwordSalt, ...safeUser } = user;
+  return safeUser;
 }
 
 function mapReactionForClient(reaction) {
   return {
     ...reaction,
-    fromUser: findUser(reaction.fromUserId) || null,
-    targetUser: findUser(reaction.targetUserId) || null
+    fromUser: toSafeUser(findUser(reaction.fromUserId)),
+    targetUser: toSafeUser(findUser(reaction.targetUserId))
   };
 }
 
 function mapPostForClient(post) {
   return {
     ...post,
-    owner: findUser(post.ownerUserId) || null
+    owner: toSafeUser(findUser(post.ownerUserId))
   };
 }
 
@@ -371,8 +435,7 @@ function areFriends(userA, userB) {
   return db.friendships.some(
     (item) =>
       item.status === "accepted" &&
-      ((item.userA === userA && item.userB === userB) ||
-        (item.userA === userB && item.userB === userA))
+      ((item.userA === userA && item.userB === userB) || (item.userA === userB && item.userB === userA))
   );
 }
 
@@ -399,12 +462,7 @@ function getFriendCount(userId) {
 }
 
 function sortFeedPosts(posts) {
-  const feedWeight = {
-    promoted: 3,
-    recommended: 2,
-    normal: 1
-  };
-
+  const feedWeight = { promoted: 3, recommended: 2, normal: 1 };
   return [...posts].sort((a, b) => {
     const weightDiff = (feedWeight[b.feedKind] || 0) - (feedWeight[a.feedKind] || 0);
     if (weightDiff !== 0) return weightDiff;
@@ -417,9 +475,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/users", (_req, res) => {
-  res.json(
-    db.users.map(({ passwordHash, passwordSalt, ...safeUser }) => safeUser)
-  );
+  res.json(db.users.map(toSafeUser));
 });
 
 app.post("/auth/name-login", (req, res) => {
@@ -454,56 +510,103 @@ app.post("/auth/name-login", (req, res) => {
     }
   }
 
-  const { passwordHash, passwordSalt, ...safeUser } = user;
   res.json({
     success: true,
     created,
     remember,
-    user: safeUser
+    user: toSafeUser(user)
   });
 });
 
-app.post("/users/:userId/profile-media", upload.fields([
-  { name: "avatar", maxCount: 1 },
-  { name: "background", maxCount: 1 }
-]), (req, res) => {
+app.patch("/users/:userId/profile", (req, res) => {
   const user = findUser(req.params.userId);
-
   if (!user) {
     return res.status(404).json({ message: "Gebruiker niet gevonden." });
   }
 
-  const files = req.files || {};
-  const baseUrl = getBaseUrl(req);
-
-  if (files.avatar?.[0]) {
-    user.avatarUrl = `${baseUrl}/uploads/${files.avatar[0].filename}`;
+  if (req.body?.displayName !== undefined) {
+    const nextDisplayName = String(req.body.displayName || "").trim();
+    if (!nextDisplayName) {
+      return res.status(400).json({ message: "Naam mag niet leeg zijn." });
+    }
+    user.displayName = nextDisplayName;
   }
 
-  if (files.background?.[0]) {
-    user.backgroundUrl = `${baseUrl}/uploads/${files.background[0].filename}`;
+  if (req.body?.handle !== undefined) {
+    const nextHandleRaw = String(req.body.handle || "").trim();
+    if (!nextHandleRaw) {
+      return res.status(400).json({ message: "Handle mag niet leeg zijn." });
+    }
+
+    const nextHandle = nextHandleRaw.startsWith("@") ? nextHandleRaw : `@${nextHandleRaw}`;
+    const conflict = db.users.find(
+      (item) => item.id !== user.id && String(item.handle || "").toLowerCase() === nextHandle.toLowerCase()
+    );
+
+    if (conflict) {
+      return res.status(400).json({ message: "Deze handle bestaat al." });
+    }
+
+    user.handle = nextHandle;
+  }
+
+  if (req.body?.bio !== undefined) {
+    user.bio = String(req.body.bio || "").trim();
+  }
+
+  if (req.body?.password !== undefined) {
+    const nextPassword = String(req.body.password || "");
+    if (nextPassword.length < 1) {
+      return res.status(400).json({ message: "Wachtwoord moet minimaal 1 teken hebben." });
+    }
+    const auth = createPasswordFields(nextPassword);
+    user.passwordSalt = auth.passwordSalt;
+    user.passwordHash = auth.passwordHash;
   }
 
   saveDb();
-  const { passwordHash, passwordSalt, ...safeUser } = user;
-  res.json({ success: true, user: safeUser });
+  res.json({ success: true, user: toSafeUser(user) });
 });
 
+app.post(
+  "/users/:userId/profile-media",
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "background", maxCount: 1 }
+  ]),
+  (req, res) => {
+    const user = findUser(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: "Gebruiker niet gevonden." });
+    }
+
+    const files = req.files || {};
+    const baseUrl = getBaseUrl(req);
+
+    if (files.avatar?.[0]) {
+      user.avatarUrl = `${baseUrl}/uploads/${files.avatar[0].filename}`;
+    }
+    if (files.background?.[0]) {
+      user.backgroundUrl = `${baseUrl}/uploads/${files.background[0].filename}`;
+    }
+
+    saveDb();
+    res.json({ success: true, user: toSafeUser(user) });
+  }
+);
+
 app.get("/feed", (req, res) => {
-  const userId = req.query.userId || "";
+  const userId = String(req.query.userId || "").trim();
   const items = sortFeedPosts(db.posts)
-    .filter((post) => !post.dislikes.includes(userId))
+    .filter((post) => !Array.isArray(post.dislikes) || !post.dislikes.includes(userId))
     .map(mapPostForClient);
 
-  res.json({
-    viewerUserId: userId,
-    items
-  });
+  res.json({ viewerUserId: userId, items });
 });
 
 app.get("/frontpage/:userId", (req, res) => {
   const targetUserId = req.params.userId;
-  const viewerUserId = req.query.viewerUserId || "";
+  const viewerUserId = String(req.query.viewerUserId || "").trim();
 
   const user = findUser(targetUserId);
   if (!user) {
@@ -512,25 +615,25 @@ app.get("/frontpage/:userId", (req, res) => {
 
   const userPosts = db.posts
     .filter((post) => post.ownerUserId === targetUserId)
-    .sort((a, b) => b.createdAt - a.createdAt)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .map(mapPostForClient);
 
   const approved = db.acceptedReactions
     .filter((reaction) => reaction.targetUserId === targetUserId)
-    .sort((a, b) => b.createdAt - a.createdAt)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .map(mapReactionForClient);
 
   const pending = db.pendingReactions
     .filter((reaction) => reaction.targetUserId === targetUserId)
-    .sort((a, b) => b.createdAt - a.createdAt)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .map(mapReactionForClient);
 
   res.json({
-    user,
+    user: toSafeUser(user),
     friendshipStatus: getFriendshipStatus(viewerUserId, targetUserId),
     stats: {
       posts: userPosts.length,
-      homepageLikes: user.homepageLikes,
+      homepageLikes: Number(user.homepageLikes) || 0,
       reactions: approved.length,
       friends: getFriendCount(targetUserId)
     },
@@ -548,7 +651,7 @@ app.post("/posts", (req, res) => {
     videoUrl = "",
     hashtags = [],
     feedKind = "normal"
-  } = req.body;
+  } = req.body || {};
 
   const owner = findUser(ownerUserId);
   if (!owner) {
@@ -562,13 +665,13 @@ app.post("/posts", (req, res) => {
   const newPost = {
     id: db.counters.nextPostId++,
     ownerUserId,
-    caption,
+    caption: String(caption || ""),
     postType,
-    imageUrl,
-    videoUrl,
+    imageUrl: String(imageUrl || ""),
+    videoUrl: String(videoUrl || ""),
     mediaWidth: 4,
     mediaHeight: 3,
-    feedKind,
+    feedKind: ["normal", "recommended", "promoted"].includes(feedKind) ? feedKind : "normal",
     likes: 0,
     dislikes: [],
     hashtags: Array.isArray(hashtags) ? hashtags : [],
@@ -581,13 +684,12 @@ app.post("/posts", (req, res) => {
 });
 
 app.post("/upload-media", upload.single("media"), (req, res) => {
-  const ownerUserId = req.body.ownerUserId;
+  const ownerUserId = String(req.body?.ownerUserId || "").trim();
   const owner = findUser(ownerUserId);
 
   if (!owner) {
     return res.status(400).json({ message: "Ongeldige gebruiker." });
   }
-
   if (!req.file) {
     return res.status(400).json({ message: "Geen bestand ontvangen." });
   }
@@ -617,7 +719,7 @@ app.post("/posts/:postId/like", (req, res) => {
     return res.status(404).json({ message: "Post niet gevonden." });
   }
 
-  post.likes += 1;
+  post.likes = Number(post.likes || 0) + 1;
   saveDb();
   res.json({ success: true, likes: post.likes });
 });
@@ -628,9 +730,13 @@ app.post("/posts/:postId/dislike", (req, res) => {
     return res.status(404).json({ message: "Post niet gevonden." });
   }
 
-  const viewerUserId = req.body.viewerUserId;
+  const viewerUserId = String(req.body?.viewerUserId || "").trim();
   if (!viewerUserId) {
     return res.status(400).json({ message: "viewerUserId ontbreekt." });
+  }
+
+  if (!Array.isArray(post.dislikes)) {
+    post.dislikes = [];
   }
 
   if (!post.dislikes.includes(viewerUserId)) {
@@ -649,7 +755,6 @@ app.post("/posts/:postId/delete", (req, res) => {
   if (index === -1) {
     return res.status(404).json({ message: "Post niet gevonden." });
   }
-
   if (!ownerUserId) {
     return res.status(400).json({ message: "ownerUserId ontbreekt." });
   }
@@ -663,6 +768,7 @@ app.post("/posts/:postId/delete", (req, res) => {
     if (!fileUrl || !String(fileUrl).includes("/uploads/")) return;
     const fileName = decodeURIComponent(String(fileUrl).split("/uploads/")[1] || "");
     if (!fileName) return;
+
     const absolutePath = path.join(uploadsDir, path.basename(fileName));
     if (fs.existsSync(absolutePath)) {
       try {
@@ -684,14 +790,15 @@ app.post("/frontpage/:userId/like", (req, res) => {
     return res.status(404).json({ message: "Gebruiker niet gevonden." });
   }
 
-  user.homepageLikes += 1;
+  user.homepageLikes = Number(user.homepageLikes || 0) + 1;
   saveDb();
   res.json({ success: true, homepageLikes: user.homepageLikes });
 });
 
 app.post("/frontpage/:userId/react", (req, res) => {
   const targetUserId = req.params.userId;
-  const { fromUserId, text } = req.body;
+  const fromUserId = String(req.body?.fromUserId || "").trim();
+  const text = String(req.body?.text || "").trim();
 
   const targetUser = findUser(targetUserId);
   const fromUser = findUser(fromUserId);
@@ -699,12 +806,10 @@ app.post("/frontpage/:userId/react", (req, res) => {
   if (!targetUser || !fromUser) {
     return res.status(400).json({ message: "Ongeldige gebruiker." });
   }
-
-  if (!text || !text.trim()) {
+  if (!text) {
     return res.status(400).json({ message: "Reactie is leeg." });
   }
-
-  if (targetUser.blockedUsers.includes(fromUserId)) {
+  if (Array.isArray(targetUser.blockedUsers) && targetUser.blockedUsers.includes(fromUserId)) {
     return res.status(403).json({ message: "Je bent geblokkeerd voor deze homepage." });
   }
 
@@ -712,7 +817,7 @@ app.post("/frontpage/:userId/react", (req, res) => {
     id: db.counters.nextReactionId++,
     targetUserId,
     fromUserId,
-    text: text.trim(),
+    text,
     createdAt: Date.now()
   };
 
@@ -736,7 +841,6 @@ app.post("/frontpage/:userId/reactions/:reactionId/approve", (req, res) => {
   const [reaction] = db.pendingReactions.splice(index, 1);
   db.acceptedReactions.push(reaction);
   saveDb();
-
   res.json({ success: true });
 });
 
@@ -775,28 +879,30 @@ app.post("/frontpage/:userId/reactions/:reactionId/block", (req, res) => {
   }
 
   const [reaction] = db.pendingReactions.splice(index, 1);
+  if (!Array.isArray(targetUser.blockedUsers)) {
+    targetUser.blockedUsers = [];
+  }
   if (!targetUser.blockedUsers.includes(reaction.fromUserId)) {
     targetUser.blockedUsers.push(reaction.fromUserId);
   }
-  saveDb();
 
+  saveDb();
   res.json({ success: true });
 });
 
 app.post("/friends/request", (req, res) => {
-  const { requesterUserId, targetUserId } = req.body;
+  const requesterUserId = String(req.body?.requesterUserId || "").trim();
+  const targetUserId = String(req.body?.targetUserId || "").trim();
 
   if (!requesterUserId || !targetUserId) {
     return res.status(400).json({ message: "Gebruikers ontbreken." });
   }
-
   if (requesterUserId === targetUserId) {
     return res.status(400).json({ message: "Je kunt jezelf niet toevoegen." });
   }
 
   const requester = findUser(requesterUserId);
   const target = findUser(targetUserId);
-
   if (!requester || !target) {
     return res.status(400).json({ message: "Ongeldige gebruiker." });
   }
@@ -805,7 +911,6 @@ app.post("/friends/request", (req, res) => {
   if (status === "accepted") {
     return res.status(400).json({ message: "Jullie zijn al vrienden." });
   }
-
   if (status === "pending") {
     return res.status(400).json({ message: "Er bestaat al een verzoek." });
   }
@@ -849,7 +954,7 @@ app.use((error, _req, res, _next) => {
     return res.status(400).json({ message: error.message || "Er ging iets mis." });
   }
 
-  res.status(500).json({ message: "Onbekende fout." });
+  return res.status(500).json({ message: "Onbekende fout." });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
