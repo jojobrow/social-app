@@ -2,370 +2,157 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Social Frontpage Prototype</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Social Frontpage Prototype — Login</title>
   <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --text: #4f3d32;
-      --muted: #9d8575;
-      --line: rgba(170, 142, 120, 0.14);
-      --shadow: 0 24px 54px rgba(120, 92, 72, 0.14);
-      --radius-xl: 34px;
-      --radius-lg: 24px;
-      --radius-sm: 16px;
-      --accent: #d9bfa8;
-      --accent-strong: #c8a98d;
-      --soft-bg: rgba(255,255,255,0.56);
+    :root{
+      --bg:#f6f0e8;
+      --bg-2:#fbf8f4;
+      --panel:rgba(255,255,255,.72);
+      --panel-strong:rgba(255,255,255,.88);
+      --line:rgba(112,86,63,.12);
+      --text:#46352a;
+      --text-soft:#7b6859;
+      --text-dim:#a08d7f;
+      --accent:#c8a77f;
+      --accent-2:#e9d8c4;
+      --ok:#557358;
+      --error:#9b5f5f;
+      --shadow:0 18px 44px rgba(74,52,36,.10);
+      --radius:28px;
+      --radius-sm:20px;
+      --safe-top:env(safe-area-inset-top, 0px);
+      --safe-bottom:env(safe-area-inset-bottom, 0px);
     }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(244, 220, 201, 0.70), transparent 26%),
-        radial-gradient(circle at top right, rgba(245, 210, 220, 0.50), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(232, 214, 198, 0.45), transparent 24%),
-        linear-gradient(180deg, #fffaf6 0%, #f7efe7 100%);
-    }
-
-    .page {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-
-    .loginPanel {
-      width: min(560px, 100%);
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--line);
-      background: rgba(255, 252, 249, 0.84);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow);
-      padding: 28px;
-    }
-
-    .loginCard {
-      padding: 24px;
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(190,162,138,0.14);
-      background: var(--soft-bg);
-      backdrop-filter: blur(12px);
-    }
-
-    .eyebrow {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      font-weight: 800;
-      color: rgba(113, 88, 72, 0.58);
-      margin-bottom: 10px;
-    }
-
-    .loginTitle {
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin: 0 0 8px;
-    }
-
-    .loginText {
-      font-size: 14px;
-      line-height: 1.7;
-      color: #7a6354;
-      margin-bottom: 18px;
-    }
-
-    .miniIntro {
-      margin: 0 0 18px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.46);
-      border: 1px solid rgba(190,162,138,0.12);
-      font-size: 13px;
-      line-height: 1.65;
-      color: #6a5447;
-    }
-
-    .field {
-      width: 100%;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(170,142,120,0.14);
-      background: rgba(255,255,255,0.78);
-      color: #5b4639;
-      padding: 13px 14px;
-      font-size: 15px;
-      outline: none;
-    }
-
-    .field:focus {
-      border-color: rgba(170,142,120,0.26);
-      background: rgba(255,255,255,0.96);
-    }
-
-    .field::placeholder {
-      color: #b09582;
-    }
-
-    .modeBlock {
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 20px;
-      border: 1px solid rgba(190,162,138,0.12);
-      background: rgba(255,255,255,0.42);
-    }
-
-    .modeTitle {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: rgba(113, 88, 72, 0.58);
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .modeOptions {
-      display: grid;
-      gap: 10px;
-    }
-
-    .modeOption {
-      display: block;
-      cursor: pointer;
-    }
-
-    .modeOption input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .modeCard {
-      border-radius: 18px;
-      padding: 14px 14px 14px 44px;
-      border: 1px solid rgba(190,162,138,0.14);
-      background: rgba(255,255,255,0.66);
-      position: relative;
-      transition: 0.18s ease;
-    }
-
-    .modeCard::before {
-      content: "";
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid rgba(180,150,126,0.45);
-      position: absolute;
-      left: 14px;
-      top: 16px;
-      background: white;
-    }
-
-    .modeOption input:checked + .modeCard {
-      border-color: rgba(200,169,141,0.45);
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(246,234,224,0.9));
-      box-shadow: 0 10px 24px rgba(180,150,126,0.10);
-    }
-
-    .modeOption input:checked + .modeCard::before {
-      border-color: var(--accent-strong);
-      background: radial-gradient(circle at center, var(--accent-strong) 0 45%, white 48% 100%);
-    }
-
-    .modeCard:hover,
-    .btnPrimary:hover,
-    .btnSoft:hover,
-    .recentItem:hover {
-      transform: translateY(-1px);
-    }
-
-    .modeName {
-      font-size: 15px;
-      font-weight: 800;
-      color: #5e493b;
-      margin-bottom: 4px;
-    }
-
-    .modeDesc {
-      font-size: 13px;
-      line-height: 1.5;
-      color: #7a6354;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-      align-items: center;
-    }
-
-    .btnPrimary,
-    .btnSoft {
-      border: none;
-      border-radius: 999px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      transition: 0.18s ease;
-    }
-
-    .btnPrimary {
-      background: linear-gradient(135deg, #fffdfb, #f4e7dc);
-      color: #5f493c;
-      border: 1px solid rgba(197,169,145,0.22);
-    }
-
-    .btnSoft {
-      background: rgba(255,255,255,0.56);
-      color: #6a5447;
-      border: 1px solid rgba(190,162,138,0.14);
-    }
-
-    .status {
-      min-height: 20px;
-      margin-top: 12px;
-      font-size: 13px;
-      color: #a25c5c;
-    }
-
-    .smallNote {
-      margin-top: 16px;
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .recentBlock {
-      margin-top: 18px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(190,162,138,0.12);
-    }
-
-    .recentTitle {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: rgba(113, 88, 72, 0.58);
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .recentList {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .recentItem {
-      width: 100%;
-      text-align: left;
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.52);
-      border: 1px solid rgba(190,162,138,0.12);
-      color: #6a5447;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
-      transition: 0.18s ease;
-    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:
+      radial-gradient(circle at top left, rgba(233,216,196,.65), transparent 26%),
+      linear-gradient(180deg, var(--bg-2), var(--bg));}
+    body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    button,input{font:inherit}
+    button{cursor:pointer;border:0}
+    .shell{max-width:460px;margin:0 auto;min-height:100dvh;padding:calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 26px)}
+    .card{background:linear-gradient(180deg,var(--panel-strong),var(--panel));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    .hero{padding:22px 20px 18px}
+    .eyebrow{margin:0 0 8px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#9d8879;font-weight:800}
+    h1{margin:0;font-size:42px;line-height:.98;letter-spacing:-.06em;font-weight:900}
+    .intro{margin:12px 0 0;color:var(--text-soft);font-size:15px;line-height:1.65}
+    .formCard{margin-top:14px;padding:16px;display:grid;gap:12px}
+    .infoBox{padding:14px 15px;border-radius:22px;background:rgba(255,255,255,.58);border:1px solid rgba(112,86,63,.09);color:var(--text-soft);font-size:14px;line-height:1.62}
+    .fieldGroup{display:grid;gap:8px}
+    .label{font-size:12px;letter-spacing:.20em;text-transform:uppercase;color:#9a8677;font-weight:800}
+    .field{width:100%;min-height:54px;padding:0 16px;border-radius:20px;border:1px solid rgba(112,86,63,.12);background:rgba(255,255,255,.74);color:var(--text);outline:none}
+    .field::placeholder{color:var(--text-dim)}
+    .modeCard{padding:14px;border-radius:24px;border:1px solid rgba(112,86,63,.10);background:rgba(255,255,255,.42);display:grid;gap:12px}
+    .modeOption{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:22px;background:rgba(255,255,255,.70);border:1px solid rgba(112,86,63,.12)}
+    .modeOption input{margin-top:4px;accent-color:#b89168;transform:scale(1.18)}
+    .modeTitle{font-size:17px;font-weight:900;letter-spacing:-.03em}
+    .modeText{margin-top:4px;color:var(--text-soft);font-size:14px;line-height:1.58}
+    .rememberRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 0}
+    .rememberLeft{display:flex;align-items:center;gap:10px;color:var(--text-soft);font-size:14px}
+    .rememberLeft input{accent-color:#b89168;transform:scale(1.1)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .primary,.secondary{min-height:48px;padding:0 18px;border-radius:999px;font-weight:800}
+    .primary{background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#3c2c20;box-shadow:0 12px 28px rgba(200,167,127,.18)}
+    .secondary{background:rgba(255,255,255,.66);color:var(--text);border:1px solid rgba(112,86,63,.12)}
+    .status{min-height:22px;font-size:14px;color:var(--error)}
+    .quickCard{margin-top:14px;padding:16px}
+    .quickList{display:grid;gap:10px}
+    .quickItem{width:100%;text-align:left;min-height:52px;padding:0 16px;border-radius:18px;background:rgba(255,255,255,.66);border:1px solid rgba(112,86,63,.10);color:var(--text);font-weight:800}
+    .quickItem span{font-weight:500;color:#8d796b}
+    .helper{color:var(--text-soft);font-size:13px;line-height:1.58}
+    .tiny{color:#9a887b;font-size:12px;line-height:1.55}
   </style>
 </head>
 <body>
-  <div class="page">
-    <section class="loginPanel">
-      <div class="loginCard">
-        <div class="eyebrow">Social frontpage prototype</div>
-        <h1 class="loginTitle">Log in en kies je versie</h1>
-        <div class="loginText">
-          Vul alleen je naam in. Bestaat die naam al, dan log je in als die gebruiker.
-          Bestaat de naam nog niet, dan wordt direct een nieuwe gebruiker aangemaakt.
-        </div>
+  <main class="shell">
+    <section class="card hero">
+      <p class="eyebrow">Social frontpage prototype</p>
+      <h1>Log in en kies je versie</h1>
+      <p class="intro">Compacter, rustiger en luxer opgezet. Je logt in met naam + simpel wachtwoord. Bestaat de naam nog niet, dan wordt meteen een gebruiker aangemaakt met dat wachtwoord.</p>
+    </section>
 
-        <div class="miniIntro">
-          Deze testomgeving is bedoeld om snel met vrienden de mobiele of desktopversie uit te proberen.
-          Er is nog geen wachtwoord of e-mail gekoppeld aan deze prototype-login.
-        </div>
+    <section class="card formCard">
+      <div class="infoBox">
+        Voor deze prototypefase mag het wachtwoord heel simpel zijn: minimaal <strong>1 teken</strong>. Op dit apparaat kan je login onthouden worden.
+      </div>
 
-        <input
-          id="loginNameInput"
-          class="field"
-          placeholder="Bijvoorbeeld Johannes"
-          autocomplete="name"
-          maxlength="40"
-        />
+      <div class="fieldGroup">
+        <div class="label">Naam</div>
+        <input id="loginNameInput" class="field" placeholder="Bijvoorbeeld Johannes" autocomplete="username" />
+      </div>
 
-        <div class="modeBlock">
-          <div class="modeTitle">Kies je versie</div>
-          <div class="modeOptions">
-            <label class="modeOption">
-              <input type="radio" name="appMode" value="mobile" checked />
-              <div class="modeCard">
-                <div class="modeName">Mobiele versie</div>
-                <div class="modeDesc">Opent de mobiele test-app zonder vaste onderbalk.</div>
-              </div>
-            </label>
+      <div class="fieldGroup">
+        <div class="label">Wachtwoord</div>
+        <input id="loginPasswordInput" class="field" type="password" placeholder="Bijvoorbeeld 1234" autocomplete="current-password" />
+      </div>
 
-            <label class="modeOption">
-              <input type="radio" name="appMode" value="desktop" />
-              <div class="modeCard">
-                <div class="modeName">Desktop versie</div>
-                <div class="modeDesc">Opent de bredere desktopvariant.</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btnPrimary" id="loginButton">Doorgaan</button>
-          <button class="btnSoft" id="clearButton" type="button">Wis</button>
-        </div>
-
-        <div id="status" class="status"></div>
-
-        <div class="recentBlock">
-          <div class="recentTitle">Snelle keuze</div>
-          <div class="recentList" id="recentUsersList">
-            <div class="smallNote">Laden...</div>
-          </div>
-        </div>
-
-        <div class="smallNote">
-          Je keuze voor mobiel of desktop wordt onthouden op dit apparaat.
+      <div class="fieldGroup">
+        <div class="label">Kies je versie</div>
+        <div class="modeCard">
+          <label class="modeOption">
+            <input type="radio" name="appMode" value="mobile" checked />
+            <div>
+              <div class="modeTitle">Mobiele versie</div>
+              <div class="modeText">Opent de mobiele test-app zonder vaste onderbalk.</div>
+            </div>
+          </label>
+          <label class="modeOption">
+            <input type="radio" name="appMode" value="desktop" />
+            <div>
+              <div class="modeTitle">Desktop versie</div>
+              <div class="modeText">Opent de bredere desktopvariant.</div>
+            </div>
+          </label>
         </div>
       </div>
+
+      <div class="rememberRow">
+        <label class="rememberLeft">
+          <input id="rememberLoginInput" type="checkbox" checked />
+          <span>Ingelogd houden op dit apparaat</span>
+        </label>
+        <div class="tiny">Johannes + 1234 werkt direct.</div>
+      </div>
+
+      <div class="actions">
+        <button id="loginButton" class="primary" type="button">Doorgaan</button>
+        <button id="clearButton" class="secondary" type="button">Wis</button>
+      </div>
+
+      <div id="status" class="status"></div>
+      <div class="helper">Bestaande gebruiker: zelfde naam + juist wachtwoord. Nieuwe gebruiker: naam + wachtwoord invullen en het account wordt direct aangemaakt.</div>
     </section>
-  </div>
+
+    <section class="card quickCard">
+      <div class="label" style="margin-bottom:10px;">Snelle keuze</div>
+      <div id="recentUsersList" class="quickList"></div>
+      <div class="tiny" style="margin-top:10px;">Snelle keuze vult alleen de naam in. Het wachtwoord vul je daarna zelf in.</div>
+    </section>
+  </main>
 
   <script>
     const API_BASE = window.location.origin;
+    const MODE_STORAGE_KEY = "socialPrototypeAppMode";
+    const USER_ID_KEY = "socialPrototypeActiveUserId";
+    const USER_NAME_KEY = "socialPrototypeActiveUserName";
+    const REMEMBER_KEY = "socialPrototypeRememberLogin";
     const APP_TARGETS = {
       mobile: "mobile-app-homepage-two-arrows-zonder-onderbalk.html",
       desktop: "app.html"
     };
-    const MODE_STORAGE_KEY = "socialPrototypePreferredAppMode";
 
     async function fetchJson(url, options = {}) {
       const response = await fetch(url, options);
       const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.message || "Request mislukt.");
-      }
-
+      if (!response.ok) throw new Error(data.message || "Request mislukt.");
       return data;
     }
 
     function setStatus(message = "", isError = true) {
       const status = document.getElementById("status");
       status.textContent = message;
-      status.style.color = isError ? "#a25c5c" : "#6a7b5d";
+      status.style.color = isError ? "var(--error)" : "var(--ok)";
     }
 
     function escapeHtml(value) {
@@ -381,6 +168,10 @@
       return document.querySelector('input[name="appMode"]:checked')?.value || "mobile";
     }
 
+    function saveSelectedMode() {
+      localStorage.setItem(MODE_STORAGE_KEY, getSelectedMode());
+    }
+
     function applySavedMode() {
       const savedMode = localStorage.getItem(MODE_STORAGE_KEY);
       if (!savedMode || !APP_TARGETS[savedMode]) return;
@@ -388,36 +179,45 @@
       if (input) input.checked = true;
     }
 
-    function saveSelectedMode() {
-      localStorage.setItem(MODE_STORAGE_KEY, getSelectedMode());
+    function goToSelectedApp() {
+      const target = APP_TARGETS[getSelectedMode()] || APP_TARGETS.mobile;
+      window.location.href = target;
+    }
+
+    function persistLogin(user, remember) {
+      localStorage.setItem(USER_ID_KEY, user.id);
+      localStorage.setItem(USER_NAME_KEY, user.displayName || "");
+      localStorage.setItem(REMEMBER_KEY, remember ? "1" : "0");
+      saveSelectedMode();
+    }
+
+    function applyRememberedLogin() {
+      const remember = localStorage.getItem(REMEMBER_KEY) === "1";
+      const activeUserId = localStorage.getItem(USER_ID_KEY);
+      if (!remember || !activeUserId) return;
+      goToSelectedApp();
     }
 
     async function loadRecentUsers() {
       const list = document.getElementById("recentUsersList");
-
       try {
         const users = await fetchJson(`${API_BASE}/users`);
         if (!users.length) {
-          list.innerHTML = `<div class="smallNote">Nog geen gebruikers gevonden.</div>`;
+          list.innerHTML = `<div class="helper">Nog geen gebruikers gevonden.</div>`;
           return;
         }
 
-        list.innerHTML = users
-          .slice(0, 6)
-          .map(
-            (user) => `
-              <button class="recentItem" type="button" onclick="quickLogin('${String(user.displayName).replace(/'/g, "\'")}')">
-                ${escapeHtml(user.displayName)} <span style="font-weight:400; color:#9d8575;">${escapeHtml(user.handle || "")}</span>
-              </button>
-            `
-          )
-          .join("");
+        list.innerHTML = users.slice(0, 6).map((user) => `
+          <button class="quickItem" type="button" onclick="quickFill('${String(user.displayName).replace(/'/g, "\'")}')">
+            ${escapeHtml(user.displayName)} <span>${escapeHtml(user.handle || "")}</span>
+          </button>
+        `).join("");
       } catch (_error) {
-        list.innerHTML = `<div class="smallNote">Kon gebruikers niet laden.</div>`;
+        list.innerHTML = `<div class="helper">Kon gebruikers niet laden.</div>`;
       }
     }
 
-    async function doNameLogin(displayName) {
+    async function doPasswordLogin(displayName, password, remember) {
       const button = document.getElementById("loginButton");
       button.disabled = true;
       setStatus("Bezig...", false);
@@ -426,17 +226,12 @@
         const result = await fetchJson(`${API_BASE}/auth/name-login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ displayName })
+          body: JSON.stringify({ displayName, password, remember })
         });
 
-        localStorage.setItem("socialPrototypeActiveUserId", result.user.id);
-        localStorage.setItem("socialPrototypeActiveUserName", result.user.displayName);
-        saveSelectedMode();
-
-        setStatus(result.created ? "Nieuwe gebruiker aangemaakt." : "Ingelogd.", false);
-
-        const target = APP_TARGETS[getSelectedMode()] || APP_TARGETS.mobile;
-        window.location.href = target;
+        persistLogin(result.user, remember);
+        setStatus(result.created ? "Nieuwe gebruiker aangemaakt en ingelogd." : "Ingelogd.", false);
+        goToSelectedApp();
       } catch (error) {
         setStatus(error.message || "Inloggen mislukt.", true);
       } finally {
@@ -445,32 +240,47 @@
     }
 
     async function submitLogin() {
-      const input = document.getElementById("loginNameInput");
-      const displayName = input.value.trim();
+      const displayName = document.getElementById("loginNameInput").value.trim();
+      const password = document.getElementById("loginPasswordInput").value;
+      const remember = document.getElementById("rememberLoginInput").checked;
 
       if (!displayName) {
         setStatus("Vul eerst een naam in.");
-        input.focus();
+        document.getElementById("loginNameInput").focus();
         return;
       }
 
-      await doNameLogin(displayName);
+      if (password.length < 1) {
+        setStatus("Vul een wachtwoord van minimaal 1 teken in.");
+        document.getElementById("loginPasswordInput").focus();
+        return;
+      }
+
+      await doPasswordLogin(displayName, password, remember);
     }
 
-    async function quickLogin(displayName) {
+    function quickFill(displayName) {
       document.getElementById("loginNameInput").value = displayName;
-      await doNameLogin(displayName);
+      document.getElementById("loginPasswordInput").focus();
+      setStatus("");
     }
 
     document.getElementById("loginButton").addEventListener("click", submitLogin);
-
     document.getElementById("clearButton").addEventListener("click", () => {
       document.getElementById("loginNameInput").value = "";
+      document.getElementById("loginPasswordInput").value = "";
       setStatus("");
       document.getElementById("loginNameInput").focus();
     });
 
     document.getElementById("loginNameInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("loginPasswordInput").focus();
+      }
+    });
+
+    document.getElementById("loginPasswordInput").addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
         submitLogin();
@@ -483,6 +293,7 @@
 
     applySavedMode();
     loadRecentUsers();
+    applyRememberedLogin();
   </script>
 </body>
 </html>
