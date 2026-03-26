@@ -704,6 +704,8 @@
   <script>
     const API_BASE = window.location.origin;
     const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+    const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+    const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 
     const state = {
       activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -715,7 +717,6 @@
       feedMode: "global",
       makerModeUserId: "",
       makerModeReturnPostId: null,
-      homeEntryPostId: null,
       viewedCreatorUserId: "",
       ownFrontpage: null,
       creatorFrontpage: null,
@@ -811,6 +812,13 @@
       });
     }
 
+    function switchAccount() {
+      localStorage.removeItem(LOGIN_STORAGE_KEY);
+      localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
+      localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
+      window.location.href = "index.html";
+    }
+
     async function loadUsers() {
       state.users = await fetchJson(`${API_BASE}/users`);
     }
@@ -833,18 +841,10 @@
       if (state.feedMode === "creator" && state.makerModeUserId) {
         return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
       }
-
-      if (state.homeEntryPostId) {
-        const featured = state.feedItems.find((item) => item.id === state.homeEntryPostId);
-        const remainder = state.feedItems.filter((item) => item.id !== state.homeEntryPostId);
-        return featured ? [featured, ...remainder] : state.feedItems;
-      }
-
       if (state.currentFeedScopeUserId) {
         const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
         return scoped.length ? scoped : state.feedItems;
       }
-
       return state.feedItems;
     }
 
@@ -1120,7 +1120,6 @@
       state.feedMode = "global";
       state.currentFeedScopeUserId = "";
       state.makerModeUserId = "";
-      state.homeEntryPostId = null;
       state.currentFeedIndex = 0;
       setActiveScreen("feed");
       renderFeedScreen();
@@ -1130,20 +1129,15 @@
       state.feedMode = "global";
       state.currentFeedScopeUserId = "";
       state.makerModeUserId = "";
-      state.homeEntryPostId = null;
       state.currentFeedIndex = 0;
       setActiveScreen("home");
       renderHomeScreen();
     }
 
     function openOwnContentFeed() {
-      const ownPosts = state.feedItems.filter((item) => item.owner?.id === state.activeUserId);
-      const firstOwnPost = ownPosts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || null;
-
       state.feedMode = "global";
-      state.currentFeedScopeUserId = "";
+      state.currentFeedScopeUserId = state.activeUserId;
       state.makerModeUserId = "";
-      state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
       state.currentFeedIndex = 0;
       setActiveScreen("feed");
       renderFeedScreen();
@@ -1187,11 +1181,7 @@
       state.feedMode = "global";
       state.makerModeUserId = "";
       state.currentFeedScopeUserId = "";
-      const items = getCurrentFeedItems();
-      const currentIndexInMixedFeed = items.findIndex((item) => item.id === returnPostId);
-      state.currentFeedIndex = currentIndexInMixedFeed >= 0
-        ? currentIndexInMixedFeed
-        : findFeedIndexByPostId(returnPostId);
+      state.currentFeedIndex = findFeedIndexByPostId(returnPostId);
       vibrateTick([14, 30, 14]);
       renderFeedScreen();
     }
@@ -1314,7 +1304,7 @@
             <div class="topRow">
               <div>
                 <h1 class="pageTitle">Jouw homepage</h1>
-                <div class="pageIntro">Eleganter en rustiger opgebouwd. Vanuit je homepage start de feed eerst op één eigen post, daarna loopt hij direct door in de normale feed.</div>
+                <div class="pageIntro">Eleganter en rustiger opgebouwd. Je homepage blijft je rijke basisplek, terwijl de feed fullscreen en loopend blijft.</div>
               </div>
               <div class="buttonGroup">
                 <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
@@ -1446,6 +1436,7 @@
               </div>
               <div class="buttonGroup">
                 <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
+                <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
               </div>
             </div>
 
@@ -1544,8 +1535,8 @@
 
       const scopeLabel = state.feedMode === "creator"
         ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
-        : state.homeEntryPostId && state.currentFeedIndex === 0
-        ? `start vanuit homepage · eerst jouw content`
+        : state.currentFeedScopeUserId
+        ? `eigen contentlaag · ${escapeHtml(owner.displayName || 'jij')}`
         : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
 
       $("feedScreen").innerHTML = `

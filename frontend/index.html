@@ -109,15 +109,16 @@
 
       <div class="rememberRow">
         <label class="rememberLeft">
-          <input id="rememberLoginInput" type="checkbox" checked />
+          <input id="rememberLoginInput" type="checkbox" />
           <span>Ingelogd houden op dit apparaat</span>
         </label>
-        <div class="tiny">Johannes + 1234 werkt direct.</div>
+        <div class="tiny">Gebruik "ingelogd houden" alleen op je eigen toestel.</div>
       </div>
 
       <div class="actions">
         <button id="loginButton" class="primary" type="button">Doorgaan</button>
         <button id="clearButton" class="secondary" type="button">Wis</button>
+        <button id="switchAccountButton" class="secondary" type="button">Wissel account</button>
       </div>
 
       <div id="status" class="status"></div>
@@ -191,6 +192,13 @@
       saveSelectedMode();
     }
 
+    function clearStoredLogin({ keepStatus = false } = {}) {
+      localStorage.removeItem(USER_ID_KEY);
+      localStorage.removeItem(USER_NAME_KEY);
+      localStorage.removeItem(REMEMBER_KEY);
+      if (!keepStatus) setStatus("");
+    }
+
     function applyRememberedLogin() {
       const remember = localStorage.getItem(REMEMBER_KEY) === "1";
       const activeUserId = localStorage.getItem(USER_ID_KEY);
@@ -244,6 +252,8 @@
       const password = document.getElementById("loginPasswordInput").value;
       const remember = document.getElementById("rememberLoginInput").checked;
 
+      clearStoredLogin({ keepStatus: true });
+
       if (!displayName) {
         setStatus("Vul eerst een naam in.");
         document.getElementById("loginNameInput").focus();
@@ -270,6 +280,14 @@
       document.getElementById("loginNameInput").value = "";
       document.getElementById("loginPasswordInput").value = "";
       setStatus("");
+      document.getElementById("loginNameInput").focus();
+    });
+
+    document.getElementById("switchAccountButton").addEventListener("click", () => {
+      clearStoredLogin();
+      document.getElementById("rememberLoginInput").checked = false;
+      document.getElementById("loginPasswordInput").value = "";
+      setStatus("Opgeslagen login op dit apparaat is gewist.", false);
       document.getElementById("loginNameInput").focus();
     });
 
