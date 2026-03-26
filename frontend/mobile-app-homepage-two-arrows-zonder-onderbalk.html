@@ -1064,6 +1064,10 @@
       transform: translateY(-50%) scale(0.98);
     }
 
+    .hiddenInline {
+      display: none !important;
+    }
+
     .feedViewportMobile {
       position: relative;
       height: 100%;
@@ -1251,6 +1255,7 @@
             <div class="title" id="homeScreenTitle">Jouw voorpagina</div>
           </div>
           <div class="topbarActions">
+            <button class="iconBtn hiddenInline" id="homeReturnToFeedBtn" onclick="returnToFeedFromOwnHome()">→ Feed</button>
             <button class="iconBtn" onclick="refreshAll()">Vernieuw</button>
           </div>
         </div>
@@ -1328,6 +1333,7 @@
     let homepageReturnFeedIndex = 0;
     let homepageMode = "full";
     let drawerOpen = false;
+    let ownHomeReturnToFeedVisible = false;
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1364,6 +1370,13 @@
       return "linear-gradient(135deg, rgba(248,236,227,0.86), rgba(255,245,238,0.78))";
     }
 
+    function syncOwnHomeReturnButton() {
+      const button = document.getElementById("homeReturnToFeedBtn");
+      if (!button) return;
+      button.classList.toggle("hiddenInline", !ownHomeReturnToFeedVisible);
+    }
+
+
     function setActiveScreen(screenId) {
       activeScreen = screenId;
       const map = {
@@ -1383,6 +1396,7 @@
 
       closeDrawer();
       pauseAllVideos();
+      syncOwnHomeReturnButton();
     }
 
     function pauseAllVideos() {
@@ -1649,8 +1663,7 @@
 
       bindComposeInputListeners();
       syncFrontpageMenuUi();
-      bindHomepageGestures("homeScreen");
-      setStatus("Je landt mobiel eerst op je eigen voorpagina. In de feed brengt de pijl links je terug naar je eigen homepage en de pijl rechts opent de homepage van de maker. Swipe je op een homepage omhoog of omlaag, dan gaat de gewone feed weer verder.");
+      setStatus("Je landt mobiel eerst op je eigen voorpagina. In de feed brengt de pijl links je terug naar je eigen homepage en de pijl rechts opent de homepage van de maker. Vanaf je eigen homepage ga je met de knop rechts terug naar de feed.");
     }
 
     async function renderCreatorScreen(userId) {
@@ -1760,30 +1773,40 @@
       setActiveScreen("content");
     }
 
-    function openOwnHome() {
+    function openOwnHome(fromFeed = false) {
       currentViewedFrontpageUserId = activeUserId;
       homepageEntryDirection = 0;
       homepageSourceUserId = activeUserId;
-      homepageReturnScopeUserId = "";
+      homepageReturnScopeUserId = fromFeed ? (currentFeedScopeUserId || "") : "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "full";
+      ownHomeReturnToFeedVisible = fromFeed;
       setActiveScreen("home");
     }
 
     function goHomeFromFeedButton() {
-      currentViewedFrontpageUserId = activeUserId;
-      homepageEntryDirection = 0;
-      homepageSourceUserId = activeUserId;
-      homepageReturnScopeUserId = "";
-      homepageReturnFeedIndex = currentFeedIndex;
-      homepageMode = "full";
-      setActiveScreen("home");
+      openOwnHome(true);
+    }
+
+    async function returnToFeedFromOwnHome() {
+      ownHomeReturnToFeedVisible = false;
+      currentFeedScopeUserId = homepageReturnScopeUserId || "";
+
+      let visibleItems = currentFeedScopeUserId
+        ? feedItems.filter(item => item.owner?.id === currentFeedScopeUserId)
+        : feedItems;
+      if (!visibleItems.length) visibleItems = feedItems;
+      currentFeedIndex = Math.max(0, Math.min(homepageReturnFeedIndex, Math.max(visibleItems.length - 1, 0)));
+
+      await renderFeedScreen();
+      setActiveScreen("feed");
     }
 
     async function openFeed() {
       currentFeedScopeUserId = "";
       lastFeedDirection = 0;
       homepageMode = "full";
+      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
     }
@@ -1793,6 +1816,7 @@
       currentFeedIndex = 0;
       lastFeedDirection = 0;
       homepageMode = "full";
+      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
     }
@@ -1801,6 +1825,7 @@
       currentFeedScopeUserId = scopeUserId || "";
       lastFeedDirection = 0;
       homepageMode = "full";
+      ownHomeReturnToFeedVisible = false;
       const visibleItems = currentFeedScopeUserId ? feedItems.filter(item => item.owner?.id === currentFeedScopeUserId) : feedItems;
       const index = visibleItems.findIndex(item => item.id === postId);
       currentFeedIndex = index >= 0 ? index : 0;
@@ -1850,6 +1875,7 @@
       if (!visibleItems.length) visibleItems = feedItems;
 
       currentFeedIndex = Math.max(0, Math.min(homepageReturnFeedIndex, visibleItems.length - 1));
+      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
       await scrollFeed(direction);
@@ -1858,6 +1884,7 @@
     async function openOwnerStreamFromHomepage(ownerId, direction) {
       currentFeedScopeUserId = ownerId || "";
       currentFeedIndex = 0;
+      ownHomeReturnToFeedVisible = false;
       await renderFeedScreen();
       setActiveScreen("feed");
       if (direction) await scrollFeed(direction);
@@ -1938,6 +1965,7 @@
       homepageReturnScopeUserId = currentFeedScopeUserId || "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "simple";
+      ownHomeReturnToFeedVisible = false;
       await renderCreatorScreen(userId);
     }
 
@@ -1948,6 +1976,7 @@
       homepageReturnScopeUserId = currentFeedScopeUserId || "";
       homepageReturnFeedIndex = currentFeedIndex;
       homepageMode = "full";
+      ownHomeReturnToFeedVisible = false;
       await renderCreatorScreen(userId);
     }
 
