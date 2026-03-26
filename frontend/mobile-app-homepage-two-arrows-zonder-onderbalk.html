@@ -554,6 +554,60 @@
       display: block;
     }
 
+    .feedVideoShell {
+      position: absolute;
+      inset: 0;
+      background: #110d15;
+    }
+
+    .feedVideoMedia {
+      position: absolute;
+      inset: 0;
+    }
+
+    .feedVideoMedia video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .feedVideoControls {
+      position: absolute;
+      left: 16px;
+      bottom: calc(var(--safe-bottom) + 120px);
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(255,248,242,0.68);
+      border: 1px solid rgba(120,84,53,0.14);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(72,50,33,0.08);
+    }
+
+    .feedVideoControlBtn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(111,84,62,0.96);
+      color: #fff8f2;
+      border: 1px solid rgba(111,84,62,0.96);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .feedVideoControlBtn.ghost {
+      background: rgba(255,255,255,0.82);
+      color: #5f4330;
+      border: 1px solid rgba(120,84,53,0.14);
+    }
+
     .feedTextFill {
       position: absolute;
       inset: 0;
@@ -704,6 +758,8 @@
   <script>
     const API_BASE = window.location.origin;
     const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+    const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+    const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 
     const state = {
       activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -809,6 +865,13 @@
       ["homeScreen", "feedScreen", "creatorScreen"].forEach((id) => {
         $(id).classList.toggle("active", id === `${screen}Screen`);
       });
+    }
+
+    function switchAccount() {
+      localStorage.removeItem(LOGIN_STORAGE_KEY);
+      localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
+      localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
+      window.location.href = "index.html";
     }
 
     async function loadUsers() {
@@ -1123,6 +1186,40 @@
         setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
       } catch (error) {
         setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
+      }
+    }
+
+    async function uploadProfileBackground() {
+      const file = $("profileBackgroundFile")?.files?.[0] || null;
+      if (!file) {
+        setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
+        return;
+      }
+
+      setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
+
+      try {
+        const formData = new FormData();
+        formData.append("background", file);
+
+        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.message || "Upload mislukt.");
+        }
+
+        if ($("profileBackgroundFile")) {
+          $("profileBackgroundFile").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
       }
     }
 
@@ -1441,6 +1538,14 @@
                 <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
                 <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
                 <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
+                <div class="uploadBox">
+                  <input id="profileBackgroundFile" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp" />
+                  <div class="smallNote">Upload hier een nieuwe achtergrondfoto voor je homepage.</div>
+                  <div class="composerActions">
+                    <div id="backgroundStatus" class="statusLine"></div>
+                    <button class="ghostBtn" onclick="uploadProfileBackground()">Achtergrond uploaden</button>
+                  </div>
+                </div>
                 <div class="composerActions">
                   <div id="profileStatus" class="statusLine"></div>
                   <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
@@ -1559,6 +1664,53 @@
       `;
     }
 
+    function getFeedVideo() {
+      return document.getElementById("feedVideoElement");
+    }
+
+    function updateFeedVideoUi() {
+      const video = getFeedVideo();
+      const playBtn = document.getElementById("feedVideoPlayBtn");
+      const muteBtn = document.getElementById("feedVideoMuteBtn");
+      if (!video || !playBtn || !muteBtn) return;
+
+      playBtn.textContent = video.paused ? "▶" : "❚❚";
+      muteBtn.textContent = video.muted ? "🔇" : "🔊";
+    }
+
+    function bindFeedVideoControls() {
+      const video = getFeedVideo();
+      if (!video) return;
+
+      const safeUpdate = () => updateFeedVideoUi();
+      video.addEventListener("play", safeUpdate);
+      video.addEventListener("pause", safeUpdate);
+      video.addEventListener("loadedmetadata", safeUpdate);
+      video.addEventListener("volumechange", safeUpdate);
+      video.addEventListener("ended", safeUpdate);
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoPlay(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+      updateFeedVideoUi();
+    }
+
+    function toggleFeedVideoMute(event) {
+      if (event) event.stopPropagation();
+      const video = getFeedVideo();
+      if (!video) return;
+      video.muted = !video.muted;
+      updateFeedVideoUi();
+    }
+
     function renderFeedScreen() {
       const items = getCurrentFeedItems();
       const item = getCurrentFeedItem();
@@ -1578,7 +1730,15 @@
       const mediaHtml = item.postType === "image" && item.imageUrl
         ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
         : item.postType === "video" && item.videoUrl
-        ? `<div class="feedMediaWrap"><video src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline controls></video></div>`
+        ? `<div class="feedVideoShell">
+            <div class="feedVideoMedia" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+              <video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video>
+            </div>
+            <div class="feedVideoControls" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+              <button id="feedVideoPlayBtn" class="feedVideoControlBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
+              <button id="feedVideoMuteBtn" class="feedVideoControlBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
+            </div>
+          </div>`
         : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
 
       const scopeLabel = state.feedMode === "creator"
@@ -1633,6 +1793,10 @@
           </div>
         </div>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function openCreatorContentFeed(userId) {
