@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Social Prototype Mobile</title>
+  <style>
+    :root {
+      --bg: #0f0d0c;
+      --bg-soft: #171311;
+      --panel: #1d1815;
+      --panel-2: #241d19;
+      --panel-3: #2c231d;
+      --line: rgba(255, 232, 214, 0.10);
+      --line-strong: rgba(255, 232, 214, 0.18);
+      --text: #f5ece4;
+      --text-soft: #d0b9a7;
+      --text-dim: #9b826f;
+      --accent: #e2b692;
+      --accent-2: #bb8f6b;
+      --danger: #cf8c8c;
+      --ok: #9cc59c;
+      --radius: 20px;
+      --radius-sm: 14px;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(111, 78, 56, 0.20), transparent 30%),
+        linear-gradient(180deg, #0f0d0c 0%, #15110f 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      overscroll-behavior: none;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .appShell {
+      min-height: 100dvh;
+      max-width: 460px;
+      margin: 0 auto;
+      position: relative;
+      background: transparent;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100dvh;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .page {
+      padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 24px);
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(34, 27, 23, 0.98), rgba(24, 19, 16, 0.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .cardBody {
+      padding: 14px;
+    }
+
+    .topRow,
+    .sectionHeader,
+    .feedOverlayRow,
+    .statRow,
+    .actionRow,
+    .composerActions,
+    .miniRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topRow,
+    .sectionHeader {
+      align-items: flex-start;
+    }
+
+    .pageTitle {
+      font-size: 26px;
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    .pageIntro {
+      margin: 6px 0 0;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .pill,
+    .ghostBtn,
+    .solidBtn,
+    .dangerBtn {
+      min-height: 40px;
+      border-radius: 999px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    .pill:active,
+    .ghostBtn:active,
+    .solidBtn:active,
+    .dangerBtn:active,
+    .arrowBtn:active,
+    .feedTapHint:active {
+      transform: scale(0.98);
+    }
+
+    .pill,
+    .ghostBtn {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+    }
+
+    .solidBtn {
+      background: linear-gradient(180deg, var(--accent), #c89571);
+      color: #1b130f;
+      font-weight: 700;
+    }
+
+    .dangerBtn {
+      background: rgba(207, 140, 140, 0.14);
+      color: #f1c3c3;
+      border: 1px solid rgba(207, 140, 140, 0.22);
+    }
+
+    .buttonGroup {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.10), rgba(9,7,6,0.75));
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatarRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #241711;
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+      overflow: hidden;
+      background: linear-gradient(180deg, #e7c8b0, #c79169);
+      flex: 0 0 auto;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .identityBlock {
+      min-width: 0;
+    }
+
+    .identityName {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .identityHandle {
+      margin: 4px 0 0;
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .identityBio {
+      margin: 12px 0 0;
+      color: rgba(255,255,255,0.88);
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 92%;
+    }
+
+    .gridStats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+    }
+
+    .statValue {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .statLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .sectionTitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .sectionText,
+    .muted,
+    .smallNote {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .muted strong {
+      color: var(--text);
+    }
+
+    .field,
+    .textarea,
+    .fileInput,
+    .select {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 14px;
+      outline: none;
+    }
+
+    .field::placeholder,
+    .textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    .textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    .uploadBox {
+      display: grid;
+      gap: 10px;
+      border-radius: 18px;
+      border: 1px dashed rgba(226, 182, 146, 0.34);
+      background: rgba(226, 182, 146, 0.06);
+      padding: 14px;
+    }
+
+    .statusLine {
+      min-height: 20px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .statusLine.error { color: #f1b5b5; }
+    .statusLine.ok { color: #b7d7b7; }
+
+    .postList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .postCard {
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .postMedia {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: linear-gradient(135deg, rgba(71, 53, 42, 0.55), rgba(34, 27, 23, 0.85));
+      overflow: hidden;
+    }
+
+    .postMedia img,
+    .postMedia video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .postTextOnly {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+      font-size: 24px;
+      line-height: 1.4;
+      font-weight: 800;
+      color: #f7eee7;
+      background: linear-gradient(135deg, rgba(82, 60, 45, 0.95), rgba(38, 30, 25, 0.96));
+    }
+
+    .kindBadge,
+    .makerBadge,
+    .feedModeBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(6, 5, 5, 0.40);
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .postMeta {
+      padding: 12px 12px 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .ownerMini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ownerMiniAvatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #241711;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .ownerMiniAvatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ownerMiniName {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .ownerMiniHandle {
+      color: var(--text-soft);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .caption {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--text-soft);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .reactionList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .reactionItem,
+    .simpleItem {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .reactionAuthor {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .reactionText {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-soft);
+      white-space: pre-wrap;
+    }
+
+    .emptyState {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed var(--line-strong);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-soft);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .feedScreen {
+      position: relative;
+      height: 100dvh;
+      overflow: hidden;
+      background: #0a0908;
+    }
+
+    .feedCanvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .feedSlide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: #120f0d;
+      overflow: hidden;
+    }
+
+    .feedMediaWrap {
+      position: absolute;
+      inset: 0;
+      background: #120f0d;
+    }
+
+    .feedMediaWrap img,
+    .feedMediaWrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .feedTextFill {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      font-size: 30px;
+      line-height: 1.35;
+      text-align: center;
+      font-weight: 800;
+      color: #f7eee8;
+      background: linear-gradient(135deg, rgba(89, 63, 44, 0.92), rgba(20, 17, 15, 0.96));
+    }
+
+    .feedShade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 24%, rgba(0,0,0,0.38) 100%);
+    }
+
+    .feedOverlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 18px);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .feedOverlay * {
+      pointer-events: auto;
+    }
+
+    .feedOverlayRow {
+      align-items: center;
+    }
+
+    .feedInfo {
+      max-width: calc(100% - 72px);
+    }
+
+    .feedTitle {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .feedSubtitle {
+      margin-top: 5px;
+      color: rgba(255,255,255,0.80);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .feedBottom {
+      display: grid;
+      gap: 14px;
+    }
+
+    .feedContentMeta {
+      display: grid;
+      gap: 10px;
+      width: min(100%, 420px);
+    }
+
+    .feedCaption {
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.96);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.20);
+      white-space: pre-wrap;
+    }
+
+    .feedStats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feedTapHint {
+      align-self: flex-start;
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(6, 5, 5, 0.45);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      font-size: 12px;
+      line-height: 1.45;
+      backdrop-filter: blur(12px);
+    }
+
+    .arrowBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(6, 5, 5, 0.45);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.96);
+      font-size: 22px;
+      backdrop-filter: blur(12px);
+    }
+
+    .bottomActionRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .likeBtn {
+      background: rgba(6, 5, 5, 0.38);
+      color: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .creatorSimpleList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .separator {
+      height: 1px;
+      background: var(--line);
+      margin: 6px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 461px) {
+      .appShell {
+        border-left: 1px solid rgba(255,255,255,0.04);
+        border-right: 1px solid rgba(255,255,255,0.04);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="appShell">
+    <section class="screen active" id="homeScreen"></section>
+    <section class="screen" id="feedScreen"></section>
+    <section class="screen" id="creatorScreen"></section>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+
+    const state = {
+      activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+      users: [],
+      feedItems: [],
+      activeScreen: "home",
+      currentFeedIndex: 0,
+      currentFeedScopeUserId: "",
+      feedMode: "global",
+      makerModeUserId: "",
+      makerModeReturnPostId: null,
+      viewedCreatorUserId: "",
+      ownFrontpage: null,
+      creatorFrontpage: null,
+      publishBusy: false,
+      lastTapAt: 0,
+      tapBurstCount: 0,
+      tapBurstOwnerId: ""
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Request mislukt.");
+      return data;
+    }
+
+    function getInitials(name = "?") {
+      return String(name)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() || "?";
+    }
+
+    function getUserById(userId) {
+      return state.users.find((user) => user.id === userId) || null;
+    }
+
+    function getUserBackground(user) {
+      if (user?.backgroundUrl) return `url('${encodeURI(user.backgroundUrl)}')`;
+      const heroColor = user?.heroColor || "#2b211a";
+      return `linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.68)), linear-gradient(135deg, ${heroColor}, #1f1814)`;
+    }
+
+    function getAvatarHtml(user, className = "avatar") {
+      if (user?.avatarUrl) {
+        return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#ddb08b')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
+      }
+      return `<div class="${className}" style="background:linear-gradient(180deg, ${escapeHtml(user?.avatarColor || '#ddb08b')}, #b97f57);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
+    }
+
+    function getKindLabel(kind) {
+      if (kind === "promoted") return "Promoted";
+      if (kind === "recommended") return "Recommended";
+      return "Normal";
+    }
+
+    function timeAgo(timestamp) {
+      const diff = Math.max(0, Date.now() - Number(timestamp || 0));
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return "zojuist";
+      if (mins < 60) return `${mins} min geleden`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours} uur geleden`;
+      const days = Math.floor(hours / 24);
+      return `${days} d geleden`;
+    }
+
+    function vibrateTick(pattern = [18, 45, 18]) {
+      if (navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (_e) {}
+      }
+    }
+
+    function setStatusLine(id, message = "", kind = "") {
+      const element = $(id);
+      if (!element) return;
+      element.textContent = message;
+      element.className = `statusLine${kind ? ` ${kind}` : ""}`;
+    }
+
+    function setActiveScreen(screen) {
+      state.activeScreen = screen;
+      ["homeScreen", "feedScreen", "creatorScreen"].forEach((id) => {
+        $(id).classList.toggle("active", id === `${screen}Screen`);
+      });
+    }
+
+    async function loadUsers() {
+      state.users = await fetchJson(`${API_BASE}/users`);
+    }
+
+    async function loadFeed() {
+      const result = await fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(state.activeUserId)}`);
+      state.feedItems = Array.isArray(result.items) ? result.items : [];
+    }
+
+    async function loadOwnFrontpage() {
+      state.ownFrontpage = await fetchJson(
+        `${API_BASE}/frontpage/${encodeURIComponent(state.activeUserId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`
+      );
+    }
+
+    async function loadCreatorFrontpage(userId) {
+      state.creatorFrontpage = await fetchJson(
+        `${API_BASE}/frontpage/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`
+      );
+      state.viewedCreatorUserId = userId;
+    }
+
+    function getCurrentFeedItems() {
+      if (state.feedMode === "creator" && state.makerModeUserId) {
+        return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
+      }
+      if (state.currentFeedScopeUserId) {
+        const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
+        return scoped.length ? scoped : state.feedItems;
+      }
+      return state.feedItems;
+    }
+
+    function getCurrentFeedItem() {
+      const items = getCurrentFeedItems();
+      if (!items.length) return null;
+      const safeIndex = Math.min(Math.max(state.currentFeedIndex, 0), items.length - 1);
+      state.currentFeedIndex = safeIndex;
+      return items[safeIndex] || null;
+    }
+
+    function moveFeed(step) {
+      const items = getCurrentFeedItems();
+      if (!items.length) return;
+      const next = state.currentFeedIndex + step;
+      if (next < 0 || next >= items.length) return;
+      state.currentFeedIndex = next;
+      renderFeedScreen();
+    }
+
+    function normalizeHashtags(input) {
+      return String(input || "")
+        .split(/[\s,]+/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) => (part.startsWith("#") ? part : `#${part}`))
+        .slice(0, 8);
+    }
+
+    async function uploadMedia(file) {
+      const formData = new FormData();
+      formData.append("ownerUserId", state.activeUserId);
+      formData.append("media", file);
+      return fetchJson(`${API_BASE}/upload-media`, { method: "POST", body: formData });
+    }
+
+    async function publishPost() {
+      if (state.publishBusy) return;
+
+      const caption = $("composeCaption")?.value.trim() || "";
+      const hashtags = normalizeHashtags($("composeHashtags")?.value || "");
+      const file = $("composeMedia")?.files?.[0] || null;
+      const publishKind = $("composeFeedKind")?.value || "normal";
+
+      if (!caption && !file) {
+        setStatusLine("composeStatus", "Voeg eerst tekst of media toe.", "error");
+        return;
+      }
+
+      state.publishBusy = true;
+      setStatusLine("composeStatus", "Bezig met plaatsen...", "");
+
+      try {
+        let imageUrl = "";
+        let videoUrl = "";
+
+        if (file) {
+          const upload = await uploadMedia(file);
+          if (upload.postType === "video") videoUrl = upload.url;
+          else imageUrl = upload.url;
+        }
+
+        await fetchJson(`${API_BASE}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ownerUserId: state.activeUserId,
+            caption,
+            imageUrl,
+            videoUrl,
+            hashtags,
+            feedKind: publishKind
+          })
+        });
+
+        if ($("composeCaption")) $("composeCaption").value = "";
+        if ($("composeHashtags")) $("composeHashtags").value = "";
+        if ($("composeMedia")) $("composeMedia").value = "";
+        if ($("composeFeedKind")) $("composeFeedKind").value = "normal";
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("composeStatus", "Bericht geplaatst.", "ok");
+      } catch (error) {
+        setStatusLine("composeStatus", error.message || "Plaatsen mislukt.", "error");
+      } finally {
+        state.publishBusy = false;
+      }
+    }
+
+    async function likePost(postId) {
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+        await loadFeed();
+        if (state.activeScreen === "feed") renderFeedScreen();
+        if (state.activeScreen === "home") {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        }
+        if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
+          await loadCreatorFrontpage(state.viewedCreatorUserId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Liken mislukt.");
+      }
+    }
+
+    async function dislikePost(postId) {
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ viewerUserId: state.activeUserId })
+        });
+        await loadFeed();
+        if (state.activeScreen === "feed") renderFeedScreen();
+      } catch (error) {
+        alert(error.message || "Verbergen mislukt.");
+      }
+    }
+
+    async function likeFrontpage(userId) {
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+        if (userId === state.activeUserId) {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        } else {
+          await loadCreatorFrontpage(userId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Homepage-like mislukt.");
+      }
+    }
+
+    async function sendFrontpageReaction(targetUserId) {
+      const inputId = targetUserId === state.activeUserId ? "homeReactionInput" : "creatorReactionInput";
+      const textarea = $(inputId);
+      if (!textarea) return;
+      const text = textarea.value.trim();
+      if (!text) return;
+
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUserId: state.activeUserId, text })
+        });
+        textarea.value = "";
+        alert("Bericht is naar pending moderatie gestuurd.");
+        if (targetUserId === state.activeUserId) {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        } else {
+          await loadCreatorFrontpage(targetUserId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Versturen mislukt.");
+      }
+    }
+
+    async function moderateReaction(reactionId, action) {
+      try {
+        await fetchJson(
+          `${API_BASE}/frontpage/${state.activeUserId}/reactions/${reactionId}/${action}`,
+          { method: "POST" }
+        );
+        await loadOwnFrontpage();
+        renderHomeScreen();
+      } catch (error) {
+        alert(error.message || "Moderatie mislukt.");
+      }
+    }
+
+    async function sendFriendRequest(targetUserId) {
+      try {
+        await fetchJson(`${API_BASE}/friends/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requesterUserId: state.activeUserId, targetUserId })
+        });
+        await loadCreatorFrontpage(targetUserId);
+        renderCreatorScreen();
+      } catch (error) {
+        alert(error.message || "Vriendschapsverzoek mislukt.");
+      }
+    }
+
+    function openGlobalFeed() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    function openOwnHomepage() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.currentFeedIndex = 0;
+      setActiveScreen("home");
+      renderHomeScreen();
+    }
+
+    function openOwnContentFeed() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = state.activeUserId;
+      state.makerModeUserId = "";
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    async function openCurrentCreatorHomepage() {
+      const current = getCurrentFeedItem();
+      if (!current?.owner?.id) return;
+      await loadCreatorFrontpage(current.owner.id);
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    }
+
+    async function openCreatorHomepageFromCard(userId) {
+      if (!userId) return;
+      await loadCreatorFrontpage(userId);
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    }
+
+    function findFeedIndexByPostId(postId) {
+      if (postId == null) return 0;
+      const items = state.feedItems;
+      const index = items.findIndex((item) => item.id === postId);
+      return index >= 0 ? index : 0;
+    }
+
+    function enterMakerMode(userId) {
+      if (!userId) return;
+      const current = getCurrentFeedItem();
+      state.makerModeReturnPostId = current?.id ?? null;
+      state.feedMode = "creator";
+      state.makerModeUserId = userId;
+      state.currentFeedScopeUserId = "";
+      state.currentFeedIndex = 0;
+      vibrateTick([18, 40, 18]);
+      renderFeedScreen();
+    }
+
+    function exitMakerModeToFeed() {
+      const returnPostId = state.makerModeReturnPostId;
+      state.feedMode = "global";
+      state.makerModeUserId = "";
+      state.currentFeedScopeUserId = "";
+      state.currentFeedIndex = findFeedIndexByPostId(returnPostId);
+      vibrateTick([14, 30, 14]);
+      renderFeedScreen();
+    }
+
+    function handleFeedLeftArrow() {
+      openOwnHomepage();
+    }
+
+    function handlePostTap(ownerUserId) {
+      const now = Date.now();
+      if (now - state.lastTapAt > 650 || state.tapBurstOwnerId !== ownerUserId) {
+        state.tapBurstCount = 0;
+      }
+      state.lastTapAt = now;
+      state.tapBurstOwnerId = ownerUserId;
+      state.tapBurstCount += 1;
+
+      if (state.tapBurstCount >= 3) {
+        state.tapBurstCount = 0;
+        if (state.feedMode === "creator") {
+          exitMakerModeToFeed();
+        } else {
+          enterMakerMode(ownerUserId);
+        }
+      }
+    }
+
+    function renderPostCard(item, options = {}) {
+      const owner = item.owner || getUserById(item.ownerUserId) || {};
+      const isOwn = owner.id === state.activeUserId;
+      const mediaHtml = item.postType === "image" && item.imageUrl
+        ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+        : item.postType === "video" && item.videoUrl
+        ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
+        : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
+
+      const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
+        ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
+        : "";
+
+      const caption = item.postType === "text" && !item.imageUrl && !item.videoUrl
+        ? ""
+        : `<div class="caption">${escapeHtml(item.caption || "")}</div>`;
+
+      const ownerAction = options.creatorCard
+        ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
+        : isOwn
+        ? `<button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>`
+        : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
+
+      return `
+        <article class="postCard">
+          ${mediaHtml}
+          <div class="postMeta">
+            <div class="miniRow">
+              <div class="ownerMini">
+                ${getAvatarHtml(owner, "ownerMiniAvatar")}
+                <div>
+                  <div class="ownerMiniName">${escapeHtml(owner.displayName || "Gebruiker")}</div>
+                  <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
+                </div>
+              </div>
+              <span class="kindBadge">${escapeHtml(getKindLabel(item.feedKind || "normal"))}</span>
+            </div>
+            ${caption}
+            ${hashtags}
+            <div class="actionRow">
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="likePost(${Number(item.id)})">♥ ${Number(item.likes || 0)}</button>
+                <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
+              </div>
+              ${ownerAction}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderReactionList(reactions, showModeration = false) {
+      if (!Array.isArray(reactions) || !reactions.length) {
+        return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+      }
+
+      return `
+        <div class="reactionList">
+          ${reactions.map((reaction) => {
+            const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+            return `
+              <div class="reactionItem">
+                <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
+                <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
+                <div class="miniRow" style="margin-top:10px;">
+                  <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                  ${showModeration ? `
+                    <div class="buttonGroup">
+                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
+                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
+                      <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
+                    </div>
+                  ` : ""}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function renderHomeScreen() {
+      const frontpage = state.ownFrontpage;
+      const user = frontpage?.user || getUserById(state.activeUserId) || {};
+      const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
+      const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
+      const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
+      const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
+
+      $("homeScreen").innerHTML = `
+        <div class="page">
+          <div class="stack">
+            <div class="topRow">
+              <div>
+                <h1 class="pageTitle">Jouw homepage</h1>
+                <div class="pageIntro">Scrollbaar, rijker en duidelijk jouw basisplek. De feed blijft een doorgang, je homepage blijft de kern.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
+                <button class="solidBtn" onclick="openGlobalFeed()">Feed</button>
+              </div>
+            </div>
+
+            <section class="card hero" style="background:${getUserBackground(user)};">
+              <div class="avatarRow">
+                ${getAvatarHtml(user)}
+                <div class="identityBlock">
+                  <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+                </div>
+              </div>
+              <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Jouw basis</h3>
+                    <div class="sectionText">Vanaf hier ga je zelf de feed in of open je eerst je eigen content.</div>
+                  </div>
+                  <div class="buttonGroup">
+                    <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
+                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
+                  </div>
+                </div>
+                <div class="gridStats">
+                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Nieuw bericht</h3>
+                    <div class="sectionText">Upload en caption staan direct zichtbaar in dezelfde composer.</div>
+                  </div>
+                </div>
+                <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
+                <div class="uploadBox">
+                  <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+                  <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
+                </div>
+                <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
+                <select id="composeFeedKind" class="select">
+                  <option value="normal">Normal</option>
+                  <option value="recommended">Recommended</option>
+                  <option value="promoted">Promoted</option>
+                </select>
+                <div class="composerActions">
+                  <div id="composeStatus" class="statusLine"></div>
+                  <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Publieke interactie op je homepage</h3>
+                    <div class="sectionText">Reacties leven hier, niet onder losse posts.</div>
+                  </div>
+                </div>
+                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
+                <div class="actionRow">
+                  <div class="smallNote">Berichten komen eerst in pending moderatie.</div>
+                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Naar pending</button>
+                </div>
+                ${renderReactionList(acceptedReactions, false)}
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Pending moderatie</h3>
+                    <div class="sectionText">Hier keur je homepage-reacties goed, af of blokkeer je afzenders.</div>
+                  </div>
+                </div>
+                ${renderReactionList(pendingReactions, true)}
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Jouw recente posts</h3>
+                    <div class="sectionText">Je homepage mag rijker zijn dan die van andere makers.</div>
+                  </div>
+                </div>
+                <div class="postList">
+                  ${posts.length ? posts.map((item) => renderPostCard(item)).join("") : `<div class="emptyState">Nog geen posts op je homepage.</div>`}
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCreatorScreen() {
+      const frontpage = state.creatorFrontpage;
+      const user = frontpage?.user || getUserById(state.viewedCreatorUserId) || {};
+      const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
+      const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
+      const reactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
+      const friendshipStatus = frontpage?.friendshipStatus || "none";
+      const canFriend = user.id && user.id !== state.activeUserId;
+
+      $("creatorScreen").innerHTML = `
+        <div class="page">
+          <div class="stack">
+            <div class="topRow">
+              <div>
+                <h1 class="pageTitle">Maker-homepage</h1>
+                <div class="pageIntro">Simpeler dan je eigen homepage. Je komt hier via het rechter pijltje vanuit de feed.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
+              </div>
+            </div>
+
+            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 190px;">
+              <div class="avatarRow">
+                ${getAvatarHtml(user)}
+                <div class="identityBlock">
+                  <h2 class="identityName">${escapeHtml(user.displayName || 'Maker')}</h2>
+                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+                </div>
+              </div>
+              <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Korte makerlaag</h3>
+                    <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
+                  </div>
+                  <div class="buttonGroup">
+                    <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
+                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
+                  </div>
+                </div>
+                <div class="gridStats">
+                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+                </div>
+                <div class="actionRow">
+                  <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
+                  ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Publieke reactie sturen</h3>
+                    <div class="sectionText">Interactie loopt ook hier via de homepage van de maker.</div>
+                  </div>
+                </div>
+                <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
+                <div class="actionRow">
+                  <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
+                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
+                </div>
+                ${renderReactionList(reactions, false)}
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Content van deze maker</h3>
+                    <div class="sectionText">Compact en simpel gehouden, omdat dit een lichte publieke makerspagina is.</div>
+                  </div>
+                </div>
+                <div class="creatorSimpleList">
+                  ${posts.length ? posts.map((item) => renderPostCard(item, { creatorCard: true })).join("") : `<div class="emptyState">Deze maker heeft nog geen content.</div>`}
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFeedScreen() {
+      const items = getCurrentFeedItems();
+      const item = getCurrentFeedItem();
+
+      if (!items.length || !item) {
+        $("feedScreen").innerHTML = `
+          <div class="feedScreen">
+            <div class="page" style="padding-top:calc(var(--safe-top) + 24px);">
+              <div class="emptyState">Nog geen feeditems gevonden.</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const owner = item.owner || getUserById(item.ownerUserId) || {};
+      const mediaHtml = item.postType === "image" && item.imageUrl
+        ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
+        : item.postType === "video" && item.videoUrl
+        ? `<div class="feedMediaWrap"><video src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline controls></video></div>`
+        : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
+
+      const scopeLabel = state.feedMode === "creator"
+        ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
+        : state.currentFeedScopeUserId
+        ? `eigen contentlaag · ${escapeHtml(owner.displayName || 'jij')}`
+        : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+
+      $("feedScreen").innerHTML = `
+        <div class="feedScreen">
+          <div class="feedCanvas">
+            <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
+              ${mediaHtml}
+              <div class="feedShade"></div>
+              <div class="feedOverlay">
+                <div class="feedOverlayRow">
+                  <button class="arrowBtn" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
+                  <div class="feedInfo">
+                    <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
+                    <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
+                  </div>
+                  <button class="arrowBtn" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
+                </div>
+
+                <div class="feedBottom">
+                  <div class="feedContentMeta">
+                    <div class="feedStats">
+                      <span class="feedModeBadge">${escapeHtml(getKindLabel(item.feedKind || 'normal'))}</span>
+                      <span class="feedModeBadge">♥ ${Number(item.likes || 0)}</span>
+                      <span class="feedModeBadge">${escapeHtml(timeAgo(item.createdAt))}</span>
+                    </div>
+                    <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
+                    ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="feedStats">${item.hashtags.map((tag) => `<span class="feedModeBadge">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+                  </div>
+
+                  <div class="bottomActionRow">
+                    <div class="buttonGroup">
+                      <button class="pill likeBtn" onclick="event.stopPropagation(); likePost(${Number(item.id)})">Like</button>
+                      <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
+                    </div>
+                    <div class="buttonGroup">
+                      <button class="arrowBtn" onclick="event.stopPropagation(); moveFeed(-1);">↑</button>
+                      <button class="arrowBtn" onclick="event.stopPropagation(); moveFeed(1);">↓</button>
+                    </div>
+                  </div>
+
+                  <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
+                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, verder waar je was.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      `;
+    }
+
+    function openCreatorContentFeed(userId) {
+      if (!userId) return;
+      const firstMatch = state.feedItems.findIndex((item) => item.owner?.id === userId);
+      state.feedMode = "creator";
+      state.makerModeUserId = userId;
+      state.makerModeReturnPostId = getCurrentFeedItem()?.id || null;
+      state.currentFeedScopeUserId = "";
+      state.currentFeedIndex = firstMatch >= 0 ? 0 : 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    async function refreshAll(options = {}) {
+      const keepScreen = options.keepScreen || state.activeScreen;
+      await loadUsers();
+      await loadFeed();
+      await loadOwnFrontpage();
+      if (state.viewedCreatorUserId) {
+        await loadCreatorFrontpage(state.viewedCreatorUserId);
+      }
+
+      if (keepScreen === "feed") {
+        setActiveScreen("feed");
+        renderFeedScreen();
+      } else if (keepScreen === "creator" && state.viewedCreatorUserId) {
+        setActiveScreen("creator");
+        renderCreatorScreen();
+      } else {
+        setActiveScreen("home");
+        renderHomeScreen();
+      }
+    }
+
+    function bindGlobalKeys() {
+      window.addEventListener("keydown", (event) => {
+        if (state.activeScreen !== "feed") return;
+        if (event.key === "ArrowDown") moveFeed(1);
+        if (event.key === "ArrowUp") moveFeed(-1);
+      });
+    }
+
+    async function startApp() {
+      try {
+        if (!state.activeUserId) {
+          window.location.href = "index.html";
+          return;
+        }
+        await refreshAll({ keepScreen: "home" });
+        bindGlobalKeys();
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Kon de mobiele app niet laden.");
+      }
+    }
+
+    startApp();
+  </script>
+</body>
+</html>
