@@ -3,6 +3,7 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -76,6 +77,9 @@ function createInitialData() {
         backgroundUrl: "",
         homepageLikes: 14,
         blockedUsers: []
+      ,
+        passwordSalt: "seed-johannes-salt",
+        passwordHash: "5eae07ccf419e24015a4d0492386b1c262b11f29ed029596e1be9f80e295cef2"
       },
       {
         id: "u2",
@@ -246,7 +250,7 @@ function createInitialData() {
 }
 
 function normalizeUser(user, fallbackUser = {}) {
-  return {
+  const normalized = {
     id: user?.id || fallbackUser.id || "",
     displayName: user?.displayName || fallbackUser.displayName || "Gebruiker",
     handle: user?.handle || fallbackUser.handle || "@gebruiker",
@@ -256,8 +260,21 @@ function normalizeUser(user, fallbackUser = {}) {
     avatarUrl: user?.avatarUrl || fallbackUser.avatarUrl || "",
     backgroundUrl: user?.backgroundUrl || fallbackUser.backgroundUrl || "",
     homepageLikes: Number(user?.homepageLikes) || 0,
-    blockedUsers: Array.isArray(user?.blockedUsers) ? user.blockedUsers : []
+    blockedUsers: Array.isArray(user?.blockedUsers) ? user.blockedUsers : [],
+    passwordSalt: user?.passwordSalt || fallbackUser.passwordSalt || "",
+    passwordHash: user?.passwordHash || fallbackUser.passwordHash || ""
   };
+
+  const isJohannes =
+    String(normalized.displayName || "").trim().toLowerCase() === "johannes" ||
+    String(normalized.handle || "").trim().toLowerCase() === "@johannes";
+
+  if (isJohannes && (!normalized.passwordSalt || !normalized.passwordHash)) {
+    normalized.passwordSalt = "seed-johannes-salt";
+    normalized.passwordHash = hashPassword("1234", normalized.passwordSalt);
+  }
+
+  return normalized;
 }
 
 function normalizeDb(raw) {
@@ -311,6 +328,24 @@ let db = loadDb();
 
 function saveDb() {
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), "utf8");
+}
+
+function hashPassword(password, salt) {
+  return crypto.createHash("sha256").update(`${salt}:${password}`).digest("hex");
+}
+
+function createPasswordFields(password) {
+  const safePassword = String(password || "");
+  const salt = crypto.randomBytes(16).toString("hex");
+  return {
+    passwordSalt: salt,
+    passwordHash: hashPassword(safePassword, salt)
+  };
+}
+
+function verifyPassword(user, password) {
+  if (!user?.passwordSalt || !user?.passwordHash) return false;
+  return hashPassword(String(password || ""), user.passwordSalt) === user.passwordHash;
 }
 
 function findUser(userId) {
@@ -382,56 +417,50 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/users", (_req, res) => {
-  res.json(db.users);
+  res.json(
+    db.users.map(({ passwordHash, passwordSalt, ...safeUser }) => safeUser)
+  );
 });
 
 app.post("/auth/name-login", (req, res) => {
-  const rawName = String(req.body?.name || "").trim();
+  const displayName = String(req.body?.displayName || req.body?.name || "").trim();
+  const password = String(req.body?.password || "");
+  const remember = Boolean(req.body?.remember);
 
-  if (!rawName) {
-    return res.status(400).json({ message: "Naam ontbreekt." });
+  if (!displayName) {
+    return res.status(400).json({ message: "Naam is verplicht." });
   }
 
-  const normalizedName = rawName.toLowerCase();
+  if (password.length < 1) {
+    return res.status(400).json({ message: "Wachtwoord moet minimaal 1 teken hebben." });
+  }
 
-  let existingUser = db.users.find(
-    (user) =>
-      String(user.displayName || "").trim().toLowerCase() === normalizedName ||
-      String(user.handle || "").replace("@", "").trim().toLowerCase() === normalizedName
-  );
+  let user = findUserByDisplayName(displayName);
+  let created = false;
 
-  if (!existingUser) {
-    const baseHandle = rawName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "")
-      .slice(0, 16) || `user${db.counters.nextUserId}`;
-
-    let handle = `@${baseHandle}`;
-    let suffix = 1;
-
-    while (db.users.some((user) => user.handle === handle)) {
-      suffix += 1;
-      handle = `@${baseHandle}${suffix}`;
+  if (!user) {
+    user = createUserFromName(displayName, password);
+    created = true;
+  } else {
+    if ((!user.passwordSalt || !user.passwordHash) &&
+        String(user.displayName || "").trim().toLowerCase() === "johannes") {
+      user.passwordSalt = "seed-johannes-salt";
+      user.passwordHash = hashPassword("1234", user.passwordSalt);
+      saveDb();
     }
 
-    existingUser = {
-      id: `u${db.counters.nextUserId++}`,
-      displayName: rawName,
-      handle,
-      bio: "Nieuwe gebruiker op het prototype.",
-      avatarColor: "#dcc2ad",
-      heroColor: "#f4e5d8",
-      avatarUrl: "",
-      backgroundUrl: "",
-      homepageLikes: 0,
-      blockedUsers: []
-    };
-
-    db.users.push(existingUser);
-    saveDb();
+    if (!verifyPassword(user, password)) {
+      return res.status(401).json({ message: "Wachtwoord klopt niet." });
+    }
   }
 
-  res.json({ success: true, user: existingUser });
+  const { passwordHash, passwordSalt, ...safeUser } = user;
+  res.json({
+    success: true,
+    created,
+    remember,
+    user: safeUser
+  });
 });
 
 app.post("/users/:userId/profile-media", upload.fields([
@@ -456,7 +485,8 @@ app.post("/users/:userId/profile-media", upload.fields([
   }
 
   saveDb();
-  res.json({ success: true, user });
+  const { passwordHash, passwordSalt, ...safeUser } = user;
+  res.json({ success: true, user: safeUser });
 });
 
 app.get("/feed", (req, res) => {
