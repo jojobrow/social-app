@@ -320,44 +320,9 @@ function findUser(userId) {
 function mapReactionForClient(reaction) {
   return {
     ...reaction,
-    fromUser: findUser(reaction.fromUserId) || null
+    fromUser: findUser(reaction.fromUserId) || null,
+    targetUser: findUser(reaction.targetUserId) || null
   };
-}
-
-function getFriendCount(userId) {
-  return db.friendships.filter(
-    (item) => item.status === "accepted" && (item.userA === userId || item.userB === userId)
-  ).length;
-}
-
-function getFriendshipStatus(viewerUserId, targetUserId) {
-  if (!viewerUserId || !targetUserId || viewerUserId === targetUserId) {
-    return "self";
-  }
-
-  const accepted = db.friendships.find(
-    (item) =>
-      item.status === "accepted" &&
-      ((item.userA === viewerUserId && item.userB === targetUserId) ||
-        (item.userA === targetUserId && item.userB === viewerUserId))
-  );
-
-  if (accepted) {
-    return "accepted";
-  }
-
-  const pending = db.friendRequests.find(
-    (item) =>
-      item.status === "pending" &&
-      ((item.requesterUserId === viewerUserId && item.targetUserId === targetUserId) ||
-        (item.requesterUserId === targetUserId && item.targetUserId === viewerUserId))
-  );
-
-  if (pending) {
-    return "pending";
-  }
-
-  return "none";
 }
 
 function mapPostForClient(post) {
@@ -367,73 +332,49 @@ function mapPostForClient(post) {
   };
 }
 
-function slugifyName(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "")
-    .slice(0, 18);
+function areFriends(userA, userB) {
+  return db.friendships.some(
+    (item) =>
+      item.status === "accepted" &&
+      ((item.userA === userA && item.userB === userB) ||
+        (item.userA === userB && item.userB === userA))
+  );
 }
 
-function buildUniqueHandle(displayName, ignoreUserId = "") {
-  const base = slugifyName(displayName) || "gebruiker";
-  let handleCore = base;
-  let suffix = 1;
-
-  while (
-    db.users.some(
-      (user) =>
-        user.id !== ignoreUserId &&
-        String(user.handle || "").toLowerCase() === `@${handleCore}`.toLowerCase()
-    )
-  ) {
-    suffix += 1;
-    handleCore = `${base}${suffix}`;
-  }
-
-  return `@${handleCore}`;
+function hasPendingFriendRequest(userA, userB) {
+  return db.friendRequests.some(
+    (item) =>
+      item.status === "pending" &&
+      ((item.requesterUserId === userA && item.targetUserId === userB) ||
+        (item.requesterUserId === userB && item.targetUserId === userA))
+  );
 }
 
-function pickPalette(index) {
-  const palettes = [
-    { avatarColor: "#dcc2ad", heroColor: "#f4e5d8" },
-    { avatarColor: "#e7cfc4", heroColor: "#faeee7" },
-    { avatarColor: "#d7c3b4", heroColor: "#efe2d7" },
-    { avatarColor: "#ddc6bc", heroColor: "#f6e7df" },
-    { avatarColor: "#d8ccb8", heroColor: "#f1eadf" },
-    { avatarColor: "#e4c9bf", heroColor: "#f8e8df" }
-  ];
-
-  return palettes[index % palettes.length];
+function getFriendshipStatus(viewerUserId, targetUserId) {
+  if (!viewerUserId || !targetUserId || viewerUserId === targetUserId) return "self";
+  if (areFriends(viewerUserId, targetUserId)) return "accepted";
+  if (hasPendingFriendRequest(viewerUserId, targetUserId)) return "pending";
+  return "none";
 }
 
-function createUserFromName(displayName) {
-  const trimmedName = String(displayName || "").trim();
-  const palette = pickPalette(db.users.length);
+function getFriendCount(userId) {
+  return db.friendships.filter(
+    (item) => item.status === "accepted" && (item.userA === userId || item.userB === userId)
+  ).length;
+}
 
-  const newUser = {
-    id: `u${db.counters.nextUserId++}`,
-    displayName: trimmedName,
-    handle: buildUniqueHandle(trimmedName),
-    bio: "Nieuwe gebruiker op het prototype.",
-    avatarColor: palette.avatarColor,
-    heroColor: palette.heroColor,
-    avatarUrl: "",
-    backgroundUrl: "",
-    homepageLikes: 0,
-    blockedUsers: []
+function sortFeedPosts(posts) {
+  const feedWeight = {
+    promoted: 3,
+    recommended: 2,
+    normal: 1
   };
 
-  db.users.push(newUser);
-  saveDb();
-  return newUser;
-}
-
-function findUserByDisplayName(displayName) {
-  const normalized = String(displayName || "").trim().toLowerCase();
-  return db.users.find((user) => String(user.displayName || "").trim().toLowerCase() === normalized);
+  return [...posts].sort((a, b) => {
+    const weightDiff = (feedWeight[b.feedKind] || 0) - (feedWeight[a.feedKind] || 0);
+    if (weightDiff !== 0) return weightDiff;
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
 }
 
 app.get("/", (_req, res) => {
@@ -445,110 +386,84 @@ app.get("/users", (_req, res) => {
 });
 
 app.post("/auth/name-login", (req, res) => {
-  const displayName = String(req.body?.displayName || "").trim();
+  const rawName = String(req.body?.name || "").trim();
 
-  if (!displayName) {
-    return res.status(400).json({ message: "Naam is verplicht." });
+  if (!rawName) {
+    return res.status(400).json({ message: "Naam ontbreekt." });
   }
 
-  let user = findUserByDisplayName(displayName);
-  let created = false;
+  const normalizedName = rawName.toLowerCase();
 
-  if (!user) {
-    user = createUserFromName(displayName);
-    created = true;
+  let existingUser = db.users.find(
+    (user) =>
+      String(user.displayName || "").trim().toLowerCase() === normalizedName ||
+      String(user.handle || "").replace("@", "").trim().toLowerCase() === normalizedName
+  );
+
+  if (!existingUser) {
+    const baseHandle = rawName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 16) || `user${db.counters.nextUserId}`;
+
+    let handle = `@${baseHandle}`;
+    let suffix = 1;
+
+    while (db.users.some((user) => user.handle === handle)) {
+      suffix += 1;
+      handle = `@${baseHandle}${suffix}`;
+    }
+
+    existingUser = {
+      id: `u${db.counters.nextUserId++}`,
+      displayName: rawName,
+      handle,
+      bio: "Nieuwe gebruiker op het prototype.",
+      avatarColor: "#dcc2ad",
+      heroColor: "#f4e5d8",
+      avatarUrl: "",
+      backgroundUrl: "",
+      homepageLikes: 0,
+      blockedUsers: []
+    };
+
+    db.users.push(existingUser);
+    saveDb();
   }
 
-  res.json({
-    success: true,
-    created,
-    user
-  });
+  res.json({ success: true, user: existingUser });
 });
 
-app.patch("/users/:userId/profile", (req, res) => {
+app.post("/users/:userId/profile-media", upload.fields([
+  { name: "avatar", maxCount: 1 },
+  { name: "background", maxCount: 1 }
+]), (req, res) => {
   const user = findUser(req.params.userId);
+
   if (!user) {
     return res.status(404).json({ message: "Gebruiker niet gevonden." });
   }
 
-  const nextDisplayName =
-    req.body?.displayName !== undefined ? String(req.body.displayName).trim() : null;
+  const files = req.files || {};
+  const baseUrl = getBaseUrl(req);
 
-  if (nextDisplayName !== null) {
-    if (!nextDisplayName) {
-      return res.status(400).json({ message: "Naam mag niet leeg zijn." });
-    }
-
-    const duplicate = db.users.find(
-      (item) =>
-        item.id !== user.id &&
-        String(item.displayName || "").trim().toLowerCase() === nextDisplayName.toLowerCase()
-    );
-
-    if (duplicate) {
-      return res.status(400).json({ message: "Die naam bestaat al." });
-    }
-
-    user.displayName = nextDisplayName;
-    user.handle = buildUniqueHandle(nextDisplayName, user.id);
+  if (files.avatar?.[0]) {
+    user.avatarUrl = `${baseUrl}/uploads/${files.avatar[0].filename}`;
   }
 
-  if (req.body?.bio !== undefined) {
-    user.bio = String(req.body.bio || "").trim();
+  if (files.background?.[0]) {
+    user.backgroundUrl = `${baseUrl}/uploads/${files.background[0].filename}`;
   }
 
   saveDb();
-  res.json({
-    success: true,
-    user
-  });
-});
-
-app.post("/users/:userId/profile-media", upload.single("media"), (req, res) => {
-  const user = findUser(req.params.userId);
-  if (!user) {
-    return res.status(404).json({ message: "Gebruiker niet gevonden." });
-  }
-
-  const kind = String(req.body?.kind || "").trim().toLowerCase();
-  if (!["background", "avatar"].includes(kind)) {
-    return res.status(400).json({ message: "kind moet 'background' of 'avatar' zijn." });
-  }
-
-  if (!req.file) {
-    return res.status(400).json({ message: "Geen bestand ontvangen." });
-  }
-
-  if (!imageMimeTypes.includes(req.file.mimetype)) {
-    return res.status(400).json({ message: "Voor profielmedia zijn alleen afbeeldingen toegestaan." });
-  }
-
-  if (req.file.size > 8 * 1024 * 1024) {
-    return res.status(400).json({ message: "Afbeelding is te groot. Maximaal 8 MB." });
-  }
-
-  const fileUrl = `${getBaseUrl(req)}/uploads/${req.file.filename}`;
-
-  if (kind === "background") {
-    user.backgroundUrl = fileUrl;
-  } else {
-    user.avatarUrl = fileUrl;
-  }
-
-  saveDb();
-
-  res.json({
-    success: true,
-    kind,
-    url: fileUrl,
-    user
-  });
+  res.json({ success: true, user });
 });
 
 app.get("/feed", (req, res) => {
-  const userId = req.query.userId || "u1";
-  const items = [...db.posts].sort((a, b) => b.createdAt - a.createdAt).map(mapPostForClient);
+  const userId = req.query.userId || "";
+  const items = sortFeedPosts(db.posts)
+    .filter((post) => !post.dislikes.includes(userId))
+    .map(mapPostForClient);
 
   res.json({
     viewerUserId: userId,
@@ -694,6 +609,43 @@ app.post("/posts/:postId/dislike", (req, res) => {
   }
 
   res.json({ success: true });
+});
+
+app.post("/posts/:postId/delete", (req, res) => {
+  const postId = Number(req.params.postId);
+  const ownerUserId = String(req.body?.ownerUserId || "").trim();
+  const index = db.posts.findIndex((item) => item.id === postId);
+
+  if (index === -1) {
+    return res.status(404).json({ message: "Post niet gevonden." });
+  }
+
+  if (!ownerUserId) {
+    return res.status(400).json({ message: "ownerUserId ontbreekt." });
+  }
+
+  const post = db.posts[index];
+  if (post.ownerUserId !== ownerUserId) {
+    return res.status(403).json({ message: "Je kunt alleen je eigen posts verwijderen." });
+  }
+
+  [post.imageUrl, post.videoUrl].forEach((fileUrl) => {
+    if (!fileUrl || !String(fileUrl).includes("/uploads/")) return;
+    const fileName = decodeURIComponent(String(fileUrl).split("/uploads/")[1] || "");
+    if (!fileName) return;
+    const absolutePath = path.join(uploadsDir, path.basename(fileName));
+    if (fs.existsSync(absolutePath)) {
+      try {
+        fs.unlinkSync(absolutePath);
+      } catch (error) {
+        console.warn("Kon upload niet verwijderen:", absolutePath, error.message);
+      }
+    }
+  });
+
+  db.posts.splice(index, 1);
+  saveDb();
+  res.json({ success: true, deletedPostId: postId });
 });
 
 app.post("/frontpage/:userId/like", (req, res) => {
