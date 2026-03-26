@@ -8,14 +8,14 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
-      --bg: #e7d7ca;
-      --card: rgba(255, 250, 246, 0.94);
-      --card-strong: rgba(255, 250, 246, 0.94);
-      --line: rgba(120, 92, 72, 0.24);
-      --line-soft: rgba(120, 92, 72, 0.16);
-      --text: #1b120d;
-      --muted: #3f2e24;
-      --shadow: 0 22px 48px rgba(95, 66, 47, 0.18);
+      --bg: #eadfd4;
+      --card: rgba(255, 248, 242, 0.92);
+      --card-strong: rgba(255, 248, 242, 0.98);
+      --line: rgba(132, 101, 80, 0.28);
+      --line-soft: rgba(132, 101, 80, 0.18);
+      --text: #2a1d15;
+      --muted: #5f4739;
+      --shadow: 0 20px 44px rgba(101, 72, 54, 0.18);
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 18px;
@@ -37,8 +37,7 @@
     }
 
     body {
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden;
     }
 
     button,
@@ -296,7 +295,7 @@
     .infoText,
     .drawerText,
     .postMeta {
-      color: #4f3b2f;
+      color: #6d5648;
       line-height: 1.55;
     }
 
@@ -304,7 +303,7 @@
     .small,
     .muted,
     .postMeta {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
     }
 
@@ -965,29 +964,7 @@
 
     .field,
     .textarea,
-    .select {
-      width: 100%;
-      border: 1px solid rgba(125, 101, 82, 0.24);
-      border-radius: 16px;
-      padding: 14px 16px;
-      font: inherit;
-      background: rgba(255, 248, 240, 0.90);
-      color: #3f2c22;
-      outline: none;
-      display: block;
-    }
-
-    .textarea {
-      min-height: 120px;
-      resize: vertical;
-      line-height: 1.45;
-    }
-
-    .select {
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
+    .select,
     .fileInput {
       position: absolute;
       width: 1px;
@@ -1000,12 +977,12 @@
       width: 100%;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(170,142,120,0.16);
-      background: rgba(255,255,255,0.86);
-      color: #4a3428;
+      background: rgba(255,250,245,0.98);
+      color: #2f2119;
       padding: 14px 16px;
       text-align: left;
       font-weight: 700;
-      box-shadow: 0 10px 24px rgba(155, 124, 101, 0.08);
+      box-shadow: 0 10px 24px rgba(101, 72, 54, 0.10);
     }
 
     .filePickerBtn span {
@@ -1019,6 +996,32 @@
     .textarea {
       min-height: 110px;
       resize: vertical;
+    }
+
+    .composer textarea,
+    .composer input[type="text"],
+    .composer select {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(128, 98, 78, 0.28);
+      background: rgba(255, 251, 247, 0.96);
+      color: var(--text);
+      padding: 16px 18px;
+      font: inherit;
+      box-shadow: 0 8px 18px rgba(101, 72, 54, 0.06);
+    }
+
+    .composer textarea::placeholder,
+    .composer input[type="text"]::placeholder {
+      color: #7a6151;
+    }
+
+    .composer .small {
+      color: #5c4538;
+      font-size: 13px;
+      line-height: 1.55;
     }
 
     .statusCard {
@@ -1292,7 +1295,6 @@
             <div class="title" id="homeScreenTitle">Jouw voorpagina</div>
           </div>
           <div class="topbarActions">
-            <button class="iconBtn" onclick="openFeed()">Feed</button>
             <button class="iconBtn" onclick="refreshAll()">Vernieuw</button>
           </div>
         </div>
@@ -1320,7 +1322,6 @@
             <div class="title" id="creatorScreenTitle">Maker</div>
           </div>
           <div class="topbarActions">
-            <button class="iconBtn" onclick="openFeed()">Feed</button>
             <button class="iconBtn" onclick="openOwnHome()">Eigen home</button>
           </div>
         </div>
@@ -1649,16 +1650,16 @@
             <div class="sectionTitle">Nieuw bericht</div>
             <button class="chipBtn" onclick="toggleCompose()">Sluiten</button>
           </div>
-          <textarea id="captionInput" class="textarea" placeholder="Wat wil je delen op je homepage/feed?"></textarea>
+          <button type="button" class="filePickerBtn" onclick="triggerMediaPicker()">Upload foto of video<span>Tik hier om een foto of video van je telefoon te kiezen</span></button>
+          <input id="mediaFileInput" type="file" class="fileInput" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+          <div class="small" id="uploadStatus">Nog geen bestand gekozen. Tik op “Upload foto of video”. Beeld wordt schermvullend en 4:3-achtig gecropt getoond. Video-doel: maximaal 1,5 minuut.</div>
+          <textarea id="captionInput" class="textarea" placeholder="Schrijf hier je tekst of caption bij je bericht"></textarea>
           <input id="hashtagsInput" class="field" placeholder="#homepage, #creator, #concept" />
           <select id="feedKindSelect" class="select">
             <option value="normal">Normal</option>
             <option value="recommended">Recommended</option>
             <option value="promoted">Promoted</option>
           </select>
-          <button type="button" class="filePickerBtn" onclick="triggerMediaPicker()">Kies foto of video<span>Tik hier om een foto of video van je telefoon te kiezen</span></button>
-          <input id="mediaFileInput" type="file" class="fileInput" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
-          <div class="small" id="uploadStatus">Nog geen bestand gekozen. Tik op “Kies foto of video”. Beeld wordt schermvullend en 4:3-achtig gecropt getoond. Video-doel: maximaal 1,5 minuut.</div>
           <div class="composerActions">
             <button class="btnPrimary" onclick="publishPost()">Plaatsen</button>
             <button class="btnSoft" onclick="toggleCompose()">Annuleren</button>
@@ -2102,12 +2103,11 @@
           uploadStatus.textContent = "Media uploaden...";
           const formData = new FormData();
           formData.append("media", file);
-          formData.append("ownerUserId", activeUserId);
           const uploadResult = await fetch(`${API_BASE}/upload-media`, { method: "POST", body: formData });
           const uploadData = await uploadResult.json().catch(() => ({}));
           if (!uploadResult.ok) throw new Error(uploadData.message || "Media upload mislukt.");
-          if (uploadData.postType === "image") imageUrl = uploadData.url || "";
-          if (uploadData.postType === "video") videoUrl = uploadData.url || "";
+          if (uploadData.mediaType === "image") imageUrl = uploadData.url || "";
+          if (uploadData.mediaType === "video") videoUrl = uploadData.url || "";
         }
 
         const hashtags = hashtagsInput.value.split(",").map(tag => tag.trim()).filter(Boolean);
@@ -2143,7 +2143,7 @@
         await fetchJson(`${API_BASE}/posts/${postId}/like`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ viewerUserId: activeUserId })
+          body: JSON.stringify({ userId: activeUserId })
         });
         await refreshAll();
       } catch (error) {
@@ -2156,7 +2156,7 @@
         await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ viewerUserId: activeUserId })
+          body: JSON.stringify({ userId: activeUserId })
         });
       } catch (error) {
         alert(error.message || "Dislike mislukt.");
@@ -2325,25 +2325,6 @@
         alert("Bericht is naar pending moderatie gestuurd.");
       } catch (error) {
         alert(error.message || "Versturen mislukt.");
-      }
-    }
-
-    async function submitHomepageComment(targetUserId) {
-      const textarea = document.getElementById("homepageCommentInput");
-      if (!textarea) return;
-      const text = textarea.value.trim();
-      if (!text) {
-        alert("Typ eerst een reactie.");
-        return;
-      }
-
-      try {
-        await sendFrontpageReaction(targetUserId, text);
-        textarea.value = "";
-        await refreshAll();
-        alert("Reactie is verzonden en staat nu in moderatie.");
-      } catch (error) {
-        alert(error.message || "Reactie plaatsen mislukt.");
       }
     }
 
