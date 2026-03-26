@@ -57,6 +57,36 @@ function getBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
 
+function pickPalette(index) {
+  const palettes = [
+    { avatarColor: "#dcc2ad", heroColor: "#f4e5d8" },
+    { avatarColor: "#e7cfc4", heroColor: "#faeee7" },
+    { avatarColor: "#d7c3b4", heroColor: "#efe2d7" },
+    { avatarColor: "#d9c7b8", heroColor: "#f5ebe2" },
+    { avatarColor: "#cfb39e", heroColor: "#f0dfd1" }
+  ];
+  return palettes[index % palettes.length];
+}
+
+function buildUniqueHandle(displayName, users) {
+  const base =
+    String(displayName || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 16) || "user";
+
+  let candidate = `@${base}`;
+  let suffix = 1;
+
+  while (users.some((user) => String(user.handle || "").toLowerCase() === candidate.toLowerCase())) {
+    suffix += 1;
+    candidate = `@${base}${suffix}`;
+  }
+
+  return candidate;
+}
+
 function createInitialData() {
   return {
     counters: {
@@ -352,6 +382,41 @@ function verifyPassword(user, password) {
 function findUser(userId) {
   return db.users.find((user) => user.id === userId);
 }
+
+function findUserByDisplayName(displayName) {
+  const value = String(displayName || "").trim().toLowerCase();
+  return db.users.find(
+    (user) =>
+      String(user.displayName || "").trim().toLowerCase() === value ||
+      String(user.handle || "").replace(/^@/, "").trim().toLowerCase() === value
+  );
+}
+
+function createUserFromName(displayName, password) {
+  const trimmedName = String(displayName || "").trim();
+  const palette = pickPalette(db.users.length);
+  const auth = createPasswordFields(password);
+
+  const newUser = {
+    id: `u${db.counters.nextUserId++}`,
+    displayName: trimmedName,
+    handle: buildUniqueHandle(trimmedName, db.users),
+    bio: "Nieuwe gebruiker op het prototype.",
+    avatarColor: palette.avatarColor,
+    heroColor: palette.heroColor,
+    avatarUrl: "",
+    backgroundUrl: "",
+    homepageLikes: 0,
+    blockedUsers: [],
+    passwordSalt: auth.passwordSalt,
+    passwordHash: auth.passwordHash
+  };
+
+  db.users.push(newUser);
+  saveDb();
+  return newUser;
+}
+
 
 function mapReactionForClient(reaction) {
   return {
