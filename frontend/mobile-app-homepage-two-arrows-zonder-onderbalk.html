@@ -1463,6 +1463,87 @@
       }
     }
 
+    function renderPostCard(item, options = {}) {
+      const owner = item.owner || getUserById(item.ownerUserId) || {};
+      const isOwn = owner.id === state.activeUserId;
+      const mediaHtml = item.postType === "image" && item.imageUrl
+        ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+        : item.postType === "video" && item.videoUrl
+        ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
+        : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
+
+      const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
+        ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
+        : "";
+
+      const caption = item.postType === "text" && !item.imageUrl && !item.videoUrl
+        ? ""
+        : `<div class="caption">${escapeHtml(item.caption || "")}</div>`;
+
+      const ownerAction = options.creatorCard
+        ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
+        : isOwn
+        ? `<button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>`
+        : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
+
+      return `
+        <article class="postCard">
+          ${mediaHtml}
+          <div class="postMeta">
+            <div class="miniRow">
+              <div class="ownerMini">
+                ${getAvatarHtml(owner, "ownerMiniAvatar")}
+                <div>
+                  <div class="ownerMiniName">${escapeHtml(owner.displayName || "Gebruiker")}</div>
+                  <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
+                </div>
+              </div>
+              <span class="kindBadge">${escapeHtml(getKindLabel(item.feedKind || "normal"))}</span>
+            </div>
+            ${caption}
+            ${hashtags}
+            <div class="actionRow">
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="likePost(${Number(item.id)})">♥ ${Number(item.likes || 0)}</button>
+                <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
+              </div>
+              ${ownerAction}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderReactionList(reactions, showModeration = false) {
+      if (!Array.isArray(reactions) || !reactions.length) {
+        return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+      }
+
+      return `
+        <div class="reactionList">
+          ${reactions.map((reaction) => {
+            const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+            return `
+              <div class="reactionItem">
+                <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
+                <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
+                <div class="miniRow" style="margin-top:10px;">
+                  <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                  ${showModeration ? `
+                    <div class="buttonGroup">
+                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
+                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
+                      <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
+                    </div>
+                  ` : ""}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
     function renderHomeScreen() {
       const frontpage = state.ownFrontpage;
       const user = frontpage?.user || getUserById(state.activeUserId) || {};
