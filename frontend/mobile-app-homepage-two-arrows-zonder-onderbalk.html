@@ -6,26 +6,26 @@
   <title>Social Prototype Mobile</title>
   <style>
     :root {
-      --bg: #110a1f;
-      --bg-2: #1a1030;
-      --bg-3: #251540;
-      --panel: rgba(31, 21, 51, 0.86);
-      --panel-2: rgba(39, 27, 63, 0.92);
-      --panel-3: rgba(49, 34, 78, 0.96);
-      --glass: rgba(255,255,255,0.08);
-      --line: rgba(255,255,255,0.11);
-      --line-strong: rgba(255,255,255,0.18);
-      --text: #f7f3ff;
-      --text-soft: #d9cdf7;
-      --text-dim: #b3a3d8;
-      --accent: #9d5cff;
-      --accent-2: #cfb1ff;
-      --accent-3: #6f3fd1;
-      --accent-deep: #5323ad;
-      --ok: #8fe0c0;
-      --danger: #f0a9c5;
-      --shadow: 0 24px 60px rgba(0,0,0,0.30);
-      --shadow-soft: 0 16px 36px rgba(0,0,0,0.18);
+      --bg: #09070f;
+      --bg-2: #120f19;
+      --bg-3: #19141f;
+      --panel: rgba(20, 17, 25, 0.84);
+      --panel-2: rgba(28, 24, 35, 0.92);
+      --panel-3: rgba(36, 30, 43, 0.96);
+      --glass: rgba(255,255,255,0.07);
+      --line: rgba(255,255,255,0.10);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #f7f3ef;
+      --text-soft: #d8d0c6;
+      --text-dim: #a99f95;
+      --accent: #c8a97e;
+      --accent-2: #f1dfc8;
+      --accent-3: #8e6c4f;
+      --accent-deep: #6f543e;
+      --ok: #94d4b7;
+      --danger: #f0a9a9;
+      --shadow: 0 24px 60px rgba(0,0,0,0.36);
+      --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
       --radius: 26px;
       --radius-sm: 18px;
       --safe-top: env(safe-area-inset-top, 0px);
@@ -38,8 +38,8 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(157,92,255,0.22), transparent 28%),
-        radial-gradient(circle at 82% 14%, rgba(207,177,255,0.14), transparent 24%),
+        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
+        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -152,89 +152,6 @@
       max-width: 34ch;
     }
 
-
-    .pageTitle {
-      font-size: 28px;
-    }
-
-    .topRow {
-      position: sticky;
-      top: calc(var(--safe-top) + 8px);
-      z-index: 10;
-      padding: 14px 16px;
-      border-radius: 22px;
-      background: rgba(30, 21, 48, 0.78);
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .heroActions {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .heroMeta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .heroChip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 34px;
-      padding: 0 12px;
-      border-radius: 999px;
-      background: rgba(17, 10, 31, 0.34);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.92);
-      font-size: 12px;
-      backdrop-filter: blur(10px);
-    }
-
-    .profileUploadRow {
-      display: grid;
-      gap: 10px;
-    }
-
-    .fieldLabel {
-      font-size: 12px;
-      color: var(--text-soft);
-      font-weight: 700;
-      letter-spacing: .01em;
-    }
-
-    .inlineActionRow {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .fileInputPlain {
-      width: 100%;
-      min-height: 44px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      color: var(--text-soft);
-    }
-
-    .modalSheet {
-      border: 1px solid rgba(255,255,255,0.10);
-      background: linear-gradient(180deg, rgba(34,23,56,0.98), rgba(24,15,40,0.98));
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(41, 28, 67, 0.94), rgba(28, 19, 47, 0.94));
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
     .buttonGroup {
       display: flex;
       flex-wrap: wrap;
@@ -274,10 +191,10 @@
     }
 
     .solidBtn {
-      color: #12091f;
+      color: #18130f;
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      box-shadow: 0 14px 32px rgba(120,64,220,0.28);
+      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
     }
 
     .dangerBtn {
@@ -289,7 +206,7 @@
     .hero {
       position: relative;
       padding: 18px;
-      min-height: 312px;
+      min-height: 228px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -302,9 +219,9 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(16,10,31,0.72)),
-        radial-gradient(circle at top right, rgba(207,177,255,0.20), transparent 34%),
-        radial-gradient(circle at top left, rgba(157,92,255,0.16), transparent 30%);
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.84)),
+        radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 30%),
+        radial-gradient(circle at top left, rgba(200,169,126,0.12), transparent 28%);
     }
 
     .hero > * { position: relative; z-index: 1; }
@@ -849,142 +766,177 @@
       }
     }
   
-    .modalOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(6, 5, 9, 0.72);
-      backdrop-filter: blur(14px);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 20px 14px calc(var(--safe-bottom) + 20px);
-      z-index: 1200;
-    }
 
-    .modalOverlay.open {
+    .homeTopActions {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
     }
 
-    .modalSheet {
-      width: 100%;
-      max-width: 460px;
-      border-radius: 28px;
-      overflow: hidden;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015)),
-        linear-gradient(180deg, var(--panel-3), var(--panel-2));
-      border: 1px solid var(--line-strong);
-      box-shadow: 0 28px 70px rgba(0,0,0,0.42);
-    }
-
-    .modalInner {
-      padding: 18px;
+    .heroMeta {
       display: grid;
       gap: 14px;
     }
 
-    .modalHandle {
-      width: 54px;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.16);
-      margin: 0 auto 6px;
+    .heroActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .heroStatStrip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .heroStat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(9, 8, 20, 0.42);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(10px);
+    }
+
+    .heroStatValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .heroStatLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+
+    .compactChatList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .compactChatItem {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .compactChatThumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .compactChatThumb img,
+    .compactChatThumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .compactChatBody {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .compactChatMeta {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .compactChatText {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .compactComposer {
+      display: grid;
+      gap: 10px;
+    }
+
+    .modalOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 18px 16px calc(var(--safe-bottom) + 18px);
+      background: rgba(6, 4, 14, 0.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .modalOverlay.show {
+      display: flex !important;
+    }
+
+    .modalCard {
+      width: min(100%, 460px);
+      max-height: 84dvh;
+      overflow: auto;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        linear-gradient(180deg, rgba(46, 27, 88, 0.98), rgba(24, 15, 46, 0.98));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      padding: 18px;
+    }
+
+    .modalHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
     .modalTitle {
       margin: 0;
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1.05;
       letter-spacing: -0.04em;
       font-weight: 900;
     }
 
-    .previewBox {
-      min-height: 160px;
-      border-radius: 22px;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-      background: rgba(255,255,255,0.04);
-      border: 1px dashed rgba(255,255,255,0.14);
-      color: var(--text-dim);
-      text-align: center;
-      padding: 18px;
-    }
-
-    .previewBox img,
-    .previewBox video {
-      width: 100%;
-      max-height: 320px;
-      object-fit: cover;
-      display: block;
-      border-radius: 18px;
-    }
-
-  
-
-    .composePreview {
-      width: 100%;
-      min-height: 148px;
-      max-height: 188px;
-      overflow: hidden;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .composePreview img,
-    .composePreview video {
-      width: 100%;
-      height: 100%;
-      max-height: 188px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .composePlaceholder {
-      padding: 18px;
-      color: var(--text-soft);
-      text-align: center;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .filePickerBtn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 0 15px;
+    .modalClose {
+      width: 42px;
+      min-width: 42px;
+      height: 42px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      color: #18130f;
-      font-weight: 900;
-      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
-      align-self: flex-start;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1;
     }
 
-    .fileInputHidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+    .modalStack {
+      display: grid;
+      gap: 12px;
     }
-
-    .modalCard .uploadBox {
-      padding: 12px;
-      gap: 8px;
-      border-radius: 18px;
-    }
-
 
   </style>
 </head>
@@ -1421,10 +1373,8 @@
         if ($("composeHashtags")) $("composeHashtags").value = "";
         if ($("composeMedia")) $("composeMedia").value = "";
         if ($("composeFeedKind")) $("composeFeedKind").value = "normal";
-        if ($("composePreview")) $("composePreview").innerHTML = "Nog geen foto of video gekozen.";
 
         await refreshAll({ keepScreen: "home" });
-        closeComposeModal();
         setStatusLine("composeStatus", "Bericht geplaatst.", "ok");
       } catch (error) {
         setStatusLine("composeStatus", error.message || "Plaatsen mislukt.", "error");
@@ -1578,6 +1528,46 @@
       }
     }
 
+    function updateComposePreview(file) {
+      const preview = $("composePreview");
+      if (!preview) return;
+      if (!file) {
+        preview.innerHTML = '<div class="composePlaceholder">Kies een foto of video om je bericht te starten.</div>';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      if ((file.type || "").startsWith("video/")) {
+        preview.innerHTML = '<video src="' + url + '" controls playsinline loop></video>';
+      } else {
+        preview.innerHTML = '<img src="' + url + '" alt="Preview" />';
+      }
+    }
+
+    function handleComposeMediaChange() {
+      const file = $("composeMedia")?.files?.[0];
+      updateComposePreview(file || null);
+    }
+
+    function openComposeModal() {
+      const modal = $("composeModal");
+      if (!modal) return;
+      modal.classList.add("show");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => {
+        const caption = $("composeCaption");
+        if (caption) caption.focus();
+        handleComposeMediaChange();
+      }, 0);
+    }
+
+    function closeComposeModal(event) {
+      const modal = $("composeModal");
+      if (!modal) return;
+      if (event && event.target && event.target !== modal) return;
+      modal.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
     async function saveProfile() {
       const displayName = $("profileDisplayName")?.value.trim() || "";
       const handleRaw = $("profileHandle")?.value.trim() || "";
@@ -1695,10 +1685,6 @@
       renderHomeScreen();
     }
 
-    function goToMyContentPage() {
-      window.location.href = "mijn-content.html";
-    }
-
     function openOwnContentFeed() {
       state.feedMode = "global";
       state.currentFeedScopeUserId = state.activeUserId;
@@ -1758,19 +1744,7 @@
       moveFeed(-1);
     }
 
-    async function handleFeedLeftArrow() {
-      if (state.feedMode === "creator") {
-        exitMakerModeToFeed();
-        return;
-      }
-
-      if (state.currentFeedScopeUserId && state.currentFeedScopeUserId !== state.activeUserId) {
-        await loadCreatorFrontpage(state.currentFeedScopeUserId);
-        setActiveScreen("creator");
-        renderCreatorScreen();
-        return;
-      }
-
+    function handleFeedLeftArrow() {
       openOwnHomepage();
     }
 
@@ -1813,7 +1787,7 @@
       const ownerAction = options.creatorCard
         ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
         : isOwn
-        ? `<button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>`
+        ? `<button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>`
         : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
 
       return `
@@ -1842,10 +1816,6 @@
           </div>
         </article>
       `;
-
-      if (item.postType === "video" && item.videoUrl) {
-        bindFeedVideoControls();
-      }
     }
 
     function renderReactionList(reactions, showModeration = false) {
@@ -1876,44 +1846,77 @@
           }).join("")}
         </div>
       `;
+    }
 
-      if (item.postType === "video" && item.videoUrl) {
-        bindFeedVideoControls();
+
+    function goToFriendsPage() {
+      window.location.href = "vrienden-module-pagina.html";
+    }
+
+    async function publishQuickTextPost() {
+      const textarea = $("homePostInput");
+      if (!textarea) return;
+      const caption = textarea.value.trim();
+      if (!caption) return;
+
+      setStatusLine("homePostStatus", "Bericht wordt geplaatst...", "");
+      try {
+        await fetchJson(`${API_BASE}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ownerUserId: state.activeUserId,
+            caption,
+            imageUrl: "",
+            videoUrl: "",
+            hashtags: [],
+            feedKind: "normal"
+          })
+        });
+        textarea.value = "";
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("homePostStatus", "Bericht geplaatst.", "ok");
+      } catch (error) {
+        setStatusLine("homePostStatus", error.message || "Plaatsen mislukt.", "error");
       }
     }
 
-
-    function openComposeModal() {
-      const modal = $("composeModal");
-      if (!modal) return;
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeComposeModal(event) {
-      if (event && event.target && event.target !== $("composeModal")) return;
-      const modal = $("composeModal");
-      if (!modal) return;
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    function handleComposeMediaChange(event) {
-      const file = event?.target?.files?.[0] || null;
-      const preview = $("composePreview");
-      if (!preview) return;
-      if (!file) {
-        preview.innerHTML = "Nog geen foto of video gekozen.";
-        return;
+    function renderCompactOwnPosts(posts) {
+      if (!Array.isArray(posts) || !posts.length) {
+        return `<div class="emptyState">Nog geen posts op je homepage.</div>`;
       }
-      const url = URL.createObjectURL(file);
-      if (file.type.startsWith("video/")) {
-        preview.innerHTML = `<video src="${url}" controls playsinline loop></video>`;
-      } else {
-        preview.innerHTML = `<img src="${url}" alt="Voorbeeld van upload" />`;
-      }
+
+      return `
+        <div class="compactChatList">
+          ${posts.map((item) => {
+            const thumb = item.postType === "image" && item.imageUrl
+              ? `<div class="compactChatThumb"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+              : item.postType === "video" && item.videoUrl
+              ? `<div class="compactChatThumb"><video src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video></div>`
+              : `<div class="compactChatThumb">tekst</div>`;
+
+            const metaBits = [
+              item.postType === "text" ? "chat" : item.postType,
+              timeAgo(item.createdAt)
+            ].filter(Boolean).join(" · ");
+
+            return `
+              <div class="compactChatItem">
+                ${thumb}
+                <div class="compactChatBody">
+                  <div class="compactChatMeta">${escapeHtml(metaBits)}</div>
+                  <div class="compactChatText">${escapeHtml(item.caption || "")}</div>
+                  ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="hashtags">${item.hashtags.slice(0,4).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>` : ``}
+                </div>
+                <button class="dangerBtn" onclick="deletePost(${Number(item.id)})">×</button>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
     }
 
+    
     function renderHomeScreen() {
       const frontpage = state.ownFrontpage;
       const user = frontpage?.user || getUserById(state.activeUserId) || {};
@@ -1932,6 +1935,8 @@
               </div>
               <div class="buttonGroup">
                 <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
+                <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
                 <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
                 <button class="ghostBtn" onclick="switchAccount()">Account</button>
               </div>
@@ -1951,46 +1956,25 @@
                 <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
                 <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
               </div>
-              <div class="heroActions">
-                <button class="solidBtn" onclick="openComposeModal()">Content maken</button>
-                <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
-                <button class="ghostBtn" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
-              </div>
             </section>
 
-            <div class="modalOverlay" id="composeModal" onclick="closeComposeModal(event)">
-              <div class="modalSheet" onclick="event.stopPropagation()">
-                <div class="modalInner">
-                  <div class="modalHandle"></div>
-                  <div class="sectionHeader">
-                    <div>
-                      <h3 class="modalTitle">Nieuwe content</h3>
-                      <div class="sectionText">Kies je foto of video en zet er een tekst bij.</div>
-                    </div>
-                    <button class="ghostBtn" onclick="closeComposeModal()">Sluiten</button>
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Nieuw chat bericht</h3>
+                    <div class="sectionText">Typ zelf iets op je homepage. Anderen kunnen het hier lezen.</div>
                   </div>
-
-                  <div class="previewBox" id="composePreview">Nog geen foto of video gekozen.</div>
-
-                  <div class="uploadBox">
-                    <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="handleComposeMediaChange(event)" />
-                    <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
-                  </div>
-
-                  <textarea id="composeCaption" class="textarea" placeholder="Zet hier je tekst of caption..."></textarea>
-                  <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
-                  <select id="composeFeedKind" class="select">
-                    <option value="normal">Normal</option>
-                    <option value="recommended">Recommended</option>
-                    <option value="promoted">Promoted</option>
-                  </select>
-                  <div class="composerActions">
-                    <div id="composeStatus" class="statusLine"></div>
-                    <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
+                </div>
+                <div class="compactComposer">
+                  <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
+                  <div class="actionRow">
+                    <div id="homePostStatus" class="statusLine"></div>
+                    <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             <section class="card">
               <div class="cardBody stack">
@@ -2025,6 +2009,18 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
+                    <h3 class="sectionTitle">Jouw content</h3>
+                    <div class="sectionText">Compact op je homepage, als een chatstroom.</div>
+                  </div>
+                </div>
+                ${renderCompactOwnPosts(posts)}
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
                     <h3 class="sectionTitle">Profiel bewerken</h3>
                     <div class="sectionText">Pas je profiel aan en upload je homepage-achtergrond.</div>
                   </div>
@@ -2047,24 +2043,11 @@
                 </div>
               </div>
             </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw content</h3>
-                    <div class="sectionText">Recente posts op je homepage.</div>
-                  </div>
-                </div>
-                <div class="postList">
-                  ${posts.length ? posts.map((item) => renderPostCard(item)).join("") : `<div class="emptyState">Nog geen posts op je homepage.</div>`}
-                </div>
-              </div>
-            </section>
           </div>
         </div>
       `;
     }
+
 
     function renderCreatorScreen() {
       const frontpage = state.creatorFrontpage;
@@ -2080,15 +2063,15 @@
           <div class="stack">
             <div class="topRow">
               <div>
-                <h1 class="pageTitle">Maker</h1>
-                <div class="pageIntro">De publieke homepage van de maker.</div>
+                <h1 class="pageTitle">Maker-homepage</h1>
+                <div class="pageIntro">Lichter en simpeler dan je eigen homepage. Je komt hier via het rechter pijltje vanuit de feed.</div>
               </div>
               <div class="buttonGroup">
-                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Feed</button>
+                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
               </div>
             </div>
 
-            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 248px;">
+            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 192px;">
               <div class="avatarRow">
                 ${getAvatarHtml(user)}
                 <div class="identityBlock">
@@ -2097,15 +2080,30 @@
                 </div>
               </div>
               <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
-              <div class="heroMeta">
-                <span class="heroChip">${Number(stats.posts || 0)} posts</span>
-                <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
-                <span class="heroChip">${Number(stats.reactions || 0)} reacties</span>
-              </div>
-              <div class="heroActions">
-                <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
-                <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ``}
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Korte makerlaag</h3>
+                    <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
+                  </div>
+                  <div class="buttonGroup">
+                    <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
+                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
+                  </div>
+                </div>
+                <div class="gridStats">
+                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+                </div>
+                <div class="actionRow">
+                  <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
+                  ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+                </div>
               </div>
             </section>
 
@@ -2113,13 +2111,13 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Reactie sturen</h3>
-                    <div class="sectionText">Vriendschapsstatus: ${escapeHtml(friendshipStatus)}</div>
+                    <h3 class="sectionTitle">Publieke reactie sturen</h3>
+                    <div class="sectionText">Interactie loopt ook hier via de homepage van de maker.</div>
                   </div>
                 </div>
                 <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Bericht gaat eerst naar pending bij de maker.</div>
+                  <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
                   <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
                 </div>
                 ${renderReactionList(reactions, false)}
@@ -2131,7 +2129,7 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Content van deze maker</h3>
-                    <div class="sectionText">Openbaar overzicht van recente posts.</div>
+                    <div class="sectionText">Compact gehouden, omdat dit een lichte publieke makerspagina is.</div>
                   </div>
                 </div>
                 <div class="creatorSimpleList">
@@ -2212,10 +2210,10 @@
         : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
 
       const scopeLabel = state.feedMode === "creator"
-        ? `maker-modus · ${escapeHtml(owner.displayName || 'maker')}`
+        ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
         : state.homeEntryPostId && state.currentFeedIndex === 0
-        ? `jouw start · eerst eigen content`
-        : `feed · ${state.currentFeedIndex + 1}/${items.length}`;
+        ? `start vanuit homepage · eerst jouw content`
+        : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
 
       $("feedScreen").innerHTML = `
         <div class="feedScreen">
