@@ -6,26 +6,26 @@
   <title>Social Prototype Mobile</title>
   <style>
     :root {
-      --bg: #09070f;
-      --bg-2: #120f19;
-      --bg-3: #19141f;
-      --panel: rgba(20, 17, 25, 0.84);
-      --panel-2: rgba(28, 24, 35, 0.92);
-      --panel-3: rgba(36, 30, 43, 0.96);
-      --glass: rgba(255,255,255,0.07);
-      --line: rgba(255,255,255,0.10);
-      --line-strong: rgba(255,255,255,0.16);
-      --text: #f7f3ef;
-      --text-soft: #d8d0c6;
-      --text-dim: #a99f95;
-      --accent: #c8a97e;
-      --accent-2: #f1dfc8;
-      --accent-3: #8e6c4f;
-      --accent-deep: #6f543e;
-      --ok: #94d4b7;
-      --danger: #f0a9a9;
-      --shadow: 0 24px 60px rgba(0,0,0,0.36);
-      --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
+      --bg: #110a1f;
+      --bg-2: #1a1030;
+      --bg-3: #251540;
+      --panel: rgba(31, 21, 51, 0.86);
+      --panel-2: rgba(39, 27, 63, 0.92);
+      --panel-3: rgba(49, 34, 78, 0.96);
+      --glass: rgba(255,255,255,0.08);
+      --line: rgba(255,255,255,0.11);
+      --line-strong: rgba(255,255,255,0.18);
+      --text: #f7f3ff;
+      --text-soft: #d9cdf7;
+      --text-dim: #b3a3d8;
+      --accent: #9d5cff;
+      --accent-2: #cfb1ff;
+      --accent-3: #6f3fd1;
+      --accent-deep: #5323ad;
+      --ok: #8fe0c0;
+      --danger: #f0a9c5;
+      --shadow: 0 24px 60px rgba(0,0,0,0.30);
+      --shadow-soft: 0 16px 36px rgba(0,0,0,0.18);
       --radius: 26px;
       --radius-sm: 18px;
       --safe-top: env(safe-area-inset-top, 0px);
@@ -38,8 +38,8 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
-        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        radial-gradient(circle at 18% 10%, rgba(157,92,255,0.22), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(207,177,255,0.14), transparent 24%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -152,6 +152,89 @@
       max-width: 34ch;
     }
 
+
+    .pageTitle {
+      font-size: 28px;
+    }
+
+    .topRow {
+      position: sticky;
+      top: calc(var(--safe-top) + 8px);
+      z-index: 10;
+      padding: 14px 16px;
+      border-radius: 22px;
+      background: rgba(30, 21, 48, 0.78);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .heroActions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .heroMeta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .heroChip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(17, 10, 31, 0.34);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .profileUploadRow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .fieldLabel {
+      font-size: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .inlineActionRow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .fileInputPlain {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-soft);
+    }
+
+    .modalSheet {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(180deg, rgba(34,23,56,0.98), rgba(24,15,40,0.98));
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(41, 28, 67, 0.94), rgba(28, 19, 47, 0.94));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
     .buttonGroup {
       display: flex;
       flex-wrap: wrap;
@@ -191,10 +274,10 @@
     }
 
     .solidBtn {
-      color: #18130f;
+      color: #12091f;
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
+      box-shadow: 0 14px 32px rgba(120,64,220,0.28);
     }
 
     .dangerBtn {
@@ -206,7 +289,7 @@
     .hero {
       position: relative;
       padding: 18px;
-      min-height: 228px;
+      min-height: 312px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -219,9 +302,9 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.84)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 30%),
-        radial-gradient(circle at top left, rgba(200,169,126,0.12), transparent 28%);
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(16,10,31,0.72)),
+        radial-gradient(circle at top right, rgba(207,177,255,0.20), transparent 34%),
+        radial-gradient(circle at top left, rgba(157,92,255,0.16), transparent 30%);
     }
 
     .hero > * { position: relative; z-index: 1; }
@@ -1606,7 +1689,19 @@
       moveFeed(-1);
     }
 
-    function handleFeedLeftArrow() {
+    async async function handleFeedLeftArrow() {
+      if (state.feedMode === "creator") {
+        exitMakerModeToFeed();
+        return;
+      }
+
+      if (state.currentFeedScopeUserId && state.currentFeedScopeUserId !== state.activeUserId) {
+        await loadCreatorFrontpage(state.currentFeedScopeUserId);
+        setActiveScreen("creator");
+        renderCreatorScreen();
+        return;
+      }
+
       openOwnHomepage();
     }
 
@@ -1763,14 +1858,13 @@
           <div class="stack">
             <div class="topRow">
               <div>
-                <h1 class="pageTitle">Jouw homepage</h1>
-                <div class="pageIntro">Eleganter en rustiger opgebouwd. Je homepage blijft je rijke basisplek, terwijl de feed fullscreen en loopend blijft.</div>
+                <h1 class="pageTitle">Homepage</h1>
+                <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
               </div>
               <div class="buttonGroup">
-                <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
                 <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
                 <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
-                <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
+                <button class="ghostBtn" onclick="switchAccount()">Account</button>
               </div>
             </div>
 
@@ -1783,41 +1877,15 @@
                 </div>
               </div>
               <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw basis</h3>
-                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
-                  </div>
-                  <div class="buttonGroup">
-                    <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
-                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                  </div>
-                </div>
-                <div class="gridStats">
-                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
-                </div>
+              <div class="heroMeta">
+                <span class="heroChip">${Number(stats.posts || 0)} posts</span>
+                <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
+                <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
               </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Content</h3>
-                    <div class="sectionText">Open een rustige popup om media te kiezen en er tekst bij te zetten.</div>
-                  </div>
-                  <div class="buttonGroup">
-                    <button class="solidBtn" onclick="openComposeModal()">Content maken</button>
-                  </div>
-                </div>
-                <div class="smallNote">Kies in de popup je foto of video en voeg daarna je tekst toe.</div>
+              <div class="heroActions">
+                <button class="solidBtn" onclick="openComposeModal()">Content maken</button>
+                <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
+                <button class="ghostBtn" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
               </div>
             </section>
 
@@ -1828,7 +1896,7 @@
                   <div class="sectionHeader">
                     <div>
                       <h3 class="modalTitle">Nieuwe content</h3>
-                      <div class="sectionText">Upload je foto of video en zet er een tekst bij.</div>
+                      <div class="sectionText">Kies je foto of video en zet er een tekst bij.</div>
                     </div>
                     <button class="ghostBtn" onclick="closeComposeModal()">Sluiten</button>
                   </div>
@@ -1840,7 +1908,7 @@
                     <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
                   </div>
 
-                  <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekst..."></textarea>
+                  <textarea id="composeCaption" class="textarea" placeholder="Zet hier je tekst of caption..."></textarea>
                   <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
                   <select id="composeFeedKind" class="select">
                     <option value="normal">Normal</option>
@@ -1859,14 +1927,14 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Publieke interactie op je homepage</h3>
-                    <div class="sectionText">Reacties leven hier, niet onder losse posts.</div>
+                    <h3 class="sectionTitle">Reacties</h3>
+                    <div class="sectionText">Publieke berichten voor jouw homepage.</div>
                   </div>
                 </div>
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
+                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Berichten komen eerst in pending moderatie.</div>
-                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Naar pending</button>
+                  <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
+                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
                 </div>
                 ${renderReactionList(acceptedReactions, false)}
               </div>
@@ -1876,46 +1944,11 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Pending moderatie</h3>
-                    <div class="sectionText">Hier keur je homepage-reacties goed, af of blokkeer je afzenders.</div>
+                    <h3 class="sectionTitle">Pending</h3>
+                    <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
                   </div>
                 </div>
                 ${renderReactionList(pendingReactions, true)}
-              </div>
-            </section>
-
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Vrienden</h3>
-                    <div class="sectionText">Zoek naar vrienden, stuur verzoeken, accepteer verzoeken en verwijder vrienden vanaf je homepage.</div>
-                  </div>
-                </div>
-
-                <div class="buttonGroup">
-                  <input id="friendSearchInput" class="field" placeholder="Zoek op naam of @handle" style="flex:1;" />
-                  <button class="ghostBtn" onclick="searchFriends()">Zoeken</button>
-                </div>
-
-                ${renderFriendSearchResults()}
-
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Inkomende verzoeken</h3>
-                  </div>
-                </div>
-
-                ${renderIncomingFriendRequests()}
-
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw vrienden</h3>
-                  </div>
-                </div>
-
-                ${renderFriendsList()}
               </div>
             </section>
 
@@ -1924,13 +1957,21 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Profiel bewerken</h3>
-                    <div class="sectionText">Pas je naam, handle, bio en wachtwoord aan vanaf je eigen homepage.</div>
+                    <div class="sectionText">Pas je profiel aan en upload je homepage-achtergrond.</div>
                   </div>
                 </div>
                 <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
                 <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
                 <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
                 <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
+                <div class="profileUploadRow">
+                  <div class="fieldLabel">Homepage-achtergrond</div>
+                  <input id="profileBackgroundFile" class="fileInputPlain" type="file" accept="image/jpeg,image/png,image/webp" />
+                  <div class="inlineActionRow">
+                    <button class="ghostBtn" onclick="uploadProfileBackground()">Achtergrond uploaden</button>
+                    <div id="backgroundStatus" class="statusLine"></div>
+                  </div>
+                </div>
                 <div class="composerActions">
                   <div id="profileStatus" class="statusLine"></div>
                   <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
@@ -1942,8 +1983,8 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Jouw recente posts</h3>
-                    <div class="sectionText">Je homepage blijft rijker dan die van andere makers.</div>
+                    <h3 class="sectionTitle">Jouw content</h3>
+                    <div class="sectionText">Recente posts op je homepage.</div>
                   </div>
                 </div>
                 <div class="postList">
@@ -1970,15 +2011,15 @@
           <div class="stack">
             <div class="topRow">
               <div>
-                <h1 class="pageTitle">Maker-homepage</h1>
-                <div class="pageIntro">Lichter en simpeler dan je eigen homepage. Je komt hier via het rechter pijltje vanuit de feed.</div>
+                <h1 class="pageTitle">Maker</h1>
+                <div class="pageIntro">De publieke homepage van de maker.</div>
               </div>
               <div class="buttonGroup">
-                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
+                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Feed</button>
               </div>
             </div>
 
-            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 192px;">
+            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 248px;">
               <div class="avatarRow">
                 ${getAvatarHtml(user)}
                 <div class="identityBlock">
@@ -1987,30 +2028,15 @@
                 </div>
               </div>
               <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Korte makerlaag</h3>
-                    <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
-                  </div>
-                  <div class="buttonGroup">
-                    <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
-                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                  </div>
-                </div>
-                <div class="gridStats">
-                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
-                </div>
-                <div class="actionRow">
-                  <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
-                  ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
-                </div>
+              <div class="heroMeta">
+                <span class="heroChip">${Number(stats.posts || 0)} posts</span>
+                <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
+                <span class="heroChip">${Number(stats.reactions || 0)} reacties</span>
+              </div>
+              <div class="heroActions">
+                <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
+                <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
+                ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ``}
               </div>
             </section>
 
@@ -2018,13 +2044,13 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Publieke reactie sturen</h3>
-                    <div class="sectionText">Interactie loopt ook hier via de homepage van de maker.</div>
+                    <h3 class="sectionTitle">Reactie sturen</h3>
+                    <div class="sectionText">Vriendschapsstatus: ${escapeHtml(friendshipStatus)}</div>
                   </div>
                 </div>
                 <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
+                  <div class="smallNote">Bericht gaat eerst naar pending bij de maker.</div>
                   <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
                 </div>
                 ${renderReactionList(reactions, false)}
@@ -2036,7 +2062,7 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Content van deze maker</h3>
-                    <div class="sectionText">Compact gehouden, omdat dit een lichte publieke makerspagina is.</div>
+                    <div class="sectionText">Openbaar overzicht van recente posts.</div>
                   </div>
                 </div>
                 <div class="creatorSimpleList">
@@ -2117,10 +2143,10 @@
         : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
 
       const scopeLabel = state.feedMode === "creator"
-        ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
+        ? `maker-modus · ${escapeHtml(owner.displayName || 'maker')}`
         : state.homeEntryPostId && state.currentFeedIndex === 0
-        ? `start vanuit homepage · eerst jouw content`
-        : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+        ? `jouw start · eerst eigen content`
+        : `feed · ${state.currentFeedIndex + 1}/${items.length}`;
 
       $("feedScreen").innerHTML = `
         <div class="feedScreen">
