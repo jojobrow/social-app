@@ -757,172 +757,6 @@
       border: 1px solid rgba(120,84,53,0.14);
     }
 
-
-    .homeTopActions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    .hero {
-      min-height: 308px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      background-size: cover !important;
-      background-position: center center !important;
-      background-repeat: no-repeat !important;
-      box-shadow: 0 28px 64px rgba(0,0,0,0.38);
-    }
-
-    .hero::before {
-      background:
-        linear-gradient(180deg, rgba(4,4,6,0.06) 0%, rgba(4,4,6,0.18) 22%, rgba(8,7,11,0.88) 100%),
-        radial-gradient(circle at top right, rgba(241,223,200,0.16), transparent 28%),
-        radial-gradient(circle at top left, rgba(200,169,126,0.14), transparent 26%);
-    }
-
-    .heroMeta {
-      display: grid;
-      gap: 14px;
-    }
-
-    .heroActions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .heroStatStrip {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .heroStat {
-      padding: 10px 12px;
-      border-radius: 18px;
-      background: rgba(10, 8, 14, 0.44);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-    }
-
-    .heroStatValue {
-      font-size: 17px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-
-    .heroStatLabel {
-      margin-top: 3px;
-      color: rgba(255,255,255,0.78);
-      font-size: 11px;
-    }
-
-    .uploadCta {
-      display: grid;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 22px;
-      background: linear-gradient(135deg, rgba(200,169,126,0.14), rgba(255,255,255,0.03));
-      border: 1px dashed rgba(200,169,126,0.34);
-    }
-
-    .uploadPreviewThumb {
-      width: 100%;
-      max-height: 260px;
-      border-radius: 18px;
-      object-fit: cover;
-      display: block;
-      background: rgba(0,0,0,0.2);
-    }
-
-    .subtleActions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .inlineMeta {
-      color: var(--text-soft);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .modalBackdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(8,7,11,0.68);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 18px 12px calc(var(--safe-bottom) + 12px);
-      z-index: 80;
-    }
-
-    .modalBackdrop.isOpen {
-      display: flex;
-    }
-
-    .modalSheet {
-      width: min(100%, 460px);
-      max-height: min(82dvh, 760px);
-      overflow: auto;
-      border-radius: 28px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
-        linear-gradient(180deg, rgba(27,22,33,0.98), rgba(16,13,20,0.98));
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 28px 70px rgba(0,0,0,0.42);
-      padding: 16px;
-    }
-
-    .sheetHandle {
-      width: 44px;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.22);
-      margin: 2px auto 14px;
-    }
-
-    .sheetPreviewWrap {
-      border-radius: 22px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .sheetPreviewMedia {
-      width: 100%;
-      max-height: 320px;
-      object-fit: cover;
-      display: block;
-      background: #0c0a11;
-    }
-
-    .sheetPreviewMedia.video {
-      object-fit: contain;
-      background: #050408;
-    }
-
-    .sheetHeaderTitle {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-    }
-
-    .sheetHeaderText {
-      margin: 6px 0 0;
-      color: var(--text-soft);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
     .hidden { display: none !important; }
 
     @media (min-width: 461px) {
@@ -938,15 +772,6 @@
     <section class="screen active" id="homeScreen"></section>
     <section class="screen" id="feedScreen"></section>
     <section class="screen" id="creatorScreen"></section>
-  </div>
-
-  <input id="hiddenComposeMedia" class="hidden" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="handleComposeMediaChange(event)" />
-
-  <div id="composeModal" class="modalBackdrop" onclick="handleComposeModalBackdrop(event)">
-    <div class="modalSheet">
-      <div class="sheetHandle"></div>
-      <div id="composeModalContent"></div>
-    </div>
   </div>
 
   <script>
@@ -979,8 +804,7 @@
       friendSearchResults: [],
       incomingFriendRequests: [],
       outgoingFriendRequests: [],
-      friendsList: [],
-      composeDraft: null
+      friendsList: []
     };
 
     const $ = (id) => document.getElementById(id);
@@ -1333,99 +1157,16 @@
     }
 
 
-    function openFriendsPage() {
-      window.location.href = "vrienden-module-pagina.html";
-    }
-
-    function openUploadPicker() {
-      const input = $("hiddenComposeMedia");
-      if (!input) return;
-      input.value = "";
-      input.click();
-    }
-
-    function renderComposeModal() {
-      const draft = state.composeDraft;
-      const root = $("composeModalContent");
-      if (!root) return;
-      if (!draft) {
-        root.innerHTML = "";
-        return;
-      }
-
-      const previewHtml = draft.postType === "video"
-        ? `<video class="sheetPreviewMedia video" src="${escapeHtml(draft.url)}" autoplay muted loop playsinline></video>`
-        : `<img class="sheetPreviewMedia" src="${escapeHtml(draft.url)}" alt="preview" />`;
-
-      root.innerHTML = `
-        <div class="stack">
-          <div>
-            <h3 class="sheetHeaderTitle">Bijschrift toevoegen</h3>
-            <p class="sheetHeaderText">Je bestand staat klaar. Zet er alleen nog een korte tekst bij en plaats het op je homepage.</p>
-          </div>
-          <div class="sheetPreviewWrap">${previewHtml}</div>
-          <textarea id="modalComposeCaption" class="textarea" placeholder="Wat wil je erbij zetten?"></textarea>
-          <input id="modalComposeHashtags" class="field" placeholder="#homepage #maker" />
-          <div class="composerActions">
-            <div id="composeStatus" class="statusLine">${escapeHtml(draft.statusMessage || "")}</div>
-            <div class="buttonGroup">
-              <button class="ghostBtn" onclick="closeComposeModal()">Annuleren</button>
-              <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function openComposeModal() {
-      renderComposeModal();
-      $("composeModal")?.classList.add("isOpen");
-    }
-
-    function closeComposeModal() {
-      $("composeModal")?.classList.remove("isOpen");
-      state.composeDraft = null;
-      renderComposeModal();
-      setStatusLine("composeHomeStatus", "Upload geannuleerd.", "");
-    }
-
-    function handleComposeModalBackdrop(event) {
-      if (event.target?.id === "composeModal") {
-        closeComposeModal();
-      }
-    }
-
-    async function handleComposeMediaChange(event) {
-      const file = event.target?.files?.[0];
-      if (!file) return;
-      setStatusLine("composeHomeStatus", "Bestand wordt klaargezet...", "");
-      try {
-        const upload = await uploadMedia(file);
-        state.composeDraft = {
-          url: upload.url,
-          postType: upload.postType,
-          statusMessage: ""
-        };
-        setStatusLine("composeHomeStatus", "Bestand klaar. Voeg nog even tekst toe.", "ok");
-        openComposeModal();
-      } catch (error) {
-        state.composeDraft = null;
-        setStatusLine("composeHomeStatus", error.message || "Upload mislukt.", "error");
-      } finally {
-        if (event.target) event.target.value = "";
-      }
-    }
-
-
     async function publishPost() {
       if (state.publishBusy) return;
 
-      const draft = state.composeDraft;
-      const caption = $("modalComposeCaption")?.value.trim() || "";
-      const hashtags = normalizeHashtags($("modalComposeHashtags")?.value || "");
+      const caption = $("composeCaption")?.value.trim() || "";
+      const hashtags = normalizeHashtags($("composeHashtags")?.value || "");
+      const file = $("composeMedia")?.files?.[0] || null;
+      const publishKind = $("composeFeedKind")?.value || "normal";
 
-      if (!draft?.url && !caption) {
-        setStatusLine("composeStatus", "Voeg eerst media of tekst toe.", "error");
+      if (!caption && !file) {
+        setStatusLine("composeStatus", "Voeg eerst tekst of media toe.", "error");
         return;
       }
 
@@ -1433,33 +1174,383 @@
       setStatusLine("composeStatus", "Bezig met plaatsen...", "");
 
       try {
+        let imageUrl = "";
+        let videoUrl = "";
+
+        if (file) {
+          const upload = await uploadMedia(file);
+          if (upload.postType === "video") videoUrl = upload.url;
+          else imageUrl = upload.url;
+        }
+
         await fetchJson(`${API_BASE}/posts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ownerUserId: state.activeUserId,
             caption,
-            imageUrl: draft?.postType === "image" ? draft.url : "",
-            videoUrl: draft?.postType === "video" ? draft.url : "",
+            imageUrl,
+            videoUrl,
             hashtags,
-            feedKind: "normal"
+            feedKind: publishKind
           })
         });
 
-        state.composeDraft = null;
-        $("composeModal")?.classList.remove("isOpen");
-        renderComposeModal();
+        if ($("composeCaption")) $("composeCaption").value = "";
+        if ($("composeHashtags")) $("composeHashtags").value = "";
+        if ($("composeMedia")) $("composeMedia").value = "";
+        if ($("composeFeedKind")) $("composeFeedKind").value = "normal";
+
         await refreshAll({ keepScreen: "home" });
-        setStatusLine("composeHomeStatus", "Bericht geplaatst.", "ok");
+        setStatusLine("composeStatus", "Bericht geplaatst.", "ok");
       } catch (error) {
-        const message = error.message || "Plaatsen mislukt.";
-        if (state.composeDraft) {
-          state.composeDraft.statusMessage = message;
-          renderComposeModal();
-        }
-        setStatusLine("composeStatus", message, "error");
+        setStatusLine("composeStatus", error.message || "Plaatsen mislukt.", "error");
       } finally {
         state.publishBusy = false;
+      }
+    }
+
+    async function likePost(postId) {
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+        await loadFeed();
+        if (state.activeScreen === "feed") renderFeedScreen();
+        if (state.activeScreen === "home") {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        }
+        if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
+          await loadCreatorFrontpage(state.viewedCreatorUserId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Liken mislukt.");
+      }
+    }
+
+
+    async function deletePost(postId) {
+      const currentIndexBeforeDelete = state.currentFeedIndex;
+
+      if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) {
+        return;
+      }
+
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerUserId: state.activeUserId })
+        });
+
+        await loadFeed();
+        await loadOwnFrontpage();
+        if (state.viewedCreatorUserId) {
+          await loadCreatorFrontpage(state.viewedCreatorUserId);
+        }
+
+        const updatedItems = getCurrentFeedItems();
+        if (!updatedItems.length) {
+          state.currentFeedIndex = 0;
+          openOwnHomepage();
+          return;
+        }
+
+        state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
+
+        if (state.activeScreen === "feed") {
+          renderFeedScreen();
+        } else if (state.activeScreen === "home") {
+          renderHomeScreen();
+        } else if (state.activeScreen === "creator") {
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Verwijderen mislukt.");
+      }
+    }
+
+    async function dislikePost(postId) {
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ viewerUserId: state.activeUserId })
+        });
+        await loadFeed();
+        if (state.activeScreen === "feed") renderFeedScreen();
+      } catch (error) {
+        alert(error.message || "Verbergen mislukt.");
+      }
+    }
+
+    async function likeFrontpage(userId) {
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+        if (userId === state.activeUserId) {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        } else {
+          await loadCreatorFrontpage(userId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Homepage-like mislukt.");
+      }
+    }
+
+    async function sendFrontpageReaction(targetUserId) {
+      const inputId = targetUserId === state.activeUserId ? "homeReactionInput" : "creatorReactionInput";
+      const textarea = $(inputId);
+      if (!textarea) return;
+      const text = textarea.value.trim();
+      if (!text) return;
+
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUserId: state.activeUserId, text })
+        });
+        textarea.value = "";
+        alert("Bericht is naar pending moderatie gestuurd.");
+        if (targetUserId === state.activeUserId) {
+          await loadOwnFrontpage();
+          renderHomeScreen();
+        } else {
+          await loadCreatorFrontpage(targetUserId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Versturen mislukt.");
+      }
+    }
+
+    async function moderateReaction(reactionId, action) {
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${state.activeUserId}/reactions/${reactionId}/${action}`, { method: "POST" });
+        await loadOwnFrontpage();
+        renderHomeScreen();
+      } catch (error) {
+        alert(error.message || "Moderatie mislukt.");
+      }
+    }
+
+    async function sendFriendRequest(targetUserId) {
+      try {
+        await fetchJson(`${API_BASE}/friends/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requesterUserId: state.activeUserId, targetUserId })
+        });
+
+        if (state.activeScreen === "home") {
+          await refreshAll({ keepScreen: "home" });
+        } else {
+          await loadCreatorFrontpage(targetUserId);
+          renderCreatorScreen();
+        }
+      } catch (error) {
+        alert(error.message || "Vriendschapsverzoek mislukt.");
+      }
+    }
+
+    async function saveProfile() {
+      const displayName = $("profileDisplayName")?.value.trim() || "";
+      const handleRaw = $("profileHandle")?.value.trim() || "";
+      const bio = $("profileBio")?.value.trim() || "";
+      const password = $("profilePassword")?.value || "";
+
+      if (!displayName) {
+        setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
+        return;
+      }
+
+      if (!handleRaw) {
+        setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
+        return;
+      }
+
+      const payload = {
+        displayName,
+        handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
+        bio
+      };
+
+      if (password.length > 0) {
+        payload.password = password;
+      }
+
+      setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+
+      try {
+        const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (result?.user?.displayName) {
+          localStorage.setItem("socialPrototypeActiveUserName", result.user.displayName);
+        }
+
+        if ($("profilePassword")) {
+          $("profilePassword").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
+      }
+    }
+
+    async function uploadProfileBackground() {
+      const file = $("profileBackgroundFile")?.files?.[0] || null;
+      if (!file) {
+        setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
+        return;
+      }
+
+      setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
+
+      try {
+        const formData = new FormData();
+        formData.append("background", file);
+
+        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || "Upload mislukt.");
+
+        if ($("profileBackgroundFile")) {
+          $("profileBackgroundFile").value = "";
+        }
+
+        await refreshAll({ keepScreen: "home" });
+        setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
+      } catch (error) {
+        setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
+      }
+    }
+
+    function openGlobalFeed() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.homeEntryPostId = null;
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    function openHomepageEntryFeed() {
+      const ownPosts = state.feedItems
+        .filter((item) => item.owner?.id === state.activeUserId)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const firstOwnPost = ownPosts[0] || null;
+
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    function openOwnHomepage() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = "";
+      state.makerModeUserId = "";
+      state.homeEntryPostId = null;
+      state.currentFeedIndex = 0;
+      setActiveScreen("home");
+      renderHomeScreen();
+    }
+
+    function openOwnContentFeed() {
+      state.feedMode = "global";
+      state.currentFeedScopeUserId = state.activeUserId;
+      state.makerModeUserId = "";
+      state.currentFeedIndex = 0;
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    async function openCurrentCreatorHomepage() {
+      const current = getCurrentFeedItem();
+      if (!current?.owner?.id) return;
+      await loadCreatorFrontpage(current.owner.id);
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    }
+
+    async function openCreatorHomepageFromCard(userId) {
+      if (!userId) return;
+      await loadCreatorFrontpage(userId);
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    }
+
+    function findFeedIndexByPostId(postId) {
+      if (postId == null) return 0;
+      const index = state.feedItems.findIndex((item) => item.id === postId);
+      return index >= 0 ? index : 0;
+    }
+
+    function enterMakerMode(userId) {
+      if (!userId) return;
+      const current = getCurrentFeedItem();
+      state.makerModeReturnPostId = current?.id ?? null;
+      state.feedMode = "creator";
+      state.makerModeUserId = userId;
+      state.currentFeedScopeUserId = "";
+      state.currentFeedIndex = 0;
+      vibrateTick([18, 40, 18]);
+      renderFeedScreen();
+    }
+
+    function exitMakerModeToFeed() {
+      const returnPostId = state.makerModeReturnPostId;
+      state.feedMode = "global";
+      state.makerModeUserId = "";
+      state.currentFeedScopeUserId = "";
+      const items = getCurrentFeedItems();
+      const indexInCurrentList = items.findIndex((item) => item.id === returnPostId);
+      state.currentFeedIndex = indexInCurrentList >= 0 ? indexInCurrentList : findFeedIndexByPostId(returnPostId);
+      vibrateTick([14, 30, 14]);
+      renderFeedScreen();
+    }
+
+    function jumpFeedUpOne(event) {
+      if (event) event.stopPropagation();
+      moveFeed(-1);
+    }
+
+    function handleFeedLeftArrow() {
+      openOwnHomepage();
+    }
+
+    function handlePostTap(ownerUserId) {
+      const now = Date.now();
+      if (now - state.lastTapAt > 650 || state.tapBurstOwnerId !== ownerUserId) {
+        state.tapBurstCount = 0;
+      }
+      state.lastTapAt = now;
+      state.tapBurstOwnerId = ownerUserId;
+      state.tapBurstCount += 1;
+
+      if (state.tapBurstCount >= 3) {
+        state.tapBurstCount = 0;
+        if (state.feedMode === "creator") {
+          exitMakerModeToFeed();
+        } else {
+          enterMakerMode(ownerUserId);
+        }
       }
     }
 
@@ -1512,6 +1603,10 @@
           </div>
         </article>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function renderReactionList(reactions, showModeration = false) {
@@ -1542,6 +1637,10 @@
           }).join("")}
         </div>
       `;
+
+      if (item.postType === "video" && item.videoUrl) {
+        bindFeedVideoControls();
+      }
     }
 
     function renderHomeScreen() {
@@ -1558,35 +1657,44 @@
             <div class="topRow">
               <div>
                 <h1 class="pageTitle">Jouw homepage</h1>
-                <div class="pageIntro">Rustiger, donkerder en directer.</div>
+                <div class="pageIntro">Eleganter en rustiger opgebouwd. Je homepage blijft je rijke basisplek, terwijl de feed fullscreen en loopend blijft.</div>
               </div>
-              <div class="homeTopActions">
+              <div class="buttonGroup">
+                <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
                 <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
-                <button class="ghostBtn" onclick="openFriendsPage()">Vrienden</button>
-                <button class="ghostBtn" onclick="switchAccount()">Account</button>
+                <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
+                <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
               </div>
             </div>
 
             <section class="card hero" style="background:${getUserBackground(user)};">
-              <div class="heroMeta">
-                <div class="avatarRow">
-                  ${getAvatarHtml(user)}
-                  <div class="identityBlock">
-                    <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
-                    <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+              <div class="avatarRow">
+                ${getAvatarHtml(user)}
+                <div class="identityBlock">
+                  <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+                </div>
+              </div>
+              <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
+            </section>
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Jouw basis</h3>
+                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
+                  </div>
+                  <div class="buttonGroup">
+                    <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
+                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
                   </div>
                 </div>
-                <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
-                <div class="heroActions">
-                  <button class="solidBtn" onclick="openUploadPicker()">Foto of video kiezen</button>
-                  <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
-                  <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                </div>
-                <div class="heroStatStrip">
-                  <div class="heroStat"><div class="heroStatValue">${Number(stats.posts || 0)}</div><div class="heroStatLabel">Posts</div></div>
-                  <div class="heroStat"><div class="heroStatValue">${Number(stats.homepageLikes || 0)}</div><div class="heroStatLabel">Likes</div></div>
-                  <div class="heroStat"><div class="heroStatValue">${Number(stats.reactions || 0)}</div><div class="heroStatLabel">Reacties</div></div>
-                  <div class="heroStat"><div class="heroStatValue">${Number(stats.friends || 0)}</div><div class="heroStatLabel">Vrienden</div></div>
+                <div class="gridStats">
+                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
                 </div>
               </div>
             </section>
@@ -1595,14 +1703,24 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Upload</h3>
-                    <div class="sectionText">Kies eerst je foto of video. Daarna voeg je pas je tekst toe.</div>
+                    <h3 class="sectionTitle">Nieuw bericht</h3>
+                    <div class="sectionText">Caption, upload en feedtype staan direct samen zichtbaar in één rustige composer.</div>
                   </div>
                 </div>
-                <div class="uploadCta">
-                  <button class="solidBtn" onclick="openUploadPicker()">Foto of video kiezen</button>
-                  <div class="inlineMeta">Je toestel mag zelf kiezen welke app of route prettig is. Daarna komt je bestand meteen klaar te staan voor een korte caption.</div>
-                  <div id="composeHomeStatus" class="statusLine"></div>
+                <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
+                <div class="uploadBox">
+                  <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+                  <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
+                </div>
+                <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
+                <select id="composeFeedKind" class="select">
+                  <option value="normal">Normal</option>
+                  <option value="recommended">Recommended</option>
+                  <option value="promoted">Promoted</option>
+                </select>
+                <div class="composerActions">
+                  <div id="composeStatus" class="statusLine"></div>
+                  <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
                 </div>
               </div>
             </section>
@@ -1611,14 +1729,14 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Reacties</h3>
-                    <div class="sectionText">Publieke berichten voor jouw homepage.</div>
+                    <h3 class="sectionTitle">Publieke interactie op je homepage</h3>
+                    <div class="sectionText">Reacties leven hier, niet onder losse posts.</div>
                   </div>
                 </div>
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je publieke homepage..."></textarea>
+                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
-                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Verstuur</button>
+                  <div class="smallNote">Berichten komen eerst in pending moderatie.</div>
+                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Naar pending</button>
                 </div>
                 ${renderReactionList(acceptedReactions, false)}
               </div>
@@ -1628,11 +1746,46 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Pending</h3>
-                    <div class="sectionText">Keur berichten goed of wijs ze af.</div>
+                    <h3 class="sectionTitle">Pending moderatie</h3>
+                    <div class="sectionText">Hier keur je homepage-reacties goed, af of blokkeer je afzenders.</div>
                   </div>
                 </div>
                 ${renderReactionList(pendingReactions, true)}
+              </div>
+            </section>
+
+
+            <section class="card">
+              <div class="cardBody stack">
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Vrienden</h3>
+                    <div class="sectionText">Zoek naar vrienden, stuur verzoeken, accepteer verzoeken en verwijder vrienden vanaf je homepage.</div>
+                  </div>
+                </div>
+
+                <div class="buttonGroup">
+                  <input id="friendSearchInput" class="field" placeholder="Zoek op naam of @handle" style="flex:1;" />
+                  <button class="ghostBtn" onclick="searchFriends()">Zoeken</button>
+                </div>
+
+                ${renderFriendSearchResults()}
+
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Inkomende verzoeken</h3>
+                  </div>
+                </div>
+
+                ${renderIncomingFriendRequests()}
+
+                <div class="sectionHeader">
+                  <div>
+                    <h3 class="sectionTitle">Jouw vrienden</h3>
+                  </div>
+                </div>
+
+                ${renderFriendsList()}
               </div>
             </section>
 
@@ -1640,8 +1793,8 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Profiel</h3>
-                    <div class="sectionText">Naam, handle, bio en wachtwoord.</div>
+                    <h3 class="sectionTitle">Profiel bewerken</h3>
+                    <div class="sectionText">Pas je naam, handle, bio en wachtwoord aan vanaf je eigen homepage.</div>
                   </div>
                 </div>
                 <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
@@ -1659,8 +1812,8 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Jouw posts</h3>
-                    <div class="sectionText">Je recente content op je homepage.</div>
+                    <h3 class="sectionTitle">Jouw recente posts</h3>
+                    <div class="sectionText">Je homepage blijft rijker dan die van andere makers.</div>
                   </div>
                 </div>
                 <div class="postList">
@@ -1688,7 +1841,7 @@
             <div class="topRow">
               <div>
                 <h1 class="pageTitle">Maker-homepage</h1>
-                <div class="pageIntro">De maker achter deze post.</div>
+                <div class="pageIntro">Lichter en simpeler dan je eigen homepage. Je komt hier via het rechter pijltje vanuit de feed.</div>
               </div>
               <div class="buttonGroup">
                 <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
@@ -1710,8 +1863,8 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Maker</h3>
-                    <div class="sectionText">Ga terug naar de feed of kijk verder bij deze maker.</div>
+                    <h3 class="sectionTitle">Korte makerlaag</h3>
+                    <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
                   </div>
                   <div class="buttonGroup">
                     <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
