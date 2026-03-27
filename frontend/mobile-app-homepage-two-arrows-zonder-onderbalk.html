@@ -1695,6 +1695,10 @@
       renderHomeScreen();
     }
 
+    function goToMyContentPage() {
+      window.location.href = "mijn-content.html";
+    }
+
     function openOwnContentFeed() {
       state.feedMode = "global";
       state.currentFeedScopeUserId = state.activeUserId;
@@ -1809,7 +1813,7 @@
       const ownerAction = options.creatorCard
         ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
         : isOwn
-        ? `<button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>`
+        ? `<button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>`
         : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
 
       return `
@@ -1949,7 +1953,7 @@
               </div>
               <div class="heroActions">
                 <button class="solidBtn" onclick="openComposeModal()">Content maken</button>
-                <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
+                <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
                 <button class="ghostBtn" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
               </div>
             </section>

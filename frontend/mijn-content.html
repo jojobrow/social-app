@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mijn content</title>
+  <style>
+    :root {
+      --bg: #120a22;
+      --bg-2: #1a1030;
+      --panel: rgba(34, 22, 58, 0.94);
+      --panel-2: rgba(43, 28, 74, 0.96);
+      --line: rgba(255,255,255,0.10);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #f7f3ff;
+      --text-soft: #d9cdf7;
+      --text-dim: #b7a9de;
+      --accent: #9d5cff;
+      --accent-2: #d8baff;
+      --accent-deep: #6c35db;
+      --danger: #ffb7c5;
+      --ok: #9be7c8;
+      --shadow: 0 20px 48px rgba(0,0,0,0.28);
+      --radius: 24px;
+      --radius-sm: 18px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(157,92,255,0.22), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(216,186,255,0.12), transparent 20%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .appShell {
+      min-height: 100dvh;
+      max-width: 460px;
+      margin: 0 auto;
+      padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 28px);
+    }
+    .stack { display: grid; gap: 14px; }
+    .topRow, .buttonGroup, .row, .miniRow {
+      display: flex; gap: 10px; align-items: center; justify-content: space-between;
+    }
+    .topRow { align-items: flex-start; }
+    .card {
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .cardBody { padding: 16px; }
+    .pageTitle {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+    }
+    .pageIntro, .muted, .statusLine, .smallNote {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .statusLine { min-height: 20px; }
+    .statusLine.error { color: #ffd1d1; }
+    .statusLine.ok { color: var(--ok); }
+    .pill, .ghostBtn, .solidBtn, .dangerBtn {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .pill, .ghostBtn {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .solidBtn {
+      color: #160c26;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 14px 30px rgba(108,53,219,0.32);
+    }
+    .dangerBtn {
+      color: #ffe7ee;
+      background: rgba(255,183,197,0.10);
+      border: 1px solid rgba(255,183,197,0.22);
+    }
+    .field, .textarea, .select, .fileInputPlain {
+      width: 100%;
+      padding: 14px;
+      border-radius: 18px;
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      outline: none;
+    }
+    .field::placeholder, .textarea::placeholder { color: var(--text-dim); }
+    .textarea { min-height: 110px; resize: vertical; }
+    .fieldLabel {
+      font-size: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      letter-spacing: .01em;
+      margin-bottom: 8px;
+    }
+    .sectionHeader { margin-bottom: 12px; }
+    .sectionTitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .sectionText {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .uploadBox {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px dashed rgba(255,255,255,0.14);
+    }
+    .mediaPreview {
+      min-height: 180px;
+      border-radius: 20px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(157,92,255,0.16), transparent 30%),
+        linear-gradient(135deg, rgba(26,16,48,0.96), rgba(18,10,34,0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .mediaPreview img, .mediaPreview video {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      display: block;
+      border-radius: 16px;
+    }
+    .postList { display: grid; gap: 12px; }
+    .postCard {
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.045);
+    }
+    .postMedia {
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(157,92,255,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(31,21,51,0.96), rgba(18,10,34,0.98));
+    }
+    .postMedia img, .postMedia video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .postTextOnly {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+      font-size: 24px;
+      line-height: 1.4;
+      font-weight: 900;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(216,186,255,0.16), transparent 28%),
+        linear-gradient(135deg, rgba(108,53,219,0.38), rgba(18,10,34,0.96));
+    }
+    .postMeta { padding: 14px; display: grid; gap: 10px; }
+    .caption { font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+    .hashtags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .smallNote strong { color: var(--text); }
+    .emptyState {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px dashed rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-soft);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="appShell">
+    <div class="stack">
+      <div class="topRow">
+        <div>
+          <h1 class="pageTitle">Mijn content</h1>
+          <div class="pageIntro">Maak hier content voor jouw homepage en beheer je eigen posts op één plek.</div>
+        </div>
+        <div class="buttonGroup">
+          <button class="ghostBtn" type="button" onclick="goBackHome()">Homepage</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="cardBody stack">
+          <div class="sectionHeader">
+            <h3 class="sectionTitle">Nieuwe post</h3>
+            <div class="sectionText">Foto, video of alleen tekst. Alles blijft gekoppeld aan jouw account en dezelfde feed.</div>
+          </div>
+
+          <div class="uploadBox">
+            <div id="mediaPreview" class="mediaPreview">Nog geen foto of video gekozen.</div>
+            <div>
+              <div class="fieldLabel">Foto of video</div>
+              <input id="mediaFile" class="fileInputPlain" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+            </div>
+          </div>
+
+          <div>
+            <div class="fieldLabel">Tekst</div>
+            <textarea id="captionInput" class="textarea" placeholder="Schrijf iets voor je homepage..."></textarea>
+          </div>
+
+          <div>
+            <div class="fieldLabel">Hashtags</div>
+            <input id="hashtagsInput" class="field" placeholder="#homepage #maker #foto" />
+          </div>
+
+          <div>
+            <div class="fieldLabel">Feedtype</div>
+            <select id="feedKindSelect" class="select">
+              <option value="normal">Normaal</option>
+              <option value="recommended">Recommended</option>
+              <option value="promoted">Promoted</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div id="composeStatus" class="statusLine"></div>
+            <div class="buttonGroup">
+              <button class="ghostBtn" type="button" onclick="resetComposer()">Leegmaken</button>
+              <button class="solidBtn" type="button" onclick="publishPost()">Plaatsen</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardBody stack">
+          <div class="sectionHeader">
+            <h3 class="sectionTitle">Jouw posts</h3>
+            <div class="sectionText">Groter onder elkaar zodat je rustig kunt kijken, verwijderen en weer door.</div>
+          </div>
+          <div id="contentList" class="postList"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+    const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+
+    const state = {
+      activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+      activeUserName: localStorage.getItem(LOGIN_NAME_STORAGE_KEY) || "",
+      users: [],
+      ownFrontpage: null,
+      previewUrl: ""
+    };
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Request mislukt.");
+      return data;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function setStatus(message = "", type = "") {
+      const el = $("composeStatus");
+      if (!el) return;
+      el.textContent = message;
+      el.className = "statusLine";
+      if (type) el.classList.add(type);
+    }
+
+    function timeAgo(value) {
+      const diff = Date.now() - Number(value || 0);
+      const minutes = Math.max(1, Math.floor(diff / 60000));
+      if (minutes < 60) return `${minutes} min geleden`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} uur geleden`;
+      const days = Math.floor(hours / 24);
+      return `${days} dag${days === 1 ? "" : "en"} geleden`;
+    }
+
+    function goBackHome() {
+      window.location.href = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+    }
+
+    function getUserById(userId) {
+      return state.users.find((user) => user.id === userId) || null;
+    }
+
+    async function loadUsers() {
+      state.users = await fetchJson(`${API_BASE}/users`);
+    }
+
+    async function loadOwnFrontpage() {
+      state.ownFrontpage = await fetchJson(
+        `${API_BASE}/frontpage/${encodeURIComponent(state.activeUserId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`
+      );
+    }
+
+    function resetPreviewUrl() {
+      if (state.previewUrl) {
+        URL.revokeObjectURL(state.previewUrl);
+        state.previewUrl = "";
+      }
+    }
+
+    function handleMediaChange(event) {
+      const file = event?.target?.files?.[0] || null;
+      const preview = $("mediaPreview");
+      resetPreviewUrl();
+
+      if (!preview) return;
+      if (!file) {
+        preview.innerHTML = "Nog geen foto of video gekozen.";
+        return;
+      }
+
+      state.previewUrl = URL.createObjectURL(file);
+      if (file.type.startsWith("video/")) {
+        preview.innerHTML = `<video src="${state.previewUrl}" controls playsinline loop></video>`;
+      } else {
+        preview.innerHTML = `<img src="${state.previewUrl}" alt="Preview van upload" />`;
+      }
+    }
+
+    function resetComposer() {
+      if ($("mediaFile")) $("mediaFile").value = "";
+      if ($("captionInput")) $("captionInput").value = "";
+      if ($("hashtagsInput")) $("hashtagsInput").value = "";
+      if ($("feedKindSelect")) $("feedKindSelect").value = "normal";
+      resetPreviewUrl();
+      const preview = $("mediaPreview");
+      if (preview) preview.innerHTML = "Nog geen foto of video gekozen.";
+      setStatus("");
+    }
+
+    function parseHashtags(raw) {
+      return String(raw || "")
+        .split(/[,\s]+/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .map((item) => (item.startsWith("#") ? item : `#${item}`));
+    }
+
+    async function uploadMedia(file) {
+      const formData = new FormData();
+      formData.append("media", file);
+      formData.append("ownerUserId", state.activeUserId);
+      return fetchJson(`${API_BASE}/upload-media`, { method: "POST", body: formData });
+    }
+
+    async function publishPost() {
+      const file = $("mediaFile")?.files?.[0] || null;
+      const caption = $("captionInput")?.value.trim() || "";
+      const hashtags = parseHashtags($("hashtagsInput")?.value || "");
+      const feedKind = $("feedKindSelect")?.value || "normal";
+
+      if (!file && !caption) {
+        setStatus("Kies een foto/video of schrijf eerst tekst.", "error");
+        return;
+      }
+
+      try {
+        setStatus(file ? "Media wordt geüpload..." : "Post wordt geplaatst...");
+        let imageUrl = "";
+        let videoUrl = "";
+
+        if (file) {
+          const uploadResult = await uploadMedia(file);
+          if (uploadResult.postType === "video") videoUrl = uploadResult.url || "";
+          else imageUrl = uploadResult.url || "";
+        }
+
+        await fetchJson(`${API_BASE}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ownerUserId: state.activeUserId,
+            caption,
+            imageUrl,
+            videoUrl,
+            hashtags,
+            feedKind
+          })
+        });
+
+        setStatus("Post geplaatst.", "ok");
+        resetComposer();
+        await refreshPage();
+      } catch (error) {
+        setStatus(error.message || "Plaatsen mislukt.", "error");
+      }
+    }
+
+    async function deletePost(postId) {
+      const confirmed = window.confirm("Weet je zeker dat je deze post wilt verwijderen?");
+      if (!confirmed) return;
+
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerUserId: state.activeUserId })
+        });
+        await refreshPage();
+      } catch (error) {
+        alert(error.message || "Verwijderen mislukt.");
+      }
+    }
+
+    function renderPostCard(item) {
+      const owner = item.owner || getUserById(item.ownerUserId) || {};
+      const hashtags = Array.isArray(item.hashtags) ? item.hashtags : [];
+      const mediaHtml = item.postType === "video" && item.videoUrl
+        ? `<div class="postMedia"><video src="${item.videoUrl}" controls playsinline loop></video></div>`
+        : item.postType === "image" && item.imageUrl
+          ? `<div class="postMedia"><img src="${item.imageUrl}" alt="Post van ${escapeHtml(owner.displayName || "gebruiker")}" /></div>`
+          : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstbericht")}</div>`;
+
+      return `
+        <article class="postCard">
+          ${mediaHtml}
+          <div class="postMeta">
+            <div class="row">
+              <div class="smallNote"><strong>${escapeHtml(owner.displayName || "Gebruiker")}</strong> · ${escapeHtml(owner.handle || "")}</div>
+              <div class="smallNote">${escapeHtml(timeAgo(item.createdAt))}</div>
+            </div>
+            ${item.caption ? `<div class="caption">${escapeHtml(item.caption)}</div>` : ``}
+            ${hashtags.length ? `<div class="hashtags">${hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>` : ``}
+            <div class="row">
+              <div class="smallNote">${Number(item.likes || 0)} likes · ${escapeHtml(item.feedKind || "normal")}</div>
+              <button class="dangerBtn" type="button" onclick="deletePost(${Number(item.id)})">Verwijderen</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderContentList() {
+      const root = $("contentList");
+      if (!root) return;
+      const posts = Array.isArray(state.ownFrontpage?.recentPosts) ? state.ownFrontpage.recentPosts : [];
+      root.innerHTML = posts.length
+        ? posts.map((item) => renderPostCard(item)).join("")
+        : `<div class="emptyState">Nog geen eigen posts. Plaats hierboven je eerste foto, video of tekst.</div>`;
+    }
+
+    async function refreshPage() {
+      await loadUsers();
+      await loadOwnFrontpage();
+      renderContentList();
+    }
+
+    async function startApp() {
+      try {
+        if (!state.activeUserId) {
+          window.location.href = "index.html";
+          return;
+        }
+        await refreshPage();
+        $("mediaFile")?.addEventListener("change", handleMediaChange);
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Kon Mijn content niet laden.");
+      }
+    }
+
+    startApp();
+  </script>
+</body>
+</html>
