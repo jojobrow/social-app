@@ -814,7 +814,7 @@
     .modalOverlay {
       position: fixed;
       inset: 0;
-      z-index: 70;
+      z-index: 90;
       display: none;
       align-items: flex-end;
       justify-content: center;
@@ -824,7 +824,7 @@
     }
 
     .modalOverlay.show {
-      display: flex;
+      display: flex !important;
     }
 
     .modalCard {
@@ -1463,17 +1463,42 @@
       }
     }
 
+    function updateComposePreview(file) {
+      const preview = $("composePreview");
+      if (!preview) return;
+      if (!file) {
+        preview.innerHTML = '<div class="composePlaceholder">Kies een foto of video om je bericht te starten.</div>';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      if ((file.type || "").startsWith("video/")) {
+        preview.innerHTML = '<video src="' + url + '" controls playsinline loop></video>';
+      } else {
+        preview.innerHTML = '<img src="' + url + '" alt="Preview" />';
+      }
+    }
+
+    function handleComposeMediaChange() {
+      const file = $("composeMedia")?.files?.[0];
+      updateComposePreview(file || null);
+    }
+
     function openComposeModal() {
       const modal = $("composeModal");
       if (!modal) return;
       modal.classList.add("show");
       document.body.style.overflow = "hidden";
+      setTimeout(() => {
+        const caption = $("composeCaption");
+        if (caption) caption.focus();
+        handleComposeMediaChange();
+      }, 0);
     }
 
     function closeComposeModal(event) {
-      if (event && event.target && event.target !== $("composeModal")) return;
       const modal = $("composeModal");
       if (!modal) return;
+      if (event && event.target && event.target !== modal) return;
       modal.classList.remove("show");
       document.body.style.overflow = "";
     }
@@ -1818,16 +1843,20 @@
                 <div class="modalHeader">
                   <div>
                     <h3 class="modalTitle">Content maken</h3>
-                    <div class="sectionText">Upload je foto of video en zet er tekst bij.</div>
+                    <div class="sectionText">Kies je foto of video en zet er een tekst bij.</div>
                   </div>
-                  <button class="modalClose" onclick="closeComposeModal()">×</button>
+                  <button type="button" class="modalClose" onclick="closeComposeModal()">×</button>
                 </div>
                 <div class="modalStack">
-                  <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
-                  <div class="uploadBox">
-                    <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
-                    <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
+                  <div id="composePreview" class="composePreview">
+                    <div class="composePlaceholder">Kies een foto of video om je bericht te starten.</div>
                   </div>
+                  <div class="uploadBox">
+                    <label class="filePickerBtn" for="composeMedia">Foto of video kiezen</label>
+                    <input id="composeMedia" class="fileInputHidden" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="handleComposeMediaChange()" />
+                    <div class="smallNote">jpg, jpeg, png, webp, mp4 en webm</div>
+                  </div>
+                  <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
                   <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
                   <select id="composeFeedKind" class="select">
                     <option value="normal">Normal</option>
@@ -1836,7 +1865,7 @@
                   </select>
                   <div class="composerActions">
                     <div id="composeStatus" class="statusLine"></div>
-                    <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
+                    <button type="button" class="solidBtn" onclick="publishPost()">Plaatsen</button>
                   </div>
                 </div>
               </div>
