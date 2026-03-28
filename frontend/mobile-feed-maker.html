@@ -1777,11 +1777,6 @@ function renderFeedScreen() {
 
             <div class="feedBottom">
               <div class="feedContentMeta">
-                <div class="feedStats">
-                  <span class="feedModeBadge">${escapeHtml(getKindLabel(item.feedKind || 'normal'))}</span>
-                  <span class="feedModeBadge">♥ totaal ${Number(item.likes || 0)}</span>
-                  <span class="feedModeBadge">${escapeHtml(timeAgo(item.createdAt))}</span>
-                </div>
                 <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
                 ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="feedStats">${item.hashtags.map((tag) => `<span class="feedModeBadge">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
               </div>
