@@ -292,7 +292,10 @@ function createInitialData() {
       }
     ],
     friendRequests: [],
-    friendships: [{ userA: "u1", userB: "u2", status: "accepted" }]
+    friendships: [
+      { userA: "u1", userB: "u2", status: "accepted" },
+      { userA: "u1", userB: "u3", status: "accepted" }
+    ]
   };
 }
 
@@ -615,7 +618,48 @@ function ensureMockData() {
   if (changed) saveDb();
 }
 
+
+function ensureJohannesFriends() {
+  const johannes = db.users.find((user) => user.id === "u1");
+  if (!johannes) return;
+
+  const preferredFriendIds = ["u2", "u3", "u101", "u105", "u109", "u111", "u115", "u119"];
+  let changed = false;
+
+  preferredFriendIds.forEach((friendId) => {
+    const friend = db.users.find((user) => user.id === friendId);
+    if (!friend) return;
+
+    const alreadyFriends = db.friendships.some(
+      (item) =>
+        item.status === "accepted" &&
+        ((item.userA === "u1" && item.userB === friendId) ||
+         (item.userA === friendId && item.userB === "u1"))
+    );
+
+    if (!alreadyFriends) {
+      db.friendships.push({
+        userA: "u1",
+        userB: friendId,
+        status: "accepted"
+      });
+      changed = true;
+    }
+
+    db.friendRequests = db.friendRequests.filter(
+      (item) =>
+        !(
+          (item.requesterUserId === "u1" && item.targetUserId === friendId) ||
+          (item.requesterUserId === friendId && item.targetUserId === "u1")
+        )
+    );
+  });
+
+  if (changed) saveDb();
+}
+
 ensureMockData();
+ensureJohannesFriends();
 
 function sortFeedPosts(posts) {
   const feedWeight = {
