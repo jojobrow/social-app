@@ -844,6 +844,25 @@
       line-height: 1;
     }
 
+    .likeCountStack {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      pointer-events: none;
+    }
+
+    .likeCountStack .likeIconCount {
+      position: relative;
+      top: auto;
+      right: auto;
+      min-width: 22px;
+      height: 22px;
+      font-size: 10px;
+    }
+
     .donationStack {
     .donationStack {
       display: grid;
@@ -1745,9 +1764,12 @@ function renderFeedScreen() {
             <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
             <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
             <div class="likeQuotaStack" onclick="event.stopPropagation();">
-              <button class="likeIconBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)});" aria-label="Geef een like">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)});" aria-label="Geef een like" title="Geef een like">
                 ♥
-                <span class="likeIconCount">${Number(item.likes || 0)}</span>
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Door jou gegeven aan deze post">${getLikesGivenForPost(item.id)}</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
               </button>
             </div>
             <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
@@ -1783,7 +1805,7 @@ function renderFeedScreen() {
               <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
 
               <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
+                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was. Bovenste rondje = door jou gegeven op deze post, onderste rondje = over deze maand.
               </div>
             </div>
           </div>
