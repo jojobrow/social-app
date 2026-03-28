@@ -799,6 +799,44 @@
     }
 
 
+
+    .likeQuotaStack {
+      position: absolute;
+      top: calc(var(--safe-top) + 14px);
+      right: 16px;
+      z-index: 7;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .likeQuotaBtn,
+    .likeGiveBtn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.16);
+      backdrop-filter: blur(10px);
+    }
+
+    .likeQuotaBtn {
+      background: rgba(8,7,11,0.46);
+      color: rgba(255,255,255,0.97);
+    }
+
+    .likeGiveBtn {
+      background: linear-gradient(180deg, rgba(255,250,246,0.96), rgba(243,229,216,0.86));
+      color: #4f3525;
+    }
+
+
     .donationStack {
       display: grid;
       gap: 8px;
@@ -1241,11 +1279,7 @@ function getMonthlyLikesState() {
     const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
     const monthKey = getCurrentLikeMonthKey();
     if (saved.monthKey !== monthKey) {
-      return {
-        monthKey,
-        remainingLikes: MONTHLY_LIKES_LIMIT,
-        likesByPost: {}
-      };
+      return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {} };
     }
     return {
       monthKey,
@@ -1253,11 +1287,7 @@ function getMonthlyLikesState() {
       likesByPost: saved.likesByPost && typeof saved.likesByPost === "object" ? saved.likesByPost : {}
     };
   } catch (_e) {
-    return {
-      monthKey: getCurrentLikeMonthKey(),
-      remainingLikes: MONTHLY_LIKES_LIMIT,
-      likesByPost: {}
-    };
+    return { monthKey: getCurrentLikeMonthKey(), remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {} };
   }
 }
 
@@ -1706,6 +1736,9 @@ function renderFeedScreen() {
 
             <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
             <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeGiveBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)});">♥ over ${getRemainingLikesThisMonth()} · hier ${getLikesGivenForPost(item.id)}/10</button>
+            </div>
             <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
 
             <div class="feedBottom">
@@ -1713,8 +1746,6 @@ function renderFeedScreen() {
                 <div class="feedStats">
                   <span class="feedModeBadge">${escapeHtml(getKindLabel(item.feedKind || 'normal'))}</span>
                   <span class="feedModeBadge">♥ totaal ${Number(item.likes || 0)}</span>
-                  <span class="feedModeBadge">jij ${getLikesGivenForPost(item.id)}/10</span>
-                  <span class="feedModeBadge">maand ${getRemainingLikesThisMonth()}/100</span>
                   <span class="feedModeBadge">${escapeHtml(timeAgo(item.createdAt))}</span>
                 </div>
                 <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
@@ -1723,7 +1754,7 @@ function renderFeedScreen() {
 
               <div class="bottomActionRow">
                 <div class="buttonGroup">
-                  <button class="pill likeBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)})">Like ${getLikesGivenForPost(item.id)}/10</button>
+
                   <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
                   ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
                   ${item.postType === "video" && item.videoUrl ? `
