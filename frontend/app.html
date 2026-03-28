@@ -589,9 +589,28 @@
       background-image: var(--user-bg, none);
       background-size: cover;
       background-position: center;
-      opacity: 0.40;
-      transform: scale(1.02);
+      opacity: 0.34;
+      filter: blur(22px);
+      transform: scale(1.08);
       pointer-events: none;
+    }
+
+    .heroImageCrop {
+      margin-top: 12px;
+      width: 100%;
+      aspect-ratio: 16 / 7;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+    }
+
+    .heroImageCrop img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .frontPageBg::after,
@@ -939,6 +958,7 @@
     let currentFocusedPostId = null;
     let screenMode = "home";
     let viewportObserver = null;
+    let lastFeedScrollAt = 0;
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1187,6 +1207,7 @@
                     <div class="creatorControlLabel">Creator control</div>
                     <div class="homeHeroName">Jouw maker-homepage</div>
                     <div class="homeBio">Je landt nu eerst op je eigen homepage. Daarna ga je pas naar de feed / split screen.</div>
+                    ${user.backgroundUrl ? `<div class="heroImageCrop"><img src="${escapeHtml(user.backgroundUrl)}" alt="Hero afbeelding" /></div>` : ``}
                   </div>
                   <div class="postActionOverlay">
                     <button class="btnPrimary" onclick="toggleCompose()">Nieuwe post</button>
@@ -1461,9 +1482,19 @@
 
       postCard.addEventListener("wheel", (event) => {
         if (screenMode !== "split") return;
-        if (Math.abs(event.deltaY) < 20) return;
+
+        const now = Date.now();
+        if (now - lastFeedScrollAt < 650) {
+          event.preventDefault();
+          return;
+        }
+
+        if (Math.abs(event.deltaY) < 110) return;
+
         event.preventDefault();
+        lastFeedScrollAt = now;
         pauseAllVideos();
+
         if (event.deltaY > 0) scrollToNext();
         else scrollToPrevious();
       }, { passive: false });
@@ -1564,6 +1595,7 @@
                     <div class="userHandle">${escapeHtml(user.handle)}</div>
                     <div class="frontBio">${escapeHtml(user.bio)}</div>
                     <div class="frontBio">Desktop blijft split view of home mode. Modules zijn nu direct gekoppeld zoals mobiel.</div>
+                    ${user.backgroundUrl ? `<div class="heroImageCrop"><img src="${escapeHtml(user.backgroundUrl)}" alt="Hero afbeelding" /></div>` : ``}
                   </div>
                   <div class="postActionOverlay">
                     <div class="badge normal">Publieke ruimte</div>
