@@ -7,24 +7,24 @@
   <style>
 
     :root {
-      --bg: #09070f;
-      --bg-2: #120f19;
-      --bg-3: #19141f;
-      --panel: rgba(20, 17, 25, 0.84);
-      --panel-2: rgba(28, 24, 35, 0.92);
-      --panel-3: rgba(36, 30, 43, 0.96);
+      --bg: #0f0a19;
+      --bg-2: #1a1230;
+      --bg-3: #24183f;
+      --panel: rgba(28, 20, 48, 0.88);
+      --panel-2: rgba(39, 28, 65, 0.96);
+      --panel-3: rgba(54, 39, 87, 0.98);
       --glass: rgba(255,255,255,0.07);
       --line: rgba(255,255,255,0.10);
       --line-strong: rgba(255,255,255,0.16);
-      --text: #f7f3ef;
-      --text-soft: #d8d0c6;
-      --text-dim: #a99f95;
-      --accent: #c8a97e;
-      --accent-2: #f1dfc8;
-      --accent-3: #8e6c4f;
-      --accent-deep: #6f543e;
-      --ok: #94d4b7;
-      --danger: #f0a9a9;
+      --text: #f7f3ff;
+      --text-soft: #cdc3e6;
+      --text-dim: #9b91b8;
+      --accent: #9b5cff;
+      --accent-2: #c9a5ff;
+      --accent-3: #6d35d8;
+      --accent-deep: #5126a6;
+      --ok: #8ff0bc;
+      --danger: #ffb6c1;
       --shadow: 0 24px 60px rgba(0,0,0,0.36);
       --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
       --radius: 26px;
@@ -39,8 +39,8 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
-        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(155,92,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(201,165,255,0.12), transparent 24%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -108,7 +108,7 @@
       inset: 0;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.05), transparent 26%);
+        radial-gradient(circle at top right, rgba(201,165,255,0.12), transparent 28%);
       pointer-events: none;
     }
 
@@ -230,7 +230,8 @@
       flex-direction: column;
       justify-content: flex-end;
       background:
-        linear-gradient(180deg, rgba(18,15,25,0.92), rgba(12,10,18,0.96));
+        radial-gradient(circle at top right, rgba(201,165,255,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(96,43,194,0.92), rgba(20,15,31,0.96));
     }
 
     .heroMedia {
@@ -261,8 +262,8 @@
       z-index: 1;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.64)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.10), transparent 30%),
-        radial-gradient(circle at top left, rgba(200,169,126,0.08), transparent 28%);
+        radial-gradient(circle at top right, rgba(201,165,255,0.14), transparent 30%),
+        radial-gradient(circle at top left, rgba(155,92,255,0.10), transparent 28%);
     }
 
     .hero > * { position: relative; z-index: 1; }
@@ -966,6 +967,32 @@
       font-size: 12px;
     }
 
+    .walletGrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .walletStat {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .walletStatValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .walletStatLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
 
     .compactChatList {
       display: grid;
@@ -1116,6 +1143,30 @@ const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
 const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
 const MONTHLY_LIKES_LIMIT = 100;
+const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+
+function getDonationModuleState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+    return {
+      promotionBudget: Number(saved.promotionBudget || 0),
+      tipPoints: Number(saved.tipPoints || 0),
+      givenPoints: Number(saved.givenPoints || 0),
+      receivedPoints: Number(saved.receivedPoints || 0),
+      donations: Array.isArray(saved.donations) ? saved.donations : [],
+      receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
+    };
+  } catch (_e) {
+    return {
+      promotionBudget: 0,
+      tipPoints: 0,
+      givenPoints: 0,
+      receivedPoints: 0,
+      donations: [],
+      receivedByMaker: {}
+    };
+  }
+}
 
 function getCurrentLikeMonthKey() {
   const now = new Date();
@@ -1480,6 +1531,7 @@ function renderHomeScreen() {
   const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
   const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
   const homeLamps = homepageHasUpdates();
+  const wallet = getDonationModuleState();
 
   $("homeScreen").innerHTML = `
     <div class="page pageWithUserBg" style="--page-bg-image:${getPageBackgroundValue(user)};">
@@ -1530,6 +1582,34 @@ function renderHomeScreen() {
           <div class="heroMeta">
             <span class="heroChip">${Number(stats.posts || 0)} posts</span>
             <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Jouw wallet</h3>
+                <div class="sectionText">Snel overzicht van promotiebudget, donatiepunten en ontvangen donaties.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="goToDonationsPage()">Open wallet</button>
+              </div>
+            </div>
+            <div class="walletGrid">
+              <div class="walletStat">
+                <div class="walletStatValue">€${Number(wallet.promotionBudget || 0)}</div>
+                <div class="walletStatLabel">Overgebleven euro’s</div>
+              </div>
+              <div class="walletStat">
+                <div class="walletStatValue">${Number(wallet.tipPoints || 0)}</div>
+                <div class="walletStatLabel">Donatiepunten</div>
+              </div>
+              <div class="walletStat">
+                <div class="walletStatValue">${Number(wallet.receivedPoints || 0)}</div>
+                <div class="walletStatLabel">Ontvangen donaties</div>
+              </div>
+            </div>
           </div>
         </section>
 
