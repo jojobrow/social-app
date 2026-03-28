@@ -1247,7 +1247,7 @@ async function deletePost(postId) {
     if (state.viewedCreatorUserId) await loadCreatorFrontpage(state.viewedCreatorUserId);
     const updatedItems = getCurrentFeedItems();
     if (!updatedItems.length) {
-      window.location.href = "mobile-homepage-split.html";
+      window.location.href = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
       return;
     }
     state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
