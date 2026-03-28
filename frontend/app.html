@@ -1642,6 +1642,7 @@
                     <button class="btnSoft" onclick="window.location.href='mijn-content.html'">Mijn content</button>
                     <button class="btnSoft" onclick="window.location.href='budget-donaties-module.html'">Donaties</button>
                     <button class="btnSoft" onclick="window.location.href='vrienden-module-pagina.html'">Vrienden</button>
+                    <button class="btnSoft" onclick="openTesterUitleg()">Uitleg testers</button>
                     <button class="btnSoft" onclick="goToFeed()">Feed</button>
                   </div>
                 </div>
@@ -1802,6 +1803,10 @@
       if (feedItems.length) {
         requestAnimationFrame(() => scrollToScreen(currentScreenIndex, false));
       }
+    }
+
+    function openTesterUitleg() {
+      window.location.href = "testers-uitleg.html";
     }
 
     function triggerBackgroundUpload() {

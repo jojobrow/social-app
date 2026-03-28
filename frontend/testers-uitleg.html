@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uitleg voor testers</title>
+  <style>
+    :root{
+      --bg:#0f0a19;
+      --bg2:#1a1230;
+      --card:rgba(255,255,255,0.08);
+      --line:rgba(255,255,255,0.14);
+      --text:#f7f3ff;
+      --muted:#d1c7e8;
+      --accent:#9b5cff;
+      --accent2:#c9a5ff;
+      --yellow:#ffcf5a;
+      --purple:#9b5cff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(155,92,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(201,165,255,0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      line-height:1.6;
+    }
+    .wrap{max-width:920px;margin:0 auto;padding:28px 18px 60px}
+    .hero,.card{
+      background:rgba(255,255,255,0.08);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px;
+      box-shadow:0 20px 50px rgba(0,0,0,0.22);
+      backdrop-filter:blur(10px);
+    }
+    .hero{margin-bottom:18px}
+    h1,h2,h3{margin:0 0 10px}
+    h1{font-size:32px;line-height:1.15}
+    h2{font-size:22px;margin-top:6px}
+    h3{font-size:17px;margin-top:18px}
+    p{margin:0 0 12px}
+    .lead{font-size:18px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px}
+    .card{margin-top:16px}
+    .pill{
+      display:inline-block;padding:7px 12px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,0.08);margin:4px 6px 0 0;font-size:13px;font-weight:700
+    }
+    .yellow{background:rgba(255,207,90,0.18);color:#ffe08a}
+    .purple{background:rgba(155,92,255,0.20);color:#ecd9ff}
+    ul{margin:8px 0 0 20px;padding:0}
+    li{margin:6px 0}
+    .note{
+      background:rgba(255,255,255,0.06);
+      border-left:4px solid var(--accent2);
+      padding:12px 14px;
+      border-radius:14px;
+      margin:12px 0;
+      color:var(--muted);
+    }
+    .warning{border-left-color:var(--yellow)}
+    .btn-demo{
+      display:inline-block;margin-top:10px;padding:12px 16px;border-radius:999px;
+      background:linear-gradient(135deg,var(--accent2),var(--accent));
+      color:#140d24;text-decoration:none;font-weight:800
+    }
+    .small,.footer{font-size:14px;color:var(--muted)}
+    .footer{margin-top:24px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Uitleg voor testers</h1>
+      <p class="lead">Welkom! Deze pagina legt de app simpel uit. Hij is geschreven zodat ook iemand van ongeveer 14 jaar hem makkelijk kan begrijpen.</p>
+      <a class="btn-demo" href="#">Start met testen</a>
+      <p class="small">Deze knop is alleen een voorbeeld. Hier kunnen jullie later jullie echte knop of link inzetten.</p>
+    </section>
+
+    <section class="card">
+      <h2>Wat is deze app?</h2>
+      <p>Dit is een social app in testvorm.</p>
+      <ul>
+        <li>Je <strong>homepage</strong> is belangrijker dan in gewone social apps.</li>
+        <li>Je ziet niet alleen losse posts, maar ook meer van de persoon erachter.</li>
+        <li>Reacties horen vooral bij de <strong>homepage van de maker</strong>, niet onder elke losse post.</li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Inloggen</h3>
+        <p>Je logt in met je testnaam en testwachtwoord.</p>
+        <p>Voor sommige testaccounts is dat <strong>4321</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>Belangrijk</h3>
+        <p><strong>Alles met geld, punten en budget is nep.</strong></p>
+        <p>Er wordt dus geen echt geld afgeschreven of verdiend.</p>
+      </div>
+      <div class="card">
+        <h3>Wat willen we weten?</h3>
+        <p>Vooral of de app logisch voelt, leuk werkt en of je snapt wat de bedoeling is.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Homepage</h2>
+      <ul>
+        <li>Dit is jouw eigen plek in de app.</li>
+        <li>Hier kun je je profiel, achtergrond en eigen content zien.</li>
+        <li>Je homepage moet voelen als jouw eigen ruimte.</li>
+      </ul>
+      <div class="note">Zie het als een mix van profiel, voorpagina en persoonlijke ruimte.</div>
+    </section>
+
+    <section class="card">
+      <h2>Feed</h2>
+      <ul>
+        <li>De feed laat content in een volgorde zien.</li>
+        <li>Vaak begint hij met je eigen content.</li>
+        <li>Daarna zie je content van vrienden, anderen en soms promoted content.</li>
+        <li>Soms zie je links de post en rechts de homepage van de maker. Dat heet split view.</li>
+      </ul>
+
+      <h3>Kleuren in de feed</h3>
+      <span class="pill">Geen streep = vrienden</span>
+      <span class="pill yellow">Geel = iedereen / recommended</span>
+      <span class="pill purple">Paars = promoted / betaald</span>
+
+      <div class="note warning">
+        Paars betekent in deze test: content die extra zichtbaar wordt gemaakt met nep-budget.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Belangrijkste knoppen</h2>
+
+      <h3>Op je homepage</h3>
+      <ul>
+        <li><strong>Feed</strong> = ga naar de feed.</li>
+        <li><strong>Nieuwe post</strong> = maak een nieuwe post.</li>
+        <li><strong>Upload achtergrond</strong> = kies een achtergrond voor je homepage.</li>
+        <li><strong>Mijn content</strong> = bekijk je eigen posts.</li>
+        <li><strong>Vrienden</strong> = bekijk vrienden en verzoeken.</li>
+        <li><strong>Donaties</strong> = bekijk je testbudget en testpunten.</li>
+      </ul>
+
+      <h3>Op een post in de feed</h3>
+      <ul>
+        <li><strong>Hartje</strong> = geef een like.</li>
+        <li><strong>Verwijderen</strong> = verwijder je eigen post.</li>
+        <li><strong>Verberg</strong> = verberg een post van iemand anders voor jezelf.</li>
+        <li><strong>Sequence: Normal / Recommended / Promoted</strong> = bepaal hoe jouw eigen post meeloopt in de feed.</li>
+        <li><strong>Budget</strong> = laat zien dat promoted content aan testbudget hangt.</li>
+        <li><strong>Punten</strong> = geef testpunten aan een maker.</li>
+      </ul>
+
+      <h3>Speciale klik</h3>
+      <ul>
+        <li><strong>3x klikken op content</strong> = alleen die maker bekijken.</li>
+        <li>Nog eens <strong>3x klikken</strong> = terug naar de gewone feed.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Likes</h2>
+      <ul>
+        <li>Likes zijn in deze test niet onbeperkt.</li>
+        <li>Je hebt een limiet per maand.</li>
+        <li>Je kunt ook maar een beperkt aantal likes op dezelfde post of homepage geven.</li>
+        <li>Bij het hartje zie je vaak totaal likes, jouw likes en hoeveel je nog over hebt.</li>
+      </ul>
+      <div class="note">Dat moet de app rustiger maken dan gewone social media.</div>
+    </section>
+
+    <section class="card">
+      <h2>Vrienden</h2>
+      <ul>
+        <li>Je kunt iemand toevoegen als vriend.</li>
+        <li>Je kunt vriendschapsverzoeken accepteren of verwijderen.</li>
+        <li>Vrienden zijn belangrijk, omdat hun content anders in de feed kan verschijnen dan content van iedereen.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Reacties</h2>
+      <ul>
+        <li>Reacties horen vooral bij iemands homepage.</li>
+        <li>Een reactie kan eerst in een wachtrij komen.</li>
+        <li>De eigenaar kan een reactie goedkeuren, afwijzen of blokkeren.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Geld, punten en promoted content</h2>
+      <p>Er zijn dingen in de app die op geld lijken, maar in deze test is dat allemaal nep.</p>
+      <ul>
+        <li><strong>Euro’s / budget</strong> = testgeld.</li>
+        <li><strong>Donatiepunten</strong> = testpunten.</li>
+        <li><strong>Promoted</strong> = content die extra zichtbaar is door testbudget.</li>
+      </ul>
+      <div class="note warning">
+        Nog een keer belangrijk: <strong>dit is geen echt geld</strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Wat willen we graag van testers horen?</h2>
+      <ul>
+        <li>Snap je hoe de app werkt?</li>
+        <li>Voelt je homepage persoonlijk genoeg?</li>
+        <li>Is de feed duidelijk of juist verwarrend?</li>
+        <li>Snap je het verschil tussen vrienden, iedereen en promoted?</li>
+        <li>Voelen likes, punten en vrienden logisch?</li>
+        <li>Welke knop was onduidelijk?</li>
+        <li>Wat vond je leuk en wat vond je irritant?</li>
+      </ul>
+    </section>
+
+    <p class="footer">
+      Tip voor testers: klik gewoon rond en vertel eerlijk wat je voelt. Eerste indrukken zijn juist heel belangrijk.
+    </p>
+  </div>
+</body>
+</html>

@@ -1548,6 +1548,7 @@ function renderHomeScreen() {
             </span>
             <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
             <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
+            <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
             <span class="navBtnWrap">
               <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
               ${homeLamps.friends ? '<span class="tinyLamp"></span>' : ''}
@@ -1704,6 +1705,10 @@ function renderHomeScreen() {
       </div>
     </div>
   `;
+}
+
+function openTesterUitleg() {
+  window.location.href = "testers-uitleg.html";
 }
 
 async function refreshAll() {
