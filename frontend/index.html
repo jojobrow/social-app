@@ -196,16 +196,6 @@
       goToSelectedApp();
     }
 
-        list.innerHTML = users.slice(0, 6).map((user) => `
-          <button class="quickItem" type="button" onclick="quickFill('${String(user.displayName).replace(/'/g, "\'")}')">
-            ${escapeHtml(user.displayName)} <span>${escapeHtml(user.handle || "")}</span>
-          </button>
-        `).join("");
-      } catch (_error) {
-        list.innerHTML = `<div class="helper">Kon gebruikers niet laden.</div>`;
-      }
-    }
-
     async function doPasswordLogin(displayName, password, remember) {
       const button = document.getElementById("loginButton");
       button.disabled = true;
@@ -219,7 +209,7 @@
         });
 
         persistLogin(result.user, remember);
-        setStatus(result.created ? "Nieuwe gebruiker aangemaakt en ingelogd." : "Ingelogd.", false);
+        setStatus("Ingelogd.", false);
         goToSelectedApp();
       } catch (error) {
         setStatus(error.message || "Inloggen mislukt.", true);
