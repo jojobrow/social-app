@@ -1052,6 +1052,23 @@
       border: 1px solid rgba(255,255,255,0.12);
     }
 
+    .chatboxShell {
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .chatboxShell::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chatboxShell::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+    }
+
   </style>
 </head>
 <body>
@@ -2029,7 +2046,7 @@
         return `<div class="emptyState">Nog geen chatberichten op deze homepage.</div>`;
       }
 
-      return `<div class="chatStream">${parts.join('')}</div>`;
+      return `<div class="chatboxShell"><div class="chatStream">${parts.join('')}</div></div>`;
     }
 
     async function publishQuickTextPost() {
@@ -2143,8 +2160,8 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Nieuw chat bericht</h3>
-                    <div class="sectionText">Berichten van gebruikers voor jouw homepage. Pending staat bovenaan en jij keurt eerst goed.</div>
+                    <h3 class="sectionTitle">Chatbox</h3>
+                    <div class="sectionText">Berichten voor jouw homepage. Nieuwe berichten komen eerst bovenaan in pending en schuiven na goedkeuring door naar de geplaatste chat.</div>
                   </div>
                 </div>
                 ${renderHomepageChatMessages({ pending: pendingReactions, approved: acceptedReactions, ownerView: true })}
@@ -2246,7 +2263,7 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Chatbox</h3>
-                    <div class="sectionText">Gebruikers kunnen hier een bericht achterlaten. Alleen goedgekeurde berichten zijn zichtbaar.</div>
+                    <div class="sectionText">Berichten voor deze homepage. Alleen goedgekeurde berichten zijn zichtbaar.</div>
                   </div>
                 </div>
                 <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
