@@ -959,6 +959,118 @@
     }
 
 
+
+    .chatSection {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      overflow: visible;
+    }
+
+    .chatSection::before {
+      display: none;
+    }
+
+    .chatSection .cardBody {
+      padding: 0;
+    }
+
+    .chatSection .sectionHeader {
+      margin-bottom: 6px;
+    }
+
+    .chatThread {
+      display: grid;
+      gap: 8px;
+    }
+
+    .chatLine {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .chatLine.self {
+      justify-content: flex-end;
+    }
+
+    .chatLine.self .chatBubbleWrap {
+      align-items: flex-end;
+    }
+
+    .chatBubbleWrap {
+      min-width: 0;
+      max-width: calc(100% - 56px);
+      display: grid;
+      gap: 4px;
+    }
+
+    .chatMetaLine {
+      font-size: 10px;
+      color: var(--text-dim);
+      padding: 0 4px;
+    }
+
+    .chatBubble {
+      padding: 11px 13px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chatLine.self .chatBubble {
+      background: linear-gradient(135deg, rgba(200,169,126,0.18), rgba(255,255,255,0.05));
+      border-color: rgba(200,169,126,0.18);
+    }
+
+    .pendingThread {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pendingItem {
+      display: grid;
+      gap: 7px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .pendingHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pendingAuthor {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .pendingBubble {
+      padding: 11px 13px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .pendingActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+
     .modalOverlay {
       position: fixed;
       inset: 0;
@@ -1901,6 +2013,60 @@
       `;
     }
 
+
+    function renderChatReactionStream(reactions) {
+      if (!Array.isArray(reactions) || !reactions.length) {
+        return `<div class="emptyState">Nog geen chatberichtjes op je homepage.</div>`;
+      }
+
+      return `
+        <div class="chatThread">
+          ${reactions.map((reaction) => {
+            const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+            const isSelf = fromUser.id === state.activeUserId;
+            return `
+              <div class="chatLine ${isSelf ? 'self' : ''}">
+                ${isSelf ? '' : getAvatarHtml(fromUser, "ownerMiniAvatar")}
+                <div class="chatBubbleWrap">
+                  <div class="chatMetaLine">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                  <div class="chatBubble">${escapeHtml(reaction.text || "")}</div>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function renderPendingChatStream(reactions) {
+      if (!Array.isArray(reactions) || !reactions.length) {
+        return `<div class="emptyState">Nog geen pending chatberichtjes.</div>`;
+      }
+
+      return `
+        <div class="pendingThread">
+          ${reactions.map((reaction) => {
+            const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+            return `
+              <div class="pendingItem">
+                <div class="pendingHeader">
+                  <div class="pendingAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
+                  <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                </div>
+                <div class="pendingBubble">${escapeHtml(reaction.text || "")}</div>
+                <div class="pendingActions">
+                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
+                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
+                  <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+
     function renderReactionList(reactions, showModeration = false) {
       if (!Array.isArray(reactions) || !reactions.length) {
         return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
@@ -2058,32 +2224,32 @@
               </div>
             </section>
 
-            <section class="card">
+            <section class="card chatSection">
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Reacties</h3>
-                    <div class="sectionText">Publieke berichten voor jouw homepage.</div>
+                    <h3 class="sectionTitle">Homepage-chat</h3>
+                    <div class="sectionText">Meer gesprek, minder comments.</div>
                   </div>
                 </div>
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
+                <textarea id="homeReactionInput" class="textarea" placeholder="Plaats een chatbericht op je homepage..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
+                  <div class="smallNote">Nieuwe chatberichtjes komen eerst in pending.</div>
                   <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
                 </div>
-                ${renderReactionList(acceptedReactions, false)}
+                ${renderChatReactionStream(acceptedReactions)}
               </div>
             </section>
 
-            <section class="card">
+            <section class="card chatSection">
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Pending</h3>
-                    <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
+                    <div class="sectionText">Wachtende chatberichtjes.</div>
                   </div>
                 </div>
-                ${renderReactionList(pendingReactions, true)}
+                ${renderPendingChatStream(pendingReactions)}
               </div>
             </section>
 
