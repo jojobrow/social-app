@@ -399,6 +399,7 @@ function findUserByDisplayName(displayName) {
   );
 }
 
+// Handmatige account-aanmaak blijft beschikbaar in code/db, maar open signup is uitgeschakeld.
 function createUserFromName(displayName, password) {
   const trimmedName = String(displayName || "").trim();
   const palette = pickPalette(db.users.length);
@@ -521,27 +522,27 @@ app.post("/auth/name-login", (req, res) => {
   }
 
   let user = findUserByDisplayName(displayName);
-  let created = false;
 
   if (!user) {
-    user = createUserFromName(displayName, password);
-    created = true;
-  } else {
-    if ((!user.passwordSalt || !user.passwordHash) &&
-        String(user.displayName || "").trim().toLowerCase() === "johannes") {
-      user.passwordSalt = "seed-johannes-salt";
-      user.passwordHash = hashPassword("1234", user.passwordSalt);
-      saveDb();
-    }
+    return res.status(403).json({
+      message: "Dit account bestaat niet of is niet vrijgegeven voor deze test."
+    });
+  }
 
-    if (!verifyPassword(user, password)) {
-      return res.status(401).json({ message: "Wachtwoord klopt niet." });
-    }
+  if ((!user.passwordSalt || !user.passwordHash) &&
+      String(user.displayName || "").trim().toLowerCase() === "johannes") {
+    user.passwordSalt = "seed-johannes-salt";
+    user.passwordHash = hashPassword("1234", user.passwordSalt);
+    saveDb();
+  }
+
+  if (!verifyPassword(user, password)) {
+    return res.status(401).json({ message: "Wachtwoord klopt niet." });
   }
 
   res.json({
     success: true,
-    created,
+    created: false,
     remember,
     user: toSafeUser(user)
   });
