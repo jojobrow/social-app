@@ -483,6 +483,7 @@ function getFriendIds(userId) {
 }
 
 const { applyMockData } = require("./mock-data");
+applyMockData(db, saveDb, hashPassword);
 
 function sortFeedPosts(posts) {
   const feedWeight = {
