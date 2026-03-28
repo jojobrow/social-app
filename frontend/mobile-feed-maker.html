@@ -1177,6 +1177,7 @@ const state = {
   activeScreen: params.get("creator") ? "creator" : "feed",
   currentFeedIndex: 0,
   currentFeedScopeUserId: "",
+  feedFilterMode: "all",
   feedMode: "global",
   makerModeUserId: "",
   makerModeReturnPostId: null,
@@ -1474,13 +1475,24 @@ function getCurrentFeedItems() {
 
   const sequenced = buildSequencedFeed(state.feedItems);
 
-  if (state.homeEntryPostId) {
-    const featured = sequenced.find((item) => item.id === state.homeEntryPostId);
-    const remainder = sequenced.filter((item) => item.id !== state.homeEntryPostId);
-    return featured ? [featured, ...remainder] : sequenced;
+  const normalItems = sequenced.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
+  let filtered = normalItems;
+
+  if (state.feedFilterMode === "recommended") {
+    const recommendedItems = sequenced.filter((item) => item.feedKind === "recommended");
+    filtered = recommendedItems.length ? recommendedItems : normalItems;
+  } else if (state.feedFilterMode === "promoted") {
+    const promotedItems = sequenced.filter((item) => item.feedKind === "promoted");
+    filtered = promotedItems.length ? promotedItems : normalItems;
   }
 
-  return sequenced;
+  if (state.homeEntryPostId) {
+    const featured = filtered.find((item) => item.id === state.homeEntryPostId);
+    const remainder = filtered.filter((item) => item.id !== state.homeEntryPostId);
+    return featured ? [featured, ...remainder] : filtered;
+  }
+
+  return filtered;
 }
 
 function getCurrentFeedItem() {
@@ -1489,6 +1501,22 @@ function getCurrentFeedItem() {
   const safeIndex = ((state.currentFeedIndex % items.length) + items.length) % items.length;
   state.currentFeedIndex = safeIndex;
   return items[safeIndex] || null;
+}
+
+function cycleFeedFilter(event) {
+  if (event) event.stopPropagation();
+  const order = ["normal", "recommended", "promoted"];
+  const currentIndex = order.indexOf(state.feedFilterMode);
+  state.feedFilterMode = order[(currentIndex + 1) % order.length];
+  state.currentFeedIndex = 0;
+  renderFeedScreen();
+}
+
+function getFeedFilterLabel() {
+  if (state.feedFilterMode === "normal") return "Normal";
+  if (state.feedFilterMode === "recommended") return "Recommended";
+  if (state.feedFilterMode === "promoted") return "Promoted";
+  return "Normal";
 }
 
 function moveFeed(step) {
@@ -1812,7 +1840,7 @@ function renderFeedScreen() {
   const item = getCurrentFeedItem();
 
   if (!items.length || !item) {
-    $("feedScreen").innerHTML = `<div class="feedScreen"><div class="page" style="padding-top:calc(var(--safe-top) + 24px);"><div class="emptyState">Nog geen feeditems gevonden.</div></div></div>`;
+    $("feedScreen").innerHTML = `<div class="feedScreen"><div class="page" style="padding-top:calc(var(--safe-top) + 24px);"><div class="stack"><div class="buttonGroup"><button class="pill" onclick="cycleFeedFilter(event)">Feed: ${getFeedFilterLabel()}</button></div><div class="emptyState">Nog geen feeditems gevonden.</div></div></div></div>`;
     return;
   }
 
@@ -1842,6 +1870,9 @@ function renderFeedScreen() {
                 <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
                 <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
               </div>
+            </div>
+            <div style="position:absolute; top:calc(var(--safe-top) + 14px); left:16px; z-index:7;" onclick="event.stopPropagation();">
+              <button class="pill" onclick="cycleFeedFilter(event)">Feed: ${getFeedFilterLabel()}</button>
             </div>
 
             <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
