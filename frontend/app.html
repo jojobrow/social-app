@@ -1056,7 +1056,227 @@
     }
 
     function cssUrl(url) {
-      return url ? `url('${String(url).replace(/'/g, "\\'")}')` : "none";
+      return url ? `url('${String(url).replace(/'/g, "\'")}')` : "none";
+    }
+
+    function getDonationModuleState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+        return {
+          promotionBudget: Number(saved.promotionBudget || 0),
+          tipPoints: Number(saved.tipPoints || 0),
+          givenPoints: Number(saved.givenPoints || 0),
+          receivedPoints: Number(saved.receivedPoints || 0),
+          donations: Array.isArray(saved.donations) ? saved.donations : [],
+          receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
+        };
+      } catch (_e) {
+        return {
+          promotionBudget: 0,
+          tipPoints: 0,
+          givenPoints: 0,
+          receivedPoints: 0,
+          donations: [],
+          receivedByMaker: {}
+        };
+      }
+    }
+
+    function saveDonationModuleState(nextState) {
+      localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(nextState));
+    }
+
+    function getCurrentLikeMonthKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function getMonthlyLikesState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
+        const monthKey = getCurrentLikeMonthKey();
+        if (saved.monthKey !== monthKey) {
+          return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByTarget: {} };
+        }
+        return {
+          monthKey,
+          remainingLikes: Number(saved.remainingLikes ?? MONTHLY_LIKES_LIMIT),
+          likesByTarget: saved.likesByTarget && typeof saved.likesByTarget === "object" ? saved.likesByTarget : {}
+        };
+      } catch (_e) {
+        return { monthKey: getCurrentLikeMonthKey(), remainingLikes: MONTHLY_LIKES_LIMIT, likesByTarget: {} };
+      }
+    }
+
+    function saveMonthlyLikesState(data) {
+      localStorage.setItem(MONTHLY_LIKES_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getLikesGivenForTarget(targetKey) {
+      const likeState = getMonthlyLikesState();
+      return Number(likeState.likesByTarget?.[targetKey] || 0);
+    }
+
+    function getLikesGivenForPost(postId) {
+      return getLikesGivenForTarget(`post:${postId}`);
+    }
+
+    function getLikesGivenForHomepage(userId) {
+      return getLikesGivenForTarget(`home:${userId}`);
+    }
+
+    function getRemainingLikesThisMonth() {
+      return Number(getMonthlyLikesState().remainingLikes || 0);
+    }
+
+    async function giveLimitedLikeToPost(postId) {
+      const targetKey = `post:${postId}`;
+      const likeState = getMonthlyLikesState();
+      const alreadyGiven = Number(likeState.likesByTarget?.[targetKey] || 0);
+
+      if (likeState.remainingLikes <= 0) {
+        alert("Je maandelijkse likes zijn op.");
+        return;
+      }
+      if (alreadyGiven >= PER_FEED_LIKE_LIMIT) {
+        alert("Je hebt het maximum van 10 likes op deze post bereikt.");
+        return;
+      }
+
+      likeState.remainingLikes -= 1;
+      likeState.likesByTarget[targetKey] = alreadyGiven + 1;
+      saveMonthlyLikesState(likeState);
+
+      try {
+        await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+        await refreshAll();
+      } catch (error) {
+        likeState.remainingLikes += 1;
+        likeState.likesByTarget[targetKey] = alreadyGiven;
+        if (likeState.likesByTarget[targetKey] <= 0) delete likeState.likesByTarget[targetKey];
+        saveMonthlyLikesState(likeState);
+        alert(error.message || "Liken mislukt.");
+      }
+    }
+
+    async function giveLimitedLikeToHomepage(userId) {
+      const targetKey = `home:${userId}`;
+      const likeState = getMonthlyLikesState();
+      const alreadyGiven = Number(likeState.likesByTarget?.[targetKey] || 0);
+
+      if (likeState.remainingLikes <= 0) {
+        alert("Je maandelijkse likes zijn op.");
+        return;
+      }
+      if (alreadyGiven >= PER_FEED_LIKE_LIMIT) {
+        alert("Je hebt het maximum van 10 likes op deze homepage bereikt.");
+        return;
+      }
+
+      likeState.remainingLikes -= 1;
+      likeState.likesByTarget[targetKey] = alreadyGiven + 1;
+      saveMonthlyLikesState(likeState);
+
+      try {
+        await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+        await refreshAll();
+      } catch (error) {
+        likeState.remainingLikes += 1;
+        likeState.likesByTarget[targetKey] = alreadyGiven;
+        if (likeState.likesByTarget[targetKey] <= 0) delete likeState.likesByTarget[targetKey];
+        saveMonthlyLikesState(likeState);
+        alert(error.message || "Homepage-like mislukt.");
+      }
+    }
+
+    function getAvailableTipPoints() {
+      return Number(getDonationModuleState().tipPoints || 0);
+    }
+
+    function getGivenPointsForMaker(makerUserId) {
+      const donationState = getDonationModuleState();
+      return Number((donationState.receivedByMaker && donationState.receivedByMaker[makerUserId]) || 0);
+    }
+
+    async function donatePointToMaker(maker) {
+      if (!maker?.id) return;
+
+      const donationState = getDonationModuleState();
+      if ((donationState.tipPoints || 0) < 1) {
+        alert("Je hebt geen donatiepunten meer.");
+        return;
+      }
+
+      donationState.tipPoints = Number(donationState.tipPoints || 0) - 1;
+      donationState.givenPoints = Number(donationState.givenPoints || 0) + 1;
+      donationState.receivedPoints = Number(donationState.receivedPoints || 0) + 1;
+      if (!donationState.receivedByMaker || typeof donationState.receivedByMaker !== "object") {
+        donationState.receivedByMaker = {};
+      }
+      donationState.receivedByMaker[maker.id] = Number(donationState.receivedByMaker[maker.id] || 0) + 1;
+      if (!Array.isArray(donationState.donations)) donationState.donations = [];
+      donationState.donations.unshift({
+        euros: 0,
+        points: 1,
+        makerId: maker.id,
+        makerName: maker.displayName || "Maker",
+        text: "Donatiepunt via desktop feed",
+        createdAt: Date.now()
+      });
+
+      saveDonationModuleState(donationState);
+      await refreshAll();
+    }
+
+    function buildSequencedFeed(items) {
+      const sorted = [...items].sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+      const normalQueue = sorted.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
+      const recommendedQueue = sorted.filter((item) => item.feedKind === "recommended");
+      const promotedQueue = sorted.filter((item) => item.feedKind === "promoted");
+      const pattern = ["normal", "recommended", "normal", "promoted"];
+      const result = [];
+
+      function take(kind) {
+        if (kind === "recommended" && recommendedQueue.length) return recommendedQueue.shift();
+        if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
+        if (kind === "normal" && normalQueue.length) return normalQueue.shift();
+        return null;
+      }
+
+      while (normalQueue.length || recommendedQueue.length || promotedQueue.length) {
+        let added = false;
+        for (const kind of pattern) {
+          const item = take(kind);
+          if (item) {
+            result.push(item);
+            added = true;
+          }
+        }
+        if (!added) break;
+      }
+
+      return result;
+    }
+
+    function chargePromotionViewIfNeeded(item) {
+      if (!item || item.feedKind !== "promoted") return;
+
+      const chargeKey = `desktopPromotedCharge:${activeUserId}:${item.id}`;
+      if (sessionStorage.getItem(chargeKey)) return;
+
+      const wallet = getDonationModuleState();
+      if (Number(wallet.promotionBudget || 0) <= 0) {
+        item.feedKind = "normal";
+        return;
+      }
+
+      wallet.promotionBudget = Math.max(0, Number(wallet.promotionBudget || 0) - 1);
+      saveDonationModuleState(wallet);
+      sessionStorage.setItem(chargeKey, "1");
+
+      if (Number(wallet.promotionBudget || 0) <= 0) {
+        item.feedKind = "normal";
+      }
     }
 
     function shuffleArray(list) {
@@ -1396,8 +1616,7 @@
         statusEl.textContent = "Achtergrond uploaden...";
 
         const formData = new FormData();
-        formData.append("media", file);
-        formData.append("kind", "background");
+        formData.append("background", file);
 
         const response = await fetch(`${API_BASE}/users/${encodeURIComponent(activeUserId)}/profile-media`, {
           method: "POST",
