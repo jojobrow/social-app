@@ -1425,18 +1425,62 @@ function setActiveScreen(screen) {
   });
 }
 
+function sortFeedItemsNewest(items) {
+  return [...items].sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+}
+
+function buildSequencedFeed(items) {
+  const sorted = sortFeedItemsNewest(items);
+  const normalQueue = sorted.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
+  const recommendedQueue = sorted.filter((item) => item.feedKind === "recommended");
+  const promotedQueue = sorted.filter((item) => item.feedKind === "promoted");
+
+  const sequencePattern = ["normal", "recommended", "normal", "promoted"];
+  const result = [];
+
+  function takeFromBucket(kind) {
+    if (kind === "recommended" && recommendedQueue.length) return recommendedQueue.shift();
+    if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
+    if (kind === "normal" && normalQueue.length) return normalQueue.shift();
+    return null;
+  }
+
+  while (normalQueue.length || recommendedQueue.length || promotedQueue.length) {
+    let addedThisRound = false;
+
+    for (const kind of sequencePattern) {
+      const nextItem = takeFromBucket(kind);
+      if (nextItem) {
+        result.push(nextItem);
+        addedThisRound = true;
+      }
+    }
+
+    if (!addedThisRound) break;
+  }
+
+  return result;
+}
+
 function getCurrentFeedItems() {
-  if (state.feedMode === "creator" && state.makerModeUserId) return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
-  if (state.homeEntryPostId) {
-    const featured = state.feedItems.find((item) => item.id === state.homeEntryPostId);
-    const remainder = state.feedItems.filter((item) => item.id !== state.homeEntryPostId);
-    return featured ? [featured, ...remainder] : state.feedItems;
+  if (state.feedMode === "creator" && state.makerModeUserId) {
+    return sortFeedItemsNewest(state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId));
   }
+
   if (state.currentFeedScopeUserId) {
-    const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
-    return scoped.length ? scoped : state.feedItems;
+    const scoped = sortFeedItemsNewest(state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId));
+    if (scoped.length) return scoped;
   }
-  return state.feedItems;
+
+  const sequenced = buildSequencedFeed(state.feedItems);
+
+  if (state.homeEntryPostId) {
+    const featured = sequenced.find((item) => item.id === state.homeEntryPostId);
+    const remainder = sequenced.filter((item) => item.id !== state.homeEntryPostId);
+    return featured ? [featured, ...remainder] : sequenced;
+  }
+
+  return sequenced;
 }
 
 function getCurrentFeedItem() {
@@ -1783,7 +1827,7 @@ function renderFeedScreen() {
     ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
     : state.homeEntryPostId && state.currentFeedIndex === 0
     ? `start vanuit homepage · eerst jouw content`
-    : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+    : `feedsequence normaal · geel · normaal · paars · ${state.currentFeedIndex + 1}/${items.length}`;
 
   $("feedScreen").innerHTML = `
     <div class="feedScreen">
