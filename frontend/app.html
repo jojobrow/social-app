@@ -967,7 +967,86 @@
     }
 
     function cssUrl(url) {
-      return url ? `url('${String(url).replace(/'/g, "\\'")}')` : "none";
+      return url ? `url('${String(url).replace(/'/g, "\'")}')` : "none";
+    }
+
+    function getDonationModuleState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+        return {
+          promotionBudget: Number(saved.promotionBudget || 0),
+          tipPoints: Number(saved.tipPoints || 0),
+          givenPoints: Number(saved.givenPoints || 0),
+          receivedPoints: Number(saved.receivedPoints || 0),
+          donations: Array.isArray(saved.donations) ? saved.donations : [],
+          receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
+        };
+      } catch (_e) {
+        return {
+          promotionBudget: 0,
+          tipPoints: 0,
+          givenPoints: 0,
+          receivedPoints: 0,
+          donations: [],
+          receivedByMaker: {}
+        };
+      }
+    }
+
+    function saveDonationModuleState(nextState) {
+      localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(nextState));
+    }
+
+    function buildSequencedFeed(items) {
+      const sorted = [...items].sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+      const normalQueue = sorted.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
+      const recommendedQueue = sorted.filter((item) => item.feedKind === "recommended");
+      const promotedQueue = sorted.filter((item) => item.feedKind === "promoted");
+
+      const pattern = ["normal", "recommended", "normal", "promoted"];
+      const result = [];
+
+      function take(kind) {
+        if (kind === "recommended" && recommendedQueue.length) return recommendedQueue.shift();
+        if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
+        if (kind === "normal" && normalQueue.length) return normalQueue.shift();
+        return null;
+      }
+
+      while (normalQueue.length || recommendedQueue.length || promotedQueue.length) {
+        let added = false;
+        for (const kind of pattern) {
+          const item = take(kind);
+          if (item) {
+            result.push(item);
+            added = true;
+          }
+        }
+        if (!added) break;
+      }
+
+      return result;
+    }
+
+    function chargePromotionViewIfNeeded(item) {
+      if (!item || item.feedKind !== "promoted") return;
+
+      const chargeKey = `desktopPromotedCharge:${activeUserId}:${item.id}`;
+      if (sessionStorage.getItem(chargeKey)) return;
+
+      const wallet = getDonationModuleState();
+      if (Number(wallet.promotionBudget || 0) <= 0) {
+        item.feedKind = "normal";
+        return;
+      }
+
+      wallet.promotionBudget = Math.max(0, Number(wallet.promotionBudget || 0) - 1);
+      saveDonationModuleState(wallet);
+      sessionStorage.setItem(chargeKey, "1");
+
+      if (Number(wallet.promotionBudget || 0) <= 0) {
+        item.feedKind = "normal";
+      }
     }
 
     function shuffleArray(list) {
