@@ -520,6 +520,92 @@
       color: var(--muted);
     }
 
+    .likeQuotaDesktop {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .likeIconDesktopBtn {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.34);
+      color: rgba(255,255,255,0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+      backdrop-filter: blur(10px);
+      font-size: 18px;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .likeDesktopCountStack {
+      position: absolute;
+      top: -18px;
+      right: -8px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      pointer-events: none;
+    }
+
+    .likeDesktopCount {
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.96);
+      color: #4f3525;
+      border: 1px solid rgba(124,88,58,0.18);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .donationDesktopStack {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      align-items: end;
+    }
+
+    .donationDesktopInfo,
+    .donationDesktopBtn {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .donationDesktopInfo {
+      background: rgba(8,7,11,0.44);
+      color: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .donationDesktopBtn {
+      background: linear-gradient(135deg, rgba(201,165,255,0.96), rgba(155,92,255,0.96));
+      color: #140d24;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 26px rgba(155,92,255,0.26);
+    }
+
     .postCaptionOverlay {
       display: inline-block;
       max-width: min(100%, 640px);
@@ -589,28 +675,9 @@
       background-image: var(--user-bg, none);
       background-size: cover;
       background-position: center;
-      opacity: 0.34;
-      filter: blur(22px);
-      transform: scale(1.08);
+      opacity: 0.40;
+      transform: scale(1.02);
       pointer-events: none;
-    }
-
-    .heroImageCrop {
-      margin-top: 12px;
-      width: 100%;
-      aspect-ratio: 16 / 7;
-      border-radius: 22px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
-    }
-
-    .heroImageCrop img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
     .frontPageBg::after,
@@ -950,6 +1017,9 @@
   <script>
     const API_BASE = window.location.origin;
     const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+    const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+    const MONTHLY_LIKES_LIMIT = 100;
+    const PER_FEED_LIKE_LIMIT = 10;
 
     let users = [];
     let feedItems = [];
@@ -958,7 +1028,6 @@
     let currentFocusedPostId = null;
     let screenMode = "home";
     let viewportObserver = null;
-    let lastFeedScrollAt = 0;
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -987,86 +1056,7 @@
     }
 
     function cssUrl(url) {
-      return url ? `url('${String(url).replace(/'/g, "\'")}')` : "none";
-    }
-
-    function getDonationModuleState() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
-        return {
-          promotionBudget: Number(saved.promotionBudget || 0),
-          tipPoints: Number(saved.tipPoints || 0),
-          givenPoints: Number(saved.givenPoints || 0),
-          receivedPoints: Number(saved.receivedPoints || 0),
-          donations: Array.isArray(saved.donations) ? saved.donations : [],
-          receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
-        };
-      } catch (_e) {
-        return {
-          promotionBudget: 0,
-          tipPoints: 0,
-          givenPoints: 0,
-          receivedPoints: 0,
-          donations: [],
-          receivedByMaker: {}
-        };
-      }
-    }
-
-    function saveDonationModuleState(nextState) {
-      localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(nextState));
-    }
-
-    function buildSequencedFeed(items) {
-      const sorted = [...items].sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
-      const normalQueue = sorted.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
-      const recommendedQueue = sorted.filter((item) => item.feedKind === "recommended");
-      const promotedQueue = sorted.filter((item) => item.feedKind === "promoted");
-
-      const pattern = ["normal", "recommended", "normal", "promoted"];
-      const result = [];
-
-      function take(kind) {
-        if (kind === "recommended" && recommendedQueue.length) return recommendedQueue.shift();
-        if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
-        if (kind === "normal" && normalQueue.length) return normalQueue.shift();
-        return null;
-      }
-
-      while (normalQueue.length || recommendedQueue.length || promotedQueue.length) {
-        let added = false;
-        for (const kind of pattern) {
-          const item = take(kind);
-          if (item) {
-            result.push(item);
-            added = true;
-          }
-        }
-        if (!added) break;
-      }
-
-      return result;
-    }
-
-    function chargePromotionViewIfNeeded(item) {
-      if (!item || item.feedKind !== "promoted") return;
-
-      const chargeKey = `desktopPromotedCharge:${activeUserId}:${item.id}`;
-      if (sessionStorage.getItem(chargeKey)) return;
-
-      const wallet = getDonationModuleState();
-      if (Number(wallet.promotionBudget || 0) <= 0) {
-        item.feedKind = "normal";
-        return;
-      }
-
-      wallet.promotionBudget = Math.max(0, Number(wallet.promotionBudget || 0) - 1);
-      saveDonationModuleState(wallet);
-      sessionStorage.setItem(chargeKey, "1");
-
-      if (Number(wallet.promotionBudget || 0) <= 0) {
-        item.feedKind = "normal";
-      }
+      return url ? `url('${String(url).replace(/'/g, "\\'")}')` : "none";
     }
 
     function shuffleArray(list) {
@@ -1197,6 +1187,16 @@
             <div class="postActionOverlay">
               <button class="btnSoft" onclick="goToFeed()">Ga naar feed</button>
             </div>
+            <div class="likeQuotaDesktop" onclick="event.stopPropagation();">
+              <button class="likeIconDesktopBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                ♥
+                <span class="likeDesktopCountStack" aria-hidden="true">
+                  <span class="likeDesktopCount" title="Homepage likes">${Number(front.stats.homepageLikes || 0)}</span>
+                  <span class="likeDesktopCount" title="Door jou gegeven aan deze homepage">${getLikesGivenForHomepage(user.id)}</span>
+                  <span class="likeDesktopCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
           </div>
 
           <div class="homePageBg" style="--user-bg:${userBg};">
@@ -1207,7 +1207,6 @@
                     <div class="creatorControlLabel">Creator control</div>
                     <div class="homeHeroName">Jouw maker-homepage</div>
                     <div class="homeBio">Je landt nu eerst op je eigen homepage. Daarna ga je pas naar de feed / split screen.</div>
-                    ${user.backgroundUrl ? `<div class="heroImageCrop"><img src="${escapeHtml(user.backgroundUrl)}" alt="Hero afbeelding" /></div>` : ``}
                   </div>
                   <div class="postActionOverlay">
                     <button class="btnPrimary" onclick="toggleCompose()">Nieuwe post</button>
@@ -1258,6 +1257,11 @@
                     <div class="walletStatValue">${Number(getDonationModuleState().receivedPoints || 0)}</div>
                     <div class="walletStatLabel">Ontvangen donaties</div>
                   </div>
+                </div>
+                <div class="metaRow" style="margin-top:12px;">
+                  <div class="metaChip"><span class="metaChipLabel">Maandlikes over</span><span class="metaChipValue">${getRemainingLikesThisMonth()}</span></div>
+                  <div class="metaChip"><span class="metaChipLabel">Homepage door jou</span><span class="metaChipValue">${getLikesGivenForHomepage(user.id)}</span></div>
+                  <div class="metaChip"><span class="metaChipLabel">Gegeven punten</span><span class="metaChipValue">${Number(getDonationModuleState().givenPoints || 0)}</span></div>
                 </div>
                 <div class="frontBio" style="margin-top:12px;">${escapeHtml(user.bio || "")}</div>
               </div>
@@ -1392,7 +1396,8 @@
         statusEl.textContent = "Achtergrond uploaden...";
 
         const formData = new FormData();
-        formData.append("background", file);
+        formData.append("media", file);
+        formData.append("kind", "background");
 
         const response = await fetch(`${API_BASE}/users/${encodeURIComponent(activeUserId)}/profile-media`, {
           method: "POST",
@@ -1482,19 +1487,9 @@
 
       postCard.addEventListener("wheel", (event) => {
         if (screenMode !== "split") return;
-
-        const now = Date.now();
-        if (now - lastFeedScrollAt < 650) {
-          event.preventDefault();
-          return;
-        }
-
-        if (Math.abs(event.deltaY) < 110) return;
-
+        if (Math.abs(event.deltaY) < 20) return;
         event.preventDefault();
-        lastFeedScrollAt = now;
         pauseAllVideos();
-
         if (event.deltaY > 0) scrollToNext();
         else scrollToPrevious();
       }, { passive: false });
@@ -1534,6 +1529,16 @@
             <div class="postMediaShell">
               ${renderPostMedia(item)}
               ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
+              <div class="likeQuotaDesktop" onclick="event.stopPropagation();">
+                <button class="likeIconDesktopBtn" onclick="event.stopPropagation(); likePost(${item.id});" aria-label="Geef een like" title="Geef een like">
+                  ♥
+                  <span class="likeDesktopCountStack" aria-hidden="true">
+                    <span class="likeDesktopCount" title="Totaal likes op deze post">${Number(item.likes || 0)}</span>
+                    <span class="likeDesktopCount" title="Door jou gegeven aan deze post">${getLikesGivenForPost(item.id)}</span>
+                    <span class="likeDesktopCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                  </span>
+                </button>
+              </div>
               <div class="postGradientTop"></div>
               <div class="postGradientBottom"></div>
 
@@ -1560,9 +1565,12 @@
                     ${(item.hashtags || []).map(tag => `<div class="overlayTag">${escapeHtml(tag)}</div>`).join("")}
                   </div>
                   <div class="postActionOverlay">
-                    <button class="overlayButton" onclick="likePost(${item.id})">Like (${item.likes})</button>
-                    <button class="overlayButton" onclick="dislikePost(${item.id})">Dislike privé</button>
+                    <button class="overlayButton" onclick="dislikePost(${item.id})">Verberg</button>
                     ${item.feedKind === "promoted" ? `<button class="overlayButton">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
+                  </div>
+                  <div class="donationDesktopStack">
+                    <button class="donationDesktopInfo" onclick="event.stopPropagation();">Aan deze feed ${getGivenPointsForMaker(owner.id)}</button>
+                    <button class="donationDesktopBtn" onclick="event.stopPropagation(); donatePointToMaker({ id: '${escapeHtml(owner.id || "")}', displayName: '${escapeHtml(owner.displayName || "Maker")}' })">💜 Punten ${getAvailableTipPoints()}</button>
                   </div>
                 </div>
               </div>
@@ -1579,7 +1587,7 @@
                 </div>
               </div>
               <div class="postActionOverlay">
-                <button class="btnPrimary" onclick="likeFrontpage('${user.id}')">Like homepage</button>
+                <button class="btnPrimary" onclick="likeFrontpage('${user.id}')">♥ Homepage ${Number(front.stats.homepageLikes || 0)}</button>
                 ${canAddFriend ? `<button class="btnSoft" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
                 <button class="btnSoft" onclick="window.location.href='vrienden-module-pagina.html'">Vrienden</button>
                 <button class="btnSoft" onclick="window.location.href='budget-donaties-module.html'">Donaties</button>
@@ -1595,7 +1603,6 @@
                     <div class="userHandle">${escapeHtml(user.handle)}</div>
                     <div class="frontBio">${escapeHtml(user.bio)}</div>
                     <div class="frontBio">Desktop blijft split view of home mode. Modules zijn nu direct gekoppeld zoals mobiel.</div>
-                    ${user.backgroundUrl ? `<div class="heroImageCrop"><img src="${escapeHtml(user.backgroundUrl)}" alt="Hero afbeelding" /></div>` : ``}
                   </div>
                   <div class="postActionOverlay">
                     <div class="badge normal">Publieke ruimte</div>
@@ -1695,8 +1702,7 @@
     }
 
     async function likePost(postId) {
-      await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
-      await refreshAll();
+      await giveLimitedLikeToPost(postId);
     }
 
     async function dislikePost(postId) {
@@ -1710,8 +1716,7 @@
     }
 
     async function likeFrontpage(userId) {
-      await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
-      await refreshAll();
+      await giveLimitedLikeToHomepage(userId);
     }
 
     async function submitFrontpageReaction(userId, inputId) {
