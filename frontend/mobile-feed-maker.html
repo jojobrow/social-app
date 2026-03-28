@@ -798,6 +798,44 @@
       border: 1px solid rgba(120,84,53,0.14);
     }
 
+
+    .donationStack {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      align-items: end;
+    }
+
+    .donationInfoBtn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.44);
+      color: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .feedDonateBtn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(201,165,255,0.96), rgba(155,92,255,0.96));
+      color: #140d24;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(155,92,255,0.26);
+    }
+
     .hidden { display: none !important; }
 
     @media (min-width: 461px) {
@@ -1103,6 +1141,81 @@ function timeAgo(timestamp) {
   if (hours < 24) return `${hours} uur geleden`;
   const days = Math.floor(hours / 24);
   return `${days} d geleden`;
+}
+
+
+const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+
+function getDonationModuleState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+    return {
+      promotionBudget: Number(saved.promotionBudget || 0),
+      tipPoints: Number(saved.tipPoints || 0),
+      givenPoints: Number(saved.givenPoints || 0),
+      receivedPoints: Number(saved.receivedPoints || 0),
+      donations: Array.isArray(saved.donations) ? saved.donations : [],
+      receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
+    };
+  } catch (_e) {
+    return {
+      promotionBudget: 0,
+      tipPoints: 0,
+      givenPoints: 0,
+      receivedPoints: 0,
+      donations: [],
+      receivedByMaker: {}
+    };
+  }
+}
+
+function saveDonationModuleState(data) {
+  localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(data));
+}
+
+function getAvailableTipPoints() {
+  return getDonationModuleState().tipPoints || 0;
+}
+
+function getGivenPoints() {
+  return getDonationModuleState().givenPoints || 0;
+}
+
+function donatePointToCurrentMaker(event) {
+  if (event) event.stopPropagation();
+  const item = getCurrentFeedItem();
+  const owner = item?.owner || getUserById(item?.ownerUserId) || {};
+  if (!owner?.id) return;
+
+  const donationState = getDonationModuleState();
+  if ((donationState.tipPoints || 0) < 1) {
+    alert("Je hebt geen donatiepunten meer.");
+    return;
+  }
+
+  donationState.tipPoints = Number(donationState.tipPoints || 0) - 1;
+  donationState.givenPoints = Number(donationState.givenPoints || 0) + 1;
+  donationState.receivedPoints = Number(donationState.receivedPoints || 0) + 1;
+
+  if (!donationState.receivedByMaker || typeof donationState.receivedByMaker !== "object") {
+    donationState.receivedByMaker = {};
+  }
+  donationState.receivedByMaker[owner.id] = Number(donationState.receivedByMaker[owner.id] || 0) + 1;
+
+  if (!Array.isArray(donationState.donations)) {
+    donationState.donations = [];
+  }
+  donationState.donations.unshift({
+    euros: 0,
+    points: 1,
+    makerId: owner.id,
+    makerName: owner.displayName || "Maker",
+    text: "Donatiepunt via feed",
+    createdAt: Date.now()
+  });
+
+  saveDonationModuleState(donationState);
+  renderFeedScreen();
 }
 
 async function loadUsers() {
@@ -1527,8 +1640,12 @@ function renderFeedScreen() {
                     </div>
                   ` : ``}
                 </div>
-                <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
+                <div class="donationStack" onclick="event.stopPropagation();">
+                  <button class="donationInfoBtn" onclick="event.stopPropagation();">Gegeven ${getGivenPoints()}</button>
+                  <button class="feedDonateBtn" onclick="donatePointToCurrentMaker(event)">💜 Punten ${getAvailableTipPoints()}</button>
+                </div>
               </div>
+              <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
 
               <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
                 3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
