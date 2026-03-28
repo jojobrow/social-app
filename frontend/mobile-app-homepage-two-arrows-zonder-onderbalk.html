@@ -938,6 +938,93 @@
       gap: 12px;
     }
 
+
+    .menuBtn {
+      position: relative;
+      padding-right: 26px;
+    }
+
+    .menuLamp {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .menuLamp.on {
+      background: linear-gradient(180deg, #fff1df, #c8a97e);
+      box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 0 14px rgba(200,169,126,0.42);
+      border-color: rgba(255,241,223,0.58);
+    }
+
+    .chatStream {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chatMessage {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      display: grid;
+      gap: 8px;
+    }
+
+    .chatMessage.pending {
+      border-color: rgba(200,169,126,0.30);
+      background: linear-gradient(180deg, rgba(200,169,126,0.08), rgba(255,255,255,0.035));
+    }
+
+    .chatMessageHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .chatMessageMeta {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .chatMessageName {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .chatMessageHandle {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .chatMessageText {
+      font-size: 13px;
+      line-height: 1.56;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chatMessageStatus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.95);
+      background: rgba(10,9,13,0.44);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
   </style>
 </head>
 <body>
@@ -1858,6 +1945,66 @@
       window.location.href = "vrienden-module-pagina.html";
     }
 
+
+    function renderMenuLabel(label, isOn) {
+      return `${escapeHtml(label)}<span class="menuLamp${isOn ? ' on' : ''}"></span>`;
+    }
+
+    function renderHomepageChatMessages({ pending = [], approved = [], ownerView = false } = {}) {
+      const parts = [];
+
+      if (ownerView && pending.length) {
+        parts.push(...pending.map((reaction) => {
+          const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+          return `
+            <div class="chatMessage pending">
+              <div class="chatMessageHeader">
+                <div class="ownerMini">
+                  ${getAvatarHtml(fromUser, "ownerMiniAvatar")}
+                  <div class="chatMessageMeta">
+                    <div class="chatMessageName">${escapeHtml(fromUser.displayName || "Gebruiker")}</div>
+                    <div class="chatMessageHandle">${escapeHtml(fromUser.handle || "")} · ${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                  </div>
+                </div>
+                <span class="chatMessageStatus">Pending</span>
+              </div>
+              <div class="chatMessageText">${escapeHtml(reaction.text || "")}</div>
+              <div class="buttonGroup">
+                <button class="solidBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Goedkeuren</button>
+                <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Afwijzen</button>
+                <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Blokkeren</button>
+              </div>
+            </div>
+          `;
+        }));
+      }
+
+      parts.push(...approved.map((reaction) => {
+        const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+        return `
+          <div class="chatMessage">
+            <div class="chatMessageHeader">
+              <div class="ownerMini">
+                ${getAvatarHtml(fromUser, "ownerMiniAvatar")}
+                <div class="chatMessageMeta">
+                  <div class="chatMessageName">${escapeHtml(fromUser.displayName || "Gebruiker")}</div>
+                  <div class="chatMessageHandle">${escapeHtml(fromUser.handle || "")} · ${escapeHtml(timeAgo(reaction.createdAt))}</div>
+                </div>
+              </div>
+              ${ownerView ? `<span class="chatMessageStatus">Zichtbaar</span>` : ``}
+            </div>
+            <div class="chatMessageText">${escapeHtml(reaction.text || "")}</div>
+          </div>
+        `;
+      }));
+
+      if (!parts.length) {
+        return `<div class="emptyState">Nog geen chatberichten op deze homepage.</div>`;
+      }
+
+      return `<div class="chatStream">${parts.join('')}</div>`;
+    }
+
     async function publishQuickTextPost() {
       const textarea = $("homePostInput");
       if (!textarea) return;
@@ -1926,9 +2073,11 @@
       const frontpage = state.ownFrontpage;
       const user = frontpage?.user || getUserById(state.activeUserId) || {};
       const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
-      const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
       const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
       const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
+      const friendAlert = state.incomingFriendRequests.length > 0;
+      const messageAlert = pendingReactions.length > 0;
+      const feedAlert = state.feedItems.some((item) => item.owner?.id && item.owner.id !== state.activeUserId);
 
       $("homeScreen").innerHTML = `
         <div class="page">
@@ -1939,9 +2088,10 @@
                 <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
               </div>
               <div class="buttonGroup">
-                <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                <button class="solidBtn menuBtn" onclick="openHomepageEntryFeed()">${renderMenuLabel('Feed', feedAlert)}</button>
                 <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
-                <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
+                <button class="ghostBtn menuBtn" onclick="openOwnHomepage()">${renderMenuLabel('Berichten', messageAlert)}</button>
+                <button class="ghostBtn menuBtn" onclick="goToFriendsPage()">${renderMenuLabel('Vrienden', friendAlert)}</button>
                 <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
                 <button class="ghostBtn" onclick="switchAccount()">Account</button>
               </div>
@@ -1968,45 +2118,10 @@
                 <div class="sectionHeader">
                   <div>
                     <h3 class="sectionTitle">Nieuw chat bericht</h3>
-                    <div class="sectionText">Typ zelf iets op je homepage. Anderen kunnen het hier lezen.</div>
+                    <div class="sectionText">Berichten van gebruikers voor jouw homepage. Pending staat bovenaan en jij keurt eerst goed.</div>
                   </div>
                 </div>
-                <div class="compactComposer">
-                  <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
-                  <div class="actionRow">
-                    <div id="homePostStatus" class="statusLine"></div>
-                    <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Reacties</h3>
-                    <div class="sectionText">Publieke berichten voor jouw homepage.</div>
-                  </div>
-                </div>
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
-                <div class="actionRow">
-                  <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
-                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
-                </div>
-                ${renderReactionList(acceptedReactions, false)}
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Pending</h3>
-                    <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
-                  </div>
-                </div>
-                ${renderReactionList(pendingReactions, true)}
+                ${renderHomepageChatMessages({ pending: pendingReactions, approved: acceptedReactions, ownerView: true })}
               </div>
             </section>
 
@@ -2090,7 +2205,7 @@
                 <div class="gridStats">
                   <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
                   <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
+                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Chat</div></div>
                   <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
                 </div>
                 <div class="actionRow">
@@ -2104,16 +2219,16 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Publieke reactie sturen</h3>
-                    <div class="sectionText">Interactie loopt ook hier via de homepage van de maker.</div>
+                    <h3 class="sectionTitle">Chatbox</h3>
+                    <div class="sectionText">Gebruikers kunnen hier een bericht achterlaten. Alleen goedgekeurde berichten zijn zichtbaar.</div>
                   </div>
                 </div>
                 <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
                 <div class="actionRow">
-                  <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
+                  <div class="smallNote">Nieuwe berichten gaan eerst naar pending moderatie.</div>
                   <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
                 </div>
-                ${renderReactionList(reactions, false)}
+                ${renderHomepageChatMessages({ pending: [], approved: reactions, ownerView: false })}
               </div>
             </section>
 
@@ -2134,6 +2249,7 @@
         </div>
       `;
     }
+
 
     function getFeedVideo() {
       return document.getElementById("feedVideoElement");
