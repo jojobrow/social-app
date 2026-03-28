@@ -1335,6 +1335,10 @@ function goToMyContentPage() {
   window.location.href = "mijn-content.html";
 }
 
+function goToDonationsPage() {
+  window.location.href = "budget-donaties-module.html";
+}
+
 function openFeedFromHomepageEntry() {
   window.location.href = "mobile-feed-maker.html?entry=ownlatest";
 }
@@ -1366,6 +1370,7 @@ function renderHomeScreen() {
               ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
             </span>
             <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
+            <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             <span class="navBtnWrap">
               <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
               ${homeLamps.friends ? '<span class="tinyLamp"></span>' : ''}
