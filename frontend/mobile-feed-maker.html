@@ -267,6 +267,26 @@
 
     .hero > * { position: relative; z-index: 1; }
 
+    .heroLikeWrap {
+      position: absolute !important;
+      top: 16px;
+      right: 16px;
+      z-index: 2 !important;
+    }
+
+    .heroLikeWrap .likeQuotaStack {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: auto;
+      display: inline-flex;
+    }
+
+    .heroLikeWrap .likeCountStack {
+      top: -18px;
+      right: -8px;
+    }
+
     .avatarRow {
       display: flex;
       align-items: center;
@@ -1846,8 +1866,20 @@ function renderCreatorScreen() {
           </div>
         </div>
 
-        <section class="card hero" style="min-height: 192px;">
+        <section class="card hero" style="min-height: 192px; padding-top: 86px;">
           ${getHeroMediaHtml(user)}
+          <div class="heroLikeWrap" onclick="event.stopPropagation();">
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                ♥
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
+                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">0</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
+          </div>
           <div class="avatarRow">
             ${getAvatarHtml(user)}
             <div class="identityBlock">
@@ -1867,16 +1899,6 @@ function renderCreatorScreen() {
               </div>
               <div class="buttonGroup">
                 <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
-                <div class="likeQuotaStack" style="position:relative; top:auto; right:auto; z-index:auto; display:inline-flex;" onclick="event.stopPropagation();">
-                  <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
-                    ♥
-                    <span class="likeCountStack" aria-hidden="true">
-                      <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
-                      <span class="likeIconCount" title="Door jou gegeven op deze post">0</span>
-                      <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
-                    </span>
-                  </button>
-                </div>
               </div>
             </div>
             <div class="gridStats">
