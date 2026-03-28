@@ -846,7 +846,7 @@
 
     .likeCountStack {
       position: absolute;
-      top: -6px;
+      top: -18px;
       right: -8px;
       display: grid;
       gap: 8px;
@@ -1767,6 +1767,7 @@ function renderFeedScreen() {
               <button class="likeIconBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)});" aria-label="Geef een like" title="Geef een like">
                 ♥
                 <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Totaal likes op deze post">${Number(item.likes || 0)}</span>
                   <span class="likeIconCount" title="Door jou gegeven aan deze post">${getLikesGivenForPost(item.id)}</span>
                   <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
                 </span>
@@ -1805,7 +1806,7 @@ function renderFeedScreen() {
               <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
 
               <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was. Bovenste rondje = door jou gegeven op deze post, onderste rondje = over deze maand.
+                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was. Bovenste rondje = totaal op deze post, middelste rondje = door jou gegeven op deze post, onderste rondje = over deze maand.
               </div>
             </div>
           </div>
@@ -1871,7 +1872,16 @@ function renderCreatorScreen() {
               </div>
               <div class="buttonGroup">
                 <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
-                <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
+                <div class="likeQuotaStack" style="position:relative; top:auto; right:auto; z-index:auto; display:inline-flex;" onclick="event.stopPropagation();">
+                  <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                    ♥
+                    <span class="likeCountStack" aria-hidden="true">
+                      <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
+                      <span class="likeIconCount" title="Door jou gegeven op deze post">0</span>
+                      <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
             <div class="gridStats">
