@@ -1371,8 +1371,7 @@
         statusEl.textContent = "Achtergrond uploaden...";
 
         const formData = new FormData();
-        formData.append("media", file);
-        formData.append("kind", "background");
+        formData.append("background", file);
 
         const response = await fetch(`${API_BASE}/users/${encodeURIComponent(activeUserId)}/profile-media`, {
           method: "POST",
