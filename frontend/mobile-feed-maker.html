@@ -1181,6 +1181,14 @@ function getGivenPoints() {
   return getDonationModuleState().givenPoints || 0;
 }
 
+function getGivenPointsForCurrentFeed() {
+  const item = getCurrentFeedItem();
+  const owner = item?.owner || getUserById(item?.ownerUserId) || {};
+  if (!owner?.id) return 0;
+  const donationState = getDonationModuleState();
+  return Number((donationState.receivedByMaker && donationState.receivedByMaker[owner.id]) || 0);
+}
+
 function donatePointToCurrentMaker(event) {
   if (event) event.stopPropagation();
   const item = getCurrentFeedItem();
@@ -1641,7 +1649,7 @@ function renderFeedScreen() {
                   ` : ``}
                 </div>
                 <div class="donationStack" onclick="event.stopPropagation();">
-                  <button class="donationInfoBtn" onclick="event.stopPropagation();">Gegeven ${getGivenPoints()}</button>
+                  <button class="donationInfoBtn" onclick="event.stopPropagation();">Aan deze feed ${getGivenPointsForCurrentFeed()}</button>
                   <button class="feedDonateBtn" onclick="donatePointToCurrentMaker(event)">💜 Punten ${getAvailableTipPoints()}</button>
                 </div>
               </div>
