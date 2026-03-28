@@ -267,6 +267,92 @@
 
     .hero > * { position: relative; z-index: 1; }
 
+    .heroLikeWrap {
+      position: absolute !important;
+      top: 16px;
+      right: 16px;
+      z-index: 2 !important;
+    }
+
+    .likeQuotaStack {
+      position: absolute;
+      top: calc(var(--safe-top) + 14px);
+      right: 16px;
+      z-index: 7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .likeIconBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.34);
+      color: rgba(255,255,255,0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+      backdrop-filter: blur(10px);
+      font-size: 18px;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .likeIconCount {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.96);
+      color: #4f3525;
+      border: 1px solid rgba(124,88,58,0.18);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .likeCountStack {
+      position: absolute;
+      top: -18px;
+      right: -8px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      pointer-events: none;
+    }
+
+    .likeCountStack .likeIconCount {
+      position: relative;
+      top: auto;
+      right: auto;
+      min-width: 22px;
+      height: 22px;
+      font-size: 10px;
+    }
+
+    .heroLikeWrap .likeQuotaStack {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: auto;
+      display: inline-flex;
+    }
+
+    .heroLikeWrap .likeCountStack {
+      top: -18px;
+      right: -8px;
+    }
+
     .avatarRow {
       display: flex;
       align-items: center;
@@ -1028,6 +1114,45 @@ const API_BASE = window.location.origin;
 const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
 const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
 const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
+const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+const MONTHLY_LIKES_LIMIT = 100;
+
+function getCurrentLikeMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getMonthlyLikesState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
+    const monthKey = getCurrentLikeMonthKey();
+    if (saved.monthKey !== monthKey) {
+      return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {}, homepageLikesByUser: {} };
+    }
+    return {
+      monthKey,
+      remainingLikes: Number(saved.remainingLikes ?? MONTHLY_LIKES_LIMIT),
+      likesByPost: saved.likesByPost && typeof saved.likesByPost === "object" ? saved.likesByPost : {},
+      homepageLikesByUser: saved.homepageLikesByUser && typeof saved.homepageLikesByUser === "object" ? saved.homepageLikesByUser : {}
+    };
+  } catch (_e) {
+    return { monthKey: getCurrentLikeMonthKey(), remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {}, homepageLikesByUser: {} };
+  }
+}
+
+function saveMonthlyLikesState(data) {
+  localStorage.setItem(MONTHLY_LIKES_STORAGE_KEY, JSON.stringify(data));
+}
+
+function getRemainingLikesThisMonth() {
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.remainingLikes || 0);
+}
+
+function getHomepageLikesGivenForUser(userId) {
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.homepageLikesByUser?.[userId] || 0);
+}
 
 const state = {
   activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -1380,8 +1505,20 @@ function renderHomeScreen() {
           </div>
         </div>
 
-        <section class="card hero">
+        <section class="card hero" style="padding-top: 86px;">
           ${getHeroMediaHtml(user)}
+          <div class="heroLikeWrap" onclick="event.stopPropagation();">
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                ♥
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
+                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">${getHomepageLikesGivenForUser(user.id)}</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
+          </div>
           <div class="avatarRow">
             ${getAvatarHtml(user)}
             <div class="identityBlock">
@@ -1392,7 +1529,6 @@ function renderHomeScreen() {
           <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
           <div class="heroMeta">
             <span class="heroChip">${Number(stats.posts || 0)} posts</span>
-            <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
             <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
           </div>
         </section>
