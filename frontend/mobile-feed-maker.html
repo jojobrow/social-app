@@ -1169,6 +1169,7 @@
 const API_BASE = window.location.origin;
 const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
 const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverrides";
+const PROMOTED_VIEW_STORAGE_KEY = "socialPrototypePromotedViewCharges";
 const params = new URLSearchParams(window.location.search);
 
 const state = {
@@ -1225,7 +1226,16 @@ function saveFeedKindOverrides(data) {
 
 function getEffectiveFeedKind(item) {
   const overrides = getFeedKindOverrides();
-  return overrides[String(item?.id)] || item?.feedKind || "normal";
+  const storedKind = overrides[String(item?.id)] || item?.feedKind || "normal";
+
+  if (storedKind === "promoted") {
+    const donationState = getDonationModuleState();
+    if (Number(donationState.promotionBudget || 0) <= 0) {
+      return "normal";
+    }
+  }
+
+  return storedKind;
 }
 
 function setLocalPostFeedKind(postId, feedKind) {
@@ -1249,6 +1259,11 @@ function getOwnFeedKindButtonLabel(kind) {
   if (kind === "recommended") return "Sequence: Recommended";
   if (kind === "promoted") return "Sequence: Promoted";
   return "Sequence: Normal";
+}
+
+function getPromotionBudgetLabel() {
+  const donationState = getDonationModuleState();
+  return `Promotiebudget ${Number(donationState.promotionBudget || 0)}€`;
 }
 
 async function cycleOwnPostFeedKind(postId, event) {
@@ -1334,6 +1349,49 @@ function saveDonationModuleState(data) {
 
 function getAvailableTipPoints() {
   return getDonationModuleState().tipPoints || 0;
+}
+
+function getPromotedViewCharges() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROMOTED_VIEW_STORAGE_KEY) || "{}");
+    return saved && typeof saved === "object" ? saved : {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+function savePromotedViewCharges(data) {
+  localStorage.setItem(PROMOTED_VIEW_STORAGE_KEY, JSON.stringify(data));
+}
+
+function chargePromotionViewIfNeeded(item) {
+  if (!item) return;
+  if (getEffectiveFeedKind(item) !== "promoted") return;
+
+  const key = String(item.id);
+  const charged = getPromotedViewCharges();
+  if (charged[key]) return;
+
+  const donationState = getDonationModuleState();
+  donationState.promotionBudget = Math.max(0, Number(donationState.promotionBudget || 0) - 1);
+  saveDonationModuleState(donationState);
+
+  charged[key] = {
+    chargedAt: Date.now(),
+    amount: 1
+  };
+  savePromotedViewCharges(charged);
+
+  if (Number(donationState.promotionBudget || 0) <= 0) {
+    const overrides = getFeedKindOverrides();
+    overrides[key] = "normal";
+    saveFeedKindOverrides(overrides);
+
+    state.feedItems = state.feedItems.map((feedItem) => {
+      if (String(feedItem.id) !== key) return feedItem;
+      return { ...feedItem, feedKind: "normal" };
+    });
+  }
 }
 
 function getGivenPoints() {
@@ -1809,6 +1867,7 @@ function renderPostCard(item, options = {}) {
             <button class="ghostBtn" onclick="giveLimitedLike(${Number(item.id)})">♥ ${Number(item.likes || 0)} · jij ${getLikesGivenForPost(item.id)}/10</button>
             <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
             ${isOwn ? `<button class="ghostBtn" onclick="cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
+            ${isOwn && effectiveFeedKind === "promoted" ? `<span class="tag">${getPromotionBudgetLabel()}</span>` : ``}
           </div>
           ${ownerAction}
         </div>
@@ -1874,6 +1933,8 @@ function renderFeedScreen() {
     return;
   }
 
+  chargePromotionViewIfNeeded(item);
+
   const owner = item.owner || getUserById(item.ownerUserId) || {};
   const effectiveFeedKind = getEffectiveFeedKind(item);
   const mediaHtml = item.postType === "image" && item.imageUrl
@@ -1927,6 +1988,7 @@ function renderFeedScreen() {
 
                   <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
                   ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
+                  ${owner.id === state.activeUserId && effectiveFeedKind === "promoted" ? `<button class="pill likeBtn" onclick="event.stopPropagation();">${getPromotionBudgetLabel()}</button>` : ``}
                   ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
                   ${item.postType === "video" && item.videoUrl ? `
                     <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
