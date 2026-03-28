@@ -1018,6 +1018,7 @@
     const API_BASE = window.location.origin;
     const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
     const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+    const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverridesDesktop";
     const MONTHLY_LIKES_LIMIT = 100;
     const PER_FEED_LIKE_LIMIT = 10;
 
@@ -1130,6 +1131,54 @@
 
     function getLikesGivenForHomepage(userId) {
       return getLikesGivenForTarget(`home:${userId}`);
+    }
+
+    function getFeedKindOverrides() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(FEED_KIND_OVERRIDE_STORAGE_KEY) || "{}");
+        return saved && typeof saved === "object" ? saved : {};
+      } catch (_e) {
+        return {};
+      }
+    }
+
+    function saveFeedKindOverrides(data) {
+      localStorage.setItem(FEED_KIND_OVERRIDE_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getEffectiveFeedKind(item) {
+      const overrides = getFeedKindOverrides();
+      return overrides[String(item?.id)] || item?.feedKind || "normal";
+    }
+
+    function getNextOwnFeedKind(currentKind) {
+      if (currentKind === "recommended") return "promoted";
+      if (currentKind === "promoted") return "normal";
+      return "recommended";
+    }
+
+    function getOwnFeedKindButtonLabel(kind) {
+      if (kind === "recommended") return "Sequence: Recommended";
+      if (kind === "promoted") return "Sequence: Promoted";
+      return "Sequence: Normal";
+    }
+
+    async function cycleOwnPostFeedKind(postId, event) {
+      if (event) event.stopPropagation();
+
+      const currentItem = feedItems.find((item) => String(item.id) === String(postId));
+      if (!currentItem) return;
+
+      const overrides = getFeedKindOverrides();
+      const nextKind = getNextOwnFeedKind(getEffectiveFeedKind(currentItem));
+      overrides[String(postId)] = nextKind;
+      saveFeedKindOverrides(overrides);
+
+      feedItems = feedItems.map((item) => String(item.id) === String(postId) ? { ...item, feedKind: nextKind } : item);
+      feedItems = buildFeedLogicSequence(feedItems);
+      currentScreenIndex = findCurrentModeIndexByPostId(postId);
+      await renderFeedStream();
+      if (screenMode === "home") await renderOwnHomeScreen();
     }
 
     function getRemainingLikesThisMonth() {
@@ -1313,8 +1362,8 @@
       if (!item) return "friends";
 
       const hasPromotionBudget = Number(getDonationModuleState().promotionBudget || 0) > 0;
-      if (item.feedKind === "promoted" && hasPromotionBudget) return "promoted";
-      if (item.feedKind === "recommended") return "everyone";
+      if (getEffectiveFeedKind(item) === "promoted" && hasPromotionBudget) return "promoted";
+      if (getEffectiveFeedKind(item) === "recommended") return "everyone";
 
       return isFriendWithActiveUser(item.owner?.id) ? "friends" : "everyone";
     }
@@ -1859,7 +1908,7 @@
     function renderRecentPostLink(post) {
       return `
         <div class="miniPost" data-link-post-id="${post.id}" onclick="goToSplitContent(${post.id})">
-          <div class="miniPostType">${escapeHtml(post.feedKind)} · ${escapeHtml(post.postType)}</div>
+          <div class="miniPostType">${escapeHtml(getEffectiveFeedKind(post))} · ${escapeHtml(post.postType)}</div>
           <div class="miniPostText">${escapeHtml(post.caption || "")}</div>
         </div>
       `;
@@ -1939,7 +1988,7 @@
                   </div>
                 </div>
                 <div class="overlayBadgeRow">
-                  <div class="overlayBadge">${getKindLabel(item.feedKind)}</div>
+                  <div class="overlayBadge">${getKindLabel(getEffectiveFeedKind(item))}</div>
                   <div class="overlayBadge">${escapeHtml(item.postType)}</div>
                   <div class="overlayBadge">${feedMode === "creator" ? "Alleen deze maker" : (safeIndex === 0 && item.owner?.id === activeUserId ? "Start met eigen content" : `${safeIndex + 1}/${currentItems.length}`)}</div>
                   <div class="overlayBadge">${getFeedBucketLabel(item)}</div>
@@ -1954,7 +2003,7 @@
                   </div>
                   <div class="postActionOverlay">
                     ${owner.id === activeUserId ? `<button class="overlayButton" onclick="deleteOwnPost(${item.id}, event)">Verwijderen</button>` : `<button class="overlayButton" onclick="event.stopPropagation(); dislikePost(${item.id})">Verberg</button>`}
-                    ${item.feedKind === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
+                    ${getEffectiveFeedKind(item) === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
                     <button class="overlayButton" onclick="event.stopPropagation();">${feedMode === "creator" ? "3x klik = terug" : "3x klik = alleen maker"}</button>
                   </div>
                   <div class="donationDesktopStack">
