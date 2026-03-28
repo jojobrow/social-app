@@ -1168,6 +1168,7 @@
 
 const API_BASE = window.location.origin;
 const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverrides";
 const params = new URLSearchParams(window.location.search);
 
 const state = {
@@ -1207,6 +1208,61 @@ async function fetchJson(url, options = {}) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || "Request mislukt.");
   return data;
+}
+
+function getFeedKindOverrides() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FEED_KIND_OVERRIDE_STORAGE_KEY) || "{}");
+    return saved && typeof saved === "object" ? saved : {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+function saveFeedKindOverrides(data) {
+  localStorage.setItem(FEED_KIND_OVERRIDE_STORAGE_KEY, JSON.stringify(data));
+}
+
+function getEffectiveFeedKind(item) {
+  const overrides = getFeedKindOverrides();
+  return overrides[String(item?.id)] || item?.feedKind || "normal";
+}
+
+function setLocalPostFeedKind(postId, feedKind) {
+  const overrides = getFeedKindOverrides();
+  overrides[String(postId)] = feedKind;
+  saveFeedKindOverrides(overrides);
+
+  state.feedItems = state.feedItems.map((item) => {
+    if (String(item.id) !== String(postId)) return item;
+    return { ...item, feedKind };
+  });
+}
+
+function getNextOwnFeedKind(currentKind) {
+  if (currentKind === "recommended") return "promoted";
+  if (currentKind === "promoted") return "normal";
+  return "recommended";
+}
+
+function getOwnFeedKindButtonLabel(kind) {
+  if (kind === "recommended") return "Sequence: Recommended";
+  if (kind === "promoted") return "Sequence: Promoted";
+  return "Sequence: Normal";
+}
+
+async function cycleOwnPostFeedKind(postId, event) {
+  if (event) event.stopPropagation();
+
+  const targetItem = state.feedItems.find((item) => String(item.id) === String(postId));
+  if (!targetItem) return;
+
+  const effectiveKind = getEffectiveFeedKind(targetItem);
+  const nextKind = getNextOwnFeedKind(effectiveKind);
+  setLocalPostFeedKind(postId, nextKind);
+
+  if (state.activeScreen === "feed") renderFeedScreen();
+  if (state.activeScreen === "creator") renderCreatorScreen();
 }
 
 function getInitials(name = "?") {
@@ -1431,9 +1487,9 @@ function sortFeedItemsNewest(items) {
 
 function buildSequencedFeed(items) {
   const sorted = sortFeedItemsNewest(items);
-  const normalQueue = sorted.filter((item) => item.feedKind !== "recommended" && item.feedKind !== "promoted");
-  const recommendedQueue = sorted.filter((item) => item.feedKind === "recommended");
-  const promotedQueue = sorted.filter((item) => item.feedKind === "promoted");
+  const normalQueue = sorted.filter((item) => getEffectiveFeedKind(item) !== "recommended" && getEffectiveFeedKind(item) !== "promoted");
+  const recommendedQueue = sorted.filter((item) => getEffectiveFeedKind(item) === "recommended");
+  const promotedQueue = sorted.filter((item) => getEffectiveFeedKind(item) === "promoted");
 
   const sequencePattern = ["normal", "recommended", "normal", "promoted"];
   const result = [];
@@ -1717,6 +1773,7 @@ function handlePostTap(ownerUserId) {
 function renderPostCard(item, options = {}) {
   const owner = item.owner || getUserById(item.ownerUserId) || {};
   const isOwn = owner.id === state.activeUserId;
+  const effectiveFeedKind = getEffectiveFeedKind(item);
   const mediaHtml = item.postType === "image" && item.imageUrl
     ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
     : item.postType === "video" && item.videoUrl
@@ -1734,7 +1791,7 @@ function renderPostCard(item, options = {}) {
   return `
     <article class="postCard" style="position:relative;">
       ${mediaHtml}
-      ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
+      ${effectiveFeedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : effectiveFeedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
       <div class="postMeta">
         <div class="miniRow">
           <div class="ownerMini">
@@ -1751,6 +1808,7 @@ function renderPostCard(item, options = {}) {
           <div class="buttonGroup">
             <button class="ghostBtn" onclick="giveLimitedLike(${Number(item.id)})">♥ ${Number(item.likes || 0)} · jij ${getLikesGivenForPost(item.id)}/10</button>
             <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
+            ${isOwn ? `<button class="ghostBtn" onclick="cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
           </div>
           ${ownerAction}
         </div>
@@ -1817,6 +1875,7 @@ function renderFeedScreen() {
   }
 
   const owner = item.owner || getUserById(item.ownerUserId) || {};
+  const effectiveFeedKind = getEffectiveFeedKind(item);
   const mediaHtml = item.postType === "image" && item.imageUrl
     ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
     : item.postType === "video" && item.videoUrl
@@ -1835,7 +1894,7 @@ function renderFeedScreen() {
         <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
           ${mediaHtml}
           <div class="feedShade"></div>
-          ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
+          ${effectiveFeedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : effectiveFeedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
           <div class="feedOverlay">
             <div class="feedOverlayRow" style="justify-content:center;">
               <div class="feedInfo">
@@ -1867,6 +1926,7 @@ function renderFeedScreen() {
                 <div class="buttonGroup">
 
                   <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
+                  ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
                   ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
                   ${item.postType === "video" && item.videoUrl ? `
                     <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
