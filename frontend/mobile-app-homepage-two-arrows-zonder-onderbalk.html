@@ -963,6 +963,37 @@
       border-color: rgba(255,241,223,0.58);
     }
 
+    .feedSignal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(8,7,11,0.34);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.96);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.24);
+    }
+
+    .feedSignalLamp {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      flex: 0 0 auto;
+    }
+
+    .feedSignalLamp.on {
+      background: linear-gradient(180deg, #fff1df, #c8a97e);
+      box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 0 14px rgba(200,169,126,0.42);
+      border-color: rgba(255,241,223,0.58);
+    }
+
     .chatStream {
       display: grid;
       gap: 10px;
@@ -2077,7 +2108,6 @@
       const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
       const friendAlert = state.incomingFriendRequests.length > 0;
       const messageAlert = pendingReactions.length > 0;
-      const feedAlert = state.feedItems.some((item) => item.owner?.id && item.owner.id !== state.activeUserId);
 
       $("homeScreen").innerHTML = `
         <div class="page">
@@ -2088,7 +2118,7 @@
                 <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
               </div>
               <div class="buttonGroup">
-                <button class="solidBtn menuBtn" onclick="openHomepageEntryFeed()">${renderMenuLabel('Feed', feedAlert)}</button>
+                <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
                 <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
                 <button class="ghostBtn menuBtn" onclick="openOwnHomepage()">${renderMenuLabel('Berichten', messageAlert)}</button>
                 <button class="ghostBtn menuBtn" onclick="goToFriendsPage()">${renderMenuLabel('Vrienden', friendAlert)}</button>
@@ -2323,6 +2353,7 @@
         : state.homeEntryPostId && state.currentFeedIndex === 0
         ? `start vanuit homepage · eerst jouw content`
         : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+      const feedSignalOn = state.feedItems.some((feedItem) => feedItem.owner?.id && feedItem.owner.id !== state.activeUserId);
 
       $("feedScreen").innerHTML = `
         <div class="feedScreen">
@@ -2331,10 +2362,14 @@
               ${mediaHtml}
               <div class="feedShade"></div>
               <div class="feedOverlay">
-                <div class="feedOverlayRow" style="justify-content:center;">
+                <div class="feedOverlayRow">
                   <div class="feedInfo">
                     <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
                     <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
+                  </div>
+                  <div class="feedSignal" onclick="event.stopPropagation();">
+                    <span class="feedSignalLamp${feedSignalOn ? ' on' : ''}"></span>
+                    <span>Feed</span>
                   </div>
                 </div>
 
