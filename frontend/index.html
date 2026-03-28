@@ -6,19 +6,19 @@
   <title>Social Frontpage Prototype — Login</title>
   <style>
     :root{
-      --bg:#f6f0e8;
-      --bg-2:#fbf8f4;
-      --panel:rgba(255,255,255,.72);
-      --panel-strong:rgba(255,255,255,.88);
-      --line:rgba(112,86,63,.12);
-      --text:#46352a;
-      --text-soft:#7b6859;
-      --text-dim:#a08d7f;
-      --accent:#c8a77f;
-      --accent-2:#e9d8c4;
-      --ok:#557358;
-      --error:#9b5f5f;
-      --shadow:0 18px 44px rgba(74,52,36,.10);
+      --bg:#0f0a19;
+      --bg-2:#1a1230;
+      --panel:rgba(36,24,63,.78);
+      --panel-strong:rgba(46,30,79,.92);
+      --line:rgba(255,255,255,.10);
+      --text:#f7f3ff;
+      --text-soft:#d1c7e8;
+      --text-dim:#9b91b8;
+      --accent:#9b5cff;
+      --accent-2:#c9a5ff;
+      --ok:#8ff0bc;
+      --error:#ffb6c1;
+      --shadow:0 20px 50px rgba(0,0,0,.24);
       --radius:28px;
       --radius-sm:20px;
       --safe-top:env(safe-area-inset-top, 0px);
@@ -26,7 +26,8 @@
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:
-      radial-gradient(circle at top left, rgba(233,216,196,.65), transparent 26%),
+      radial-gradient(circle at top right, rgba(155,92,255,.18), transparent 28%),
+      radial-gradient(circle at top left, rgba(201,165,255,.12), transparent 24%),
       linear-gradient(180deg, var(--bg-2), var(--bg));}
     body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     button,input{font:inherit}
@@ -34,47 +35,42 @@
     .shell{max-width:460px;margin:0 auto;min-height:100dvh;padding:calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 26px)}
     .card{background:linear-gradient(180deg,var(--panel-strong),var(--panel));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(12px)}
     .hero{padding:22px 20px 18px}
-    .eyebrow{margin:0 0 8px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#9d8879;font-weight:800}
+    .eyebrow{margin:0 0 8px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#b7a9de;font-weight:800}
     h1{margin:0;font-size:42px;line-height:.98;letter-spacing:-.06em;font-weight:900}
     .intro{margin:12px 0 0;color:var(--text-soft);font-size:15px;line-height:1.65}
     .formCard{margin-top:14px;padding:16px;display:grid;gap:12px}
-    .infoBox{padding:14px 15px;border-radius:22px;background:rgba(255,255,255,.58);border:1px solid rgba(112,86,63,.09);color:var(--text-soft);font-size:14px;line-height:1.62}
+    .infoBox{padding:14px 15px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);color:var(--text-soft);font-size:14px;line-height:1.62}
     .fieldGroup{display:grid;gap:8px}
-    .label{font-size:12px;letter-spacing:.20em;text-transform:uppercase;color:#9a8677;font-weight:800}
-    .field{width:100%;min-height:54px;padding:0 16px;border-radius:20px;border:1px solid rgba(112,86,63,.12);background:rgba(255,255,255,.74);color:var(--text);outline:none}
+    .label{font-size:12px;letter-spacing:.20em;text-transform:uppercase;color:#b7a9de;font-weight:800}
+    .field{width:100%;min-height:54px;padding:0 16px;border-radius:20px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);outline:none}
     .field::placeholder{color:var(--text-dim)}
-    .modeCard{padding:14px;border-radius:24px;border:1px solid rgba(112,86,63,.10);background:rgba(255,255,255,.42);display:grid;gap:12px}
-    .modeOption{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:22px;background:rgba(255,255,255,.70);border:1px solid rgba(112,86,63,.12)}
-    .modeOption input{margin-top:4px;accent-color:#b89168;transform:scale(1.18)}
+    .modeCard{padding:14px;border-radius:24px;border:1px solid rgba(112,86,63,.10);background:rgba(255,255,255,.04);display:grid;gap:12px}
+    .modeOption{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+    .modeOption input{margin-top:4px;accent-color:#9b5cff;transform:scale(1.18)}
     .modeTitle{font-size:17px;font-weight:900;letter-spacing:-.03em}
     .modeText{margin-top:4px;color:var(--text-soft);font-size:14px;line-height:1.58}
     .rememberRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 0}
     .rememberLeft{display:flex;align-items:center;gap:10px;color:var(--text-soft);font-size:14px}
-    .rememberLeft input{accent-color:#b89168;transform:scale(1.1)}
+    .rememberLeft input{accent-color:#9b5cff;transform:scale(1.1)}
     .actions{display:flex;gap:10px;flex-wrap:wrap}
     .primary,.secondary{min-height:48px;padding:0 18px;border-radius:999px;font-weight:800}
-    .primary{background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#3c2c20;box-shadow:0 12px 28px rgba(200,167,127,.18)}
-    .secondary{background:rgba(255,255,255,.66);color:var(--text);border:1px solid rgba(112,86,63,.12)}
+    .primary{background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#3c2c20;box-shadow:0 14px 30px rgba(155,92,255,.26)}
+    .secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.10)}
     .status{min-height:22px;font-size:14px;color:var(--error)}
-    .quickCard{margin-top:14px;padding:16px}
-    .quickList{display:grid;gap:10px}
-    .quickItem{width:100%;text-align:left;min-height:52px;padding:0 16px;border-radius:18px;background:rgba(255,255,255,.66);border:1px solid rgba(112,86,63,.10);color:var(--text);font-weight:800}
-    .quickItem span{font-weight:500;color:#8d796b}
-    .helper{color:var(--text-soft);font-size:13px;line-height:1.58}
-    .tiny{color:#9a887b;font-size:12px;line-height:1.55}
+    .tiny{color:var(--text-dim);font-size:12px;line-height:1.55}
   </style>
 </head>
 <body>
   <main class="shell">
     <section class="card hero">
       <p class="eyebrow">Social frontpage prototype</p>
-      <h1>Log in en kies je versie</h1>
-      <p class="intro">Compacter, rustiger en luxer opgezet. Je logt in met naam + simpel wachtwoord. Bestaat de naam nog niet, dan wordt meteen een gebruiker aangemaakt met dat wachtwoord.</p>
+      <h1>Log in op je testaccount</h1>
+      <p class="intro">Je logt hier in met een bestaand testaccount. Alleen vooraf toegevoegde accounts kunnen naar binnen. Nieuwe accounts worden hier niet aangemaakt.</p>
     </section>
 
     <section class="card formCard">
       <div class="infoBox">
-        Voor deze prototypefase mag het wachtwoord heel simpel zijn: minimaal <strong>1 teken</strong>. Op dit apparaat kan je login onthouden worden.
+        Dit is de gesloten testlogin. Je gebruikt dus alleen een account dat al voor je is klaargezet. Op je eigen toestel kun je ervoor kiezen om ingelogd te blijven.
       </div>
 
       <div class="fieldGroup">
@@ -122,13 +118,7 @@
       </div>
 
       <div id="status" class="status"></div>
-      <div class="helper">Bestaande gebruiker: zelfde naam + juist wachtwoord. Nieuwe gebruiker: naam + wachtwoord invullen en het account wordt direct aangemaakt.</div>
-    </section>
-
-    <section class="card quickCard">
-      <div class="label" style="margin-bottom:10px;">Snelle keuze</div>
-      <div id="recentUsersList" class="quickList"></div>
-      <div class="tiny" style="margin-top:10px;">Snelle keuze vult alleen de naam in. Het wachtwoord vul je daarna zelf in.</div>
+      <div class="helper">Gebruik je testnaam en het juiste wachtwoord. Bestaat het account niet of klopt het wachtwoord niet, dan kom je niet binnen.</div>
     </section>
   </main>
 
@@ -206,15 +196,6 @@
       goToSelectedApp();
     }
 
-    async function loadRecentUsers() {
-      const list = document.getElementById("recentUsersList");
-      try {
-        const users = await fetchJson(`${API_BASE}/users`);
-        if (!users.length) {
-          list.innerHTML = `<div class="helper">Nog geen gebruikers gevonden.</div>`;
-          return;
-        }
-
         list.innerHTML = users.slice(0, 6).map((user) => `
           <button class="quickItem" type="button" onclick="quickFill('${String(user.displayName).replace(/'/g, "\'")}')">
             ${escapeHtml(user.displayName)} <span>${escapeHtml(user.handle || "")}</span>
@@ -269,12 +250,6 @@
       await doPasswordLogin(displayName, password, remember);
     }
 
-    function quickFill(displayName) {
-      document.getElementById("loginNameInput").value = displayName;
-      document.getElementById("loginPasswordInput").focus();
-      setStatus("");
-    }
-
     document.getElementById("loginButton").addEventListener("click", submitLogin);
     document.getElementById("clearButton").addEventListener("click", () => {
       document.getElementById("loginNameInput").value = "";
@@ -310,7 +285,6 @@
     });
 
     applySavedMode();
-    loadRecentUsers();
     applyRememberedLogin();
   </script>
 </body>
