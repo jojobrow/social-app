@@ -159,6 +159,24 @@
       gap: 8px;
     }
 
+    .navBtnWrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .tinyLamp {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ffcf5a;
+      box-shadow: 0 0 0 2px rgba(9,7,15,0.92), 0 0 14px rgba(255,207,90,0.55);
+      pointer-events: none;
+    }
+
+
     .pill,
     .ghostBtn,
     .solidBtn,
@@ -1866,6 +1884,17 @@
       window.location.href = "vrienden-module-pagina.html";
     }
 
+
+    function homepageHasUpdates() {
+      const incomingCount = Array.isArray(state.incomingFriendRequests) ? state.incomingFriendRequests.length : 0;
+      const pendingCount = Array.isArray(state.ownFrontpage?.pendingReactions) ? state.ownFrontpage.pendingReactions.length : 0;
+      return {
+        friends: incomingCount > 0,
+        pending: pendingCount > 0,
+        feed: incomingCount > 0 || pendingCount > 0
+      };
+    }
+
     async function publishQuickTextPost() {
       const textarea = $("homePostInput");
       if (!textarea) return;
@@ -1937,6 +1966,7 @@
       const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
       const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
       const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
+      const homeLamps = homepageHasUpdates();
 
       $("homeScreen").innerHTML = `
         <div class="page">
@@ -1947,9 +1977,15 @@
                 <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
               </div>
               <div class="buttonGroup">
-                <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                <span class="navBtnWrap">
+                  <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
+                  ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
+                </span>
                 <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
-                <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
+                <span class="navBtnWrap">
+                  <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
+                  ${homeLamps.friends ? '<span class="tinyLamp"></span>' : ''}
+                </span>
                 <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
                 <button class="ghostBtn" onclick="switchAccount()">Account</button>
               </div>
@@ -2010,7 +2046,7 @@
               <div class="cardBody stack">
                 <div class="sectionHeader">
                   <div>
-                    <h3 class="sectionTitle">Pending</h3>
+                    <h3 class="sectionTitle">Pending ${homeLamps.pending ? '<span class="tinyLamp" style="position:static; display:inline-block; margin-left:8px; vertical-align:middle;"></span>' : ''}</h3>
                     <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
                   </div>
                 </div>
