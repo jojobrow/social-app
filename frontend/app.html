@@ -8,11 +8,17 @@
     * { box-sizing: border-box; }
 
     :root {
-      --bg: #f7efe7;
-      --line-soft: rgba(170, 142, 120, 0.10);
-      --text: #4f3d32;
-      --muted: #9d8575;
-      --shadow: 0 18px 38px rgba(180, 150, 126, 0.12);
+      --bg: #0f0a19;
+      --bg-2: #1a1230;
+      --bg-3: #24183f;
+      --line-soft: rgba(255,255,255,0.10);
+      --text: #f7f3ff;
+      --muted: #cdc3e6;
+      --text-dim: #9b91b8;
+      --accent: #9b5cff;
+      --accent-2: #c9a5ff;
+      --accent-deep: #6d35d8;
+      --shadow: 0 22px 48px rgba(0,0,0,0.24);
       --content-h: 100vh;
       --radius-xl: 38px;
       --radius-lg: 28px;
@@ -24,10 +30,9 @@
       margin: 0;
       height: 100%;
       background:
-        radial-gradient(circle at top left, rgba(244, 220, 201, 0.70), transparent 26%),
-        radial-gradient(circle at top right, rgba(245, 210, 220, 0.50), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(232, 214, 198, 0.45), transparent 24%),
-        linear-gradient(180deg, #fffaf6 0%, #f7efe7 100%);
+        radial-gradient(circle at top right, rgba(155,92,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(201,165,255,0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 60%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Arial, sans-serif;
       overflow: hidden;
@@ -45,8 +50,8 @@
       width: 100%;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(170,142,120,0.12);
-      background: rgba(255,255,255,0.14);
-      color: #5b4639;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
       padding: 11px 12px;
       font-size: 14px;
       outline: none;
@@ -62,7 +67,7 @@
 
     .field::placeholder,
     .textarea::placeholder {
-      color: #b09582;
+      color: var(--text-dim);
     }
 
     .textarea {
@@ -76,20 +81,20 @@
       font-size: 11px;
       font-weight: 700;
       border: 1px solid rgba(170,142,120,0.12);
-      background: rgba(255,255,255,0.22);
-      color: #6d5648;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
       backdrop-filter: blur(8px);
     }
 
-    .badge.normal { background: rgba(255,255,255,0.22); }
+    .badge.normal { background: rgba(255,255,255,0.08); }
     .badge.recommended {
-      color: #8a684f;
-      background: rgba(234, 216, 198, 0.78);
+      color: #ffe08a;
+      background: rgba(255,207,90,0.20);
       border-color: rgba(205, 177, 154, 0.20);
     }
     .badge.promoted {
-      color: #8a655c;
-      background: rgba(239, 223, 217, 0.78);
+      color: #e1c6ff;
+      background: rgba(155,92,255,0.20);
       border-color: rgba(205, 177, 154, 0.20);
     }
 
@@ -107,27 +112,27 @@
     button:hover { transform: translateY(-1px); }
 
     .btnPrimary {
-      background: linear-gradient(135deg, #fffdfb, #f4e7dc);
-      color: #5f493c;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #140d24;
       border: 1px solid rgba(197,169,145,0.22);
     }
 
     .btnSoft {
-      background: rgba(255,255,255,0.34);
-      color: #6a5447;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
       border: 1px solid rgba(190,162,138,0.14);
       backdrop-filter: blur(8px);
     }
 
     .btnDanger {
-      background: rgba(220, 38, 38, 0.10);
-      color: #9a5a5a;
+      background: rgba(255,182,193,0.10);
+      color: #ffe7ec;
       border: 1px solid rgba(220, 38, 38, 0.15);
     }
 
     .btnSuccess {
-      background: rgba(22, 163, 74, 0.10);
-      color: #4f7b5d;
+      background: rgba(143,240,188,0.10);
+      color: #cffff0;
       border: 1px solid rgba(22, 163, 74, 0.14);
     }
 
@@ -138,8 +143,8 @@
       width: min(520px, calc(100vw - 28px));
       z-index: 40;
       padding: 16px;
-      background: rgba(255, 250, 245, 0.46);
-      border: 1px solid rgba(190,162,138,0.12);
+      background: rgba(28,20,48,0.72);
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
       backdrop-filter: blur(18px);
@@ -153,7 +158,7 @@
       top: auto;
       z-index: 1;
       margin-top: 12px;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
       box-shadow: none;
       backdrop-filter: blur(14px);
     }
@@ -162,8 +167,8 @@
       padding: 16px;
       border-radius: 22px;
       color: #5a463a;
-      background: linear-gradient(135deg, rgba(255,255,255,0.34), rgba(248,236,227,0.26));
-      border: 1px solid rgba(197, 169, 145, 0.16);
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(201,165,255,0.08));
+      border: 1px solid rgba(255,255,255,0.10);
       backdrop-filter: blur(10px);
       height: 100%;
       display: flex;
@@ -374,7 +379,7 @@
       justify-content: center;
       padding: 50px;
       background: linear-gradient(135deg, rgba(244,230,220,0.95), rgba(250,241,236,0.88));
-      color: #5b4639;
+      color: var(--text);
       font-size: 28px;
       line-height: 1.35;
       font-weight: 800;
@@ -463,7 +468,7 @@
       font-size: 11px;
       font-weight: 700;
       color: #fffaf6;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.18);
       backdrop-filter: blur(10px);
     }
@@ -475,12 +480,52 @@
       gap: 10px;
     }
 
+    .feedKindStripe {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .feedKindStripe.recommended { background: #ffcf5a; }
+    .feedKindStripe.promoted { background: #9b5cff; }
+
+    .walletGrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .walletStat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .walletStatValue {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .walletStatLabel {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     .postCaptionOverlay {
       display: inline-block;
       max-width: min(100%, 640px);
       padding: 12px 14px;
       border-radius: 20px;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.18);
       backdrop-filter: blur(14px);
       color: #fffaf6;
@@ -500,7 +545,7 @@
     .overlayTag {
       padding: 7px 9px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.18);
       color: #fffaf6;
       font-size: 11px;
@@ -716,7 +761,7 @@
 
     .miniPost:hover {
       border-color: rgba(197,169,145,0.22);
-      background: rgba(255,255,255,0.34);
+      background: rgba(255,255,255,0.08);
       transform: translateY(-1px);
     }
 
@@ -738,7 +783,7 @@
 
     .miniPostText {
       font-size: 13px;
-      color: #6a5447;
+      color: var(--text);
     }
 
     .reactionHead {
@@ -755,14 +800,14 @@
 
     .reactionText {
       font-size: 13px;
-      color: #6a5447;
+      color: var(--text);
     }
 
     .pendingCard {
       padding: 12px;
       border-radius: 18px;
       border: 1px solid rgba(190,162,138,0.12);
-      background: rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.08);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -791,7 +836,7 @@
       width: 44px;
       height: 84px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.34);
+      background: rgba(255,255,255,0.08);
       color: #7a6354;
       display: grid;
       place-items: center;
@@ -821,7 +866,7 @@
       border-radius: 18px;
       border: 1px dashed rgba(190,162,138,0.16);
       color: var(--muted);
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
       text-align: center;
     }
 
@@ -868,8 +913,8 @@
   <div class="page">
     <div class="viewportShell">
       <div class="floatingModeButtons">
-        <button class="modeButton left" onclick="toggleScreenMode()">‹</button>
-        <button class="modeButton right" onclick="toggleScreenMode()">›</button>
+        <button class="modeButton left" onclick="toggleScreenMode()" title="Wissel tussen home en split">‹</button>
+        <button class="modeButton right" onclick="toggleScreenMode()" title="Wissel tussen home en split">›</button>
       </div>
 
       <div class="modeViewport feedViewport hidden" id="splitViewport">
@@ -885,6 +930,7 @@
   <script src="./moderation-bot.js"></script>
   <script>
     const API_BASE = window.location.origin;
+    const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
 
     let users = [];
     let feedItems = [];
@@ -1066,6 +1112,10 @@
                   <div class="postActionOverlay">
                     <button class="btnPrimary" onclick="toggleCompose()">Nieuwe post</button>
                     <button class="btnSoft" onclick="triggerBackgroundUpload()">Upload achtergrond</button>
+                    <button class="btnSoft" onclick="window.location.href='mijn-content.html'">Mijn content</button>
+                    <button class="btnSoft" onclick="window.location.href='budget-donaties-module.html'">Donaties</button>
+                    <button class="btnSoft" onclick="window.location.href='vrienden-module-pagina.html'">Vrienden</button>
+                    <button class="btnSoft" onclick="goToFeed()">Feed</button>
                   </div>
                 </div>
 
@@ -1088,12 +1138,26 @@
               </div>
 
               <div class="homeSection area-stats">
-                <div class="sectionTitle">Profiel & stats</div>
+                <div class="sectionTitle">Profiel, stats & wallet</div>
                 <div class="metaRow">
                   <div class="metaChip"><span class="metaChipLabel">Posts</span><span class="metaChipValue">${front.stats.posts}</span></div>
                   <div class="metaChip"><span class="metaChipLabel">Likes</span><span class="metaChipValue">${front.stats.homepageLikes}</span></div>
                   <div class="metaChip"><span class="metaChipLabel">Reacties</span><span class="metaChipValue">${front.stats.reactions}</span></div>
                   <div class="metaChip"><span class="metaChipLabel">Vrienden</span><span class="metaChipValue">${front.stats.friends}</span></div>
+                </div>
+                <div class="walletGrid">
+                  <div class="walletStat">
+                    <div class="walletStatValue">€${Number(getDonationModuleState().promotionBudget || 0)}</div>
+                    <div class="walletStatLabel">Overgebleven euro’s</div>
+                  </div>
+                  <div class="walletStat">
+                    <div class="walletStatValue">${Number(getDonationModuleState().tipPoints || 0)}</div>
+                    <div class="walletStatLabel">Donatiepunten</div>
+                  </div>
+                  <div class="walletStat">
+                    <div class="walletStatValue">${Number(getDonationModuleState().receivedPoints || 0)}</div>
+                    <div class="walletStatLabel">Ontvangen donaties</div>
+                  </div>
                 </div>
                 <div class="frontBio" style="margin-top:12px;">${escapeHtml(user.bio || "")}</div>
               </div>
@@ -1259,7 +1323,7 @@
       const incoming = data.items || data || [];
       const previousFocusedPostId = currentFocusedPostId;
 
-      feedItems = shuffleArray(incoming);
+      feedItems = buildSequencedFeed(incoming);
 
       if (!feedItems.length) {
         currentScreenIndex = 0;
@@ -1347,6 +1411,8 @@
       const item = feedItems[safeIndex];
       currentFocusedPostId = item.id;
 
+      chargePromotionViewIfNeeded(item);
+
       const front = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(item.owner.id)}?viewerUserId=${encodeURIComponent(activeUserId)}`);
       const owner = item.owner || {};
       const user = front.user;
@@ -1358,6 +1424,7 @@
           <article class="panelCard postCard">
             <div class="postMediaShell">
               ${renderPostMedia(item)}
+              ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
               <div class="postGradientTop"></div>
               <div class="postGradientBottom"></div>
 
@@ -1386,6 +1453,7 @@
                   <div class="postActionOverlay">
                     <button class="overlayButton" onclick="likePost(${item.id})">Like (${item.likes})</button>
                     <button class="overlayButton" onclick="dislikePost(${item.id})">Dislike privé</button>
+                    ${item.feedKind === "promoted" ? `<button class="overlayButton">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
                   </div>
                 </div>
               </div>
@@ -1404,6 +1472,8 @@
               <div class="postActionOverlay">
                 <button class="btnPrimary" onclick="likeFrontpage('${user.id}')">Like homepage</button>
                 ${canAddFriend ? `<button class="btnSoft" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+                <button class="btnSoft" onclick="window.location.href='vrienden-module-pagina.html'">Vrienden</button>
+                <button class="btnSoft" onclick="window.location.href='budget-donaties-module.html'">Donaties</button>
               </div>
             </div>
 
@@ -1415,6 +1485,7 @@
                     <div class="frontHeroName">${escapeHtml(user.displayName)}</div>
                     <div class="userHandle">${escapeHtml(user.handle)}</div>
                     <div class="frontBio">${escapeHtml(user.bio)}</div>
+                    <div class="frontBio">Desktop blijft split view of home mode. Modules zijn nu direct gekoppeld zoals mobiel.</div>
                   </div>
                   <div class="postActionOverlay">
                     <div class="badge normal">Publieke ruimte</div>
@@ -1724,7 +1795,7 @@
         }
       } catch (error) {
         console.error(error);
-        alert("Kon de app niet laden. Controleer of server.js draait op poort 3001.");
+        alert("Kon de desktop-app niet laden.");
       }
     }
 
