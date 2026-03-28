@@ -210,8 +210,9 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      background-size: cover;
-      background-position: center;
+      background-size: 100% auto;
+      background-position: top center;
+      background-repeat: repeat-y;
     }
 
     .hero::before {
@@ -1879,6 +1880,11 @@
       setActiveScreen("home");
       renderHomeScreen();
     }
+
+    function goToMyContentPage() {
+      window.location.href = "mijn-content.html";
+    }
+
 
     function openOwnContentFeed() {
       state.feedMode = "global";
