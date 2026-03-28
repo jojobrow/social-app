@@ -641,6 +641,24 @@
         radial-gradient(circle at top right, rgba(255,244,232,0.08), transparent 28%);
     }
 
+    .feedKindStripe {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .feedKindStripe.recommended {
+      background: #ffcf5a;
+    }
+
+    .feedKindStripe.promoted {
+      background: #9b5cff;
+    }
+
     .feedOverlay {
       position: absolute;
       inset: 0;
@@ -1670,8 +1688,9 @@ function renderPostCard(item, options = {}) {
     ? `<button class="ghostBtn" onclick="window.location.href='mijn-content.html'">Mijn content</button>`
     : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
   return `
-    <article class="postCard">
+    <article class="postCard" style="position:relative;">
       ${mediaHtml}
+      ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
       <div class="postMeta">
         <div class="miniRow">
           <div class="ownerMini">
@@ -1681,10 +1700,9 @@ function renderPostCard(item, options = {}) {
               <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
             </div>
           </div>
-          <span class="kindBadge">${escapeHtml(getKindLabel(item.feedKind || "normal"))}</span>
+
         </div>
         ${caption}
-        ${hashtags}
         <div class="actionRow">
           <div class="buttonGroup">
             <button class="ghostBtn" onclick="giveLimitedLike(${Number(item.id)})">♥ ${Number(item.likes || 0)} · jij ${getLikesGivenForPost(item.id)}/10</button>
@@ -1773,6 +1791,7 @@ function renderFeedScreen() {
         <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
           ${mediaHtml}
           <div class="feedShade"></div>
+          ${item.feedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : item.feedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
           <div class="feedOverlay">
             <div class="feedOverlayRow" style="justify-content:center;">
               <div class="feedInfo">
@@ -1798,7 +1817,6 @@ function renderFeedScreen() {
             <div class="feedBottom">
               <div class="feedContentMeta">
                 <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
-                ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="feedStats">${item.hashtags.map((tag) => `<span class="feedModeBadge">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
               </div>
 
               <div class="bottomActionRow">
@@ -1821,7 +1839,7 @@ function renderFeedScreen() {
               <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
 
               <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was. Bovenste rondje = totaal op deze post, middelste rondje = door jou gegeven op deze post, onderste rondje = over deze maand.
+                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
               </div>
             </div>
           </div>
