@@ -1028,6 +1028,13 @@
     let currentFocusedPostId = null;
     let screenMode = "home";
     let viewportObserver = null;
+    let feedMode = "global";
+    let makerModeUserId = "";
+    let makerModeReturnPostId = null;
+    let homeEntryPostId = null;
+    let lastTapAt = 0;
+    let tapBurstCount = 0;
+    let tapBurstOwnerId = "";
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1355,9 +1362,79 @@
       });
     }
 
+    function getFeedItemsForCurrentMode() {
+      const sorted = [...feedItems];
+      if (feedMode === "creator" && makerModeUserId) {
+        return sorted.filter((item) => item.owner?.id === makerModeUserId);
+      }
+
+      if (homeEntryPostId) {
+        const featured = sorted.find((item) => item.id === homeEntryPostId);
+        const rest = sorted.filter((item) => item.id !== homeEntryPostId);
+        return featured ? [featured, ...rest] : sorted;
+      }
+
+      return sorted;
+    }
+
+    function getCurrentFeedItem() {
+      const items = getFeedItemsForCurrentMode();
+      if (!items.length) return null;
+      const safeIndex = Math.max(0, Math.min(currentScreenIndex, items.length - 1));
+      currentScreenIndex = safeIndex;
+      return items[safeIndex] || null;
+    }
+
+    function findCurrentModeIndexByPostId(postId) {
+      const items = getFeedItemsForCurrentMode();
+      const idx = items.findIndex((item) => Number(item.id) === Number(postId));
+      return idx >= 0 ? idx : 0;
+    }
+
+    function enterMakerMode(userId) {
+      if (!userId) return;
+      const current = getCurrentFeedItem();
+      makerModeReturnPostId = current?.id ?? null;
+      feedMode = "creator";
+      makerModeUserId = userId;
+      currentScreenIndex = 0;
+      renderFeedStream();
+    }
+
+    function exitMakerModeToFeed() {
+      const returnPostId = makerModeReturnPostId;
+      feedMode = "global";
+      makerModeUserId = "";
+      currentScreenIndex = findCurrentModeIndexByPostId(returnPostId);
+      renderFeedStream();
+    }
+
+    function handleFeedContentTap(ownerUserId) {
+      const now = Date.now();
+      if (now - lastTapAt > 650 || tapBurstOwnerId !== ownerUserId) tapBurstCount = 0;
+      lastTapAt = now;
+      tapBurstOwnerId = ownerUserId;
+      tapBurstCount += 1;
+
+      if (tapBurstCount >= 3) {
+        tapBurstCount = 0;
+        if (feedMode === "creator") exitMakerModeToFeed();
+        else enterMakerMode(ownerUserId);
+      }
+    }
+
+    function bindFeedTapZone(ownerUserId) {
+      const zone = document.querySelector(".postMediaShell");
+      if (!zone || zone.dataset.tapBound === "true") return;
+      zone.addEventListener("click", (event) => {
+        if (event.target.closest("button, textarea, input, select, a")) return;
+        handleFeedContentTap(ownerUserId);
+      });
+      zone.dataset.tapBound = "true";
+    }
+
     function goToSplitContent(postId) {
-      const index = feedItems.findIndex(item => item.id === postId);
-      if (index === -1) return;
+      const index = findCurrentModeIndexByPostId(postId);
       screenMode = "split";
       updateModeUI();
       scrollToScreen(index);
@@ -1648,6 +1725,11 @@
 
       feedItems = buildSequencedFeed(incoming);
 
+      const ownLatest = [...incoming]
+        .filter((item) => item.owner?.id === activeUserId)
+        .sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0))[0] || null;
+      homeEntryPostId = ownLatest ? ownLatest.id : null;
+
       if (!feedItems.length) {
         currentScreenIndex = 0;
         currentFocusedPostId = null;
@@ -1724,14 +1806,16 @@
         return;
       }
 
-      if (!feedItems.length) {
+      const currentItems = getFeedItemsForCurrentMode();
+
+      if (!currentItems.length) {
         container.innerHTML = `<div class="emptyState">Geen feed-items beschikbaar.</div>`;
         return;
       }
 
-      const safeIndex = Math.max(0, Math.min(currentScreenIndex, feedItems.length - 1));
+      const safeIndex = Math.max(0, Math.min(currentScreenIndex, currentItems.length - 1));
       currentScreenIndex = safeIndex;
-      const item = feedItems[safeIndex];
+      const item = currentItems[safeIndex];
       currentFocusedPostId = item.id;
 
       chargePromotionViewIfNeeded(item);
@@ -1774,6 +1858,7 @@
                 <div class="overlayBadgeRow">
                   <div class="overlayBadge">${getKindLabel(item.feedKind)}</div>
                   <div class="overlayBadge">${escapeHtml(item.postType)}</div>
+                  <div class="overlayBadge">${feedMode === "creator" ? "Alleen deze maker" : (safeIndex === 0 && homeEntryPostId === item.id ? "Start met eigen content" : `${safeIndex + 1}/${currentItems.length}`)}</div>
                 </div>
               </div>
 
@@ -1784,8 +1869,9 @@
                     ${(item.hashtags || []).map(tag => `<div class="overlayTag">${escapeHtml(tag)}</div>`).join("")}
                   </div>
                   <div class="postActionOverlay">
-                    <button class="overlayButton" onclick="dislikePost(${item.id})">Verberg</button>
-                    ${item.feedKind === "promoted" ? `<button class="overlayButton">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
+                    <button class="overlayButton" onclick="event.stopPropagation(); dislikePost(${item.id})">Verberg</button>
+                    ${item.feedKind === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
+                    <button class="overlayButton" onclick="event.stopPropagation();">${feedMode === "creator" ? "3x klik = terug naar feed" : "3x klik = alleen deze maker"}</button>
                   </div>
                   <div class="donationDesktopStack">
                     <button class="donationDesktopInfo" onclick="event.stopPropagation();">Aan deze feed ${getGivenPointsForMaker(owner.id)}</button>
@@ -1882,6 +1968,7 @@
       syncActiveLinkedContent();
       pauseAllVideos();
       bindActiveContentWheelZone();
+      bindFeedTapZone(owner.id);
     }
 
     function attachViewportTracking() {
@@ -1889,21 +1976,24 @@
     }
 
     function scrollToScreen(index, smooth = true) {
-      if (screenMode !== "split" || !feedItems.length) return;
-      currentScreenIndex = Math.max(0, Math.min(index, feedItems.length - 1));
-      currentFocusedPostId = feedItems[currentScreenIndex].id;
+      const currentItems = getFeedItemsForCurrentMode();
+      if (screenMode !== "split" || !currentItems.length) return;
+      currentScreenIndex = Math.max(0, Math.min(index, currentItems.length - 1));
+      currentFocusedPostId = currentItems[currentScreenIndex].id;
       renderFeedStream();
     }
 
     function scrollToNext() {
-      if (screenMode !== "split" || !feedItems.length) return;
-      const nextIndex = (currentScreenIndex + 1) % feedItems.length;
+      const currentItems = getFeedItemsForCurrentMode();
+      if (screenMode !== "split" || !currentItems.length) return;
+      const nextIndex = (currentScreenIndex + 1) % currentItems.length;
       scrollToScreen(nextIndex);
     }
 
     function scrollToPrevious() {
-      if (screenMode !== "split" || !feedItems.length) return;
-      const previousIndex = (currentScreenIndex - 1 + feedItems.length) % feedItems.length;
+      const currentItems = getFeedItemsForCurrentMode();
+      if (screenMode !== "split" || !currentItems.length) return;
+      const previousIndex = (currentScreenIndex - 1 + currentItems.length) % currentItems.length;
       scrollToScreen(previousIndex);
     }
 
