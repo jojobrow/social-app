@@ -1901,9 +1901,8 @@ function renderCreatorScreen() {
                 <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
               </div>
             </div>
-            <div class="gridStats">
+            <div class="gridStats" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
               <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
-              <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
               <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
               <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
             </div>
