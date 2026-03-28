@@ -1018,6 +1018,7 @@
     const API_BASE = window.location.origin;
     const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
     const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+    const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverridesDesktop";
     const MONTHLY_LIKES_LIMIT = 100;
     const PER_FEED_LIKE_LIMIT = 10;
 
@@ -1130,6 +1131,56 @@
 
     function getLikesGivenForHomepage(userId) {
       return getLikesGivenForTarget(`home:${userId}`);
+    }
+
+    function getFeedKindOverrides() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(FEED_KIND_OVERRIDE_STORAGE_KEY) || "{}");
+        return saved && typeof saved === "object" ? saved : {};
+      } catch (_e) {
+        return {};
+      }
+    }
+
+    function saveFeedKindOverrides(data) {
+      localStorage.setItem(FEED_KIND_OVERRIDE_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getEffectiveFeedKind(item) {
+      const overrides = getFeedKindOverrides();
+      return overrides[String(item?.id)] || item?.feedKind || "normal";
+    }
+
+    function getNextOwnFeedKind(currentKind) {
+      if (currentKind === "recommended") return "promoted";
+      if (currentKind === "promoted") return "normal";
+      return "recommended";
+    }
+
+    function getOwnFeedKindButtonLabel(kind) {
+      if (kind === "recommended") return "Sequence: Recommended";
+      if (kind === "promoted") return "Sequence: Promoted";
+      return "Sequence: Normal";
+    }
+
+    async function cycleOwnPostFeedKind(postId, event) {
+      if (event) event.stopPropagation();
+
+      const overrides = getFeedKindOverrides();
+      const currentItem = feedItems.find((item) => String(item.id) === String(postId));
+      if (!currentItem) return;
+
+      const currentKind = getEffectiveFeedKind(currentItem);
+      const nextKind = getNextOwnFeedKind(currentKind);
+      overrides[String(postId)] = nextKind;
+      saveFeedKindOverrides(overrides);
+
+      feedItems = feedItems.map((item) => String(item.id) === String(postId) ? { ...item, feedKind: nextKind } : item);
+      feedItems = buildFeedLogicSequence(feedItems);
+
+      currentScreenIndex = findCurrentModeIndexByPostId(postId);
+      await renderFeedStream();
+      if (screenMode === "home") await renderOwnHomeScreen();
     }
 
     function getRemainingLikesThisMonth() {
@@ -1311,8 +1362,11 @@
 
     function getFeedBucket(item) {
       if (!item) return "friends";
-      if (item.feedKind === "promoted") return "promoted";
-      if (item.feedKind === "recommended") return "everyone";
+
+      const hasPromotionBudget = Number(getDonationModuleState().promotionBudget || 0) > 0;
+      if (getEffectiveFeedKind(item) === "promoted" && hasPromotionBudget) return "promoted";
+      if (getEffectiveFeedKind(item) === "recommended") return "everyone";
+
       return isFriendWithActiveUser(item.owner?.id) ? "friends" : "everyone";
     }
 
@@ -1330,48 +1384,60 @@
       const everyoneQueue = sorted.filter((item) => getFeedBucket(item) === "everyone");
       const promotedQueue = sorted.filter((item) => getFeedBucket(item) === "promoted");
 
-      const sequence = [];
+      const result = [];
       const firstOwn = sorted.find((item) => item.owner?.id === activeUserId);
-      if (firstOwn) {
-        sequence.push(firstOwn);
-        const removeById = (queue) => {
-          const idx = queue.findIndex((item) => Number(item.id) === Number(firstOwn.id));
-          if (idx >= 0) queue.splice(idx, 1);
-        };
-        removeById(friendsQueue);
-        removeById(everyoneQueue);
-        removeById(promotedQueue);
+
+      function removeById(queue, id) {
+        const idx = queue.findIndex((item) => Number(item.id) === Number(id));
+        if (idx >= 0) queue.splice(idx, 1);
       }
 
-      const pattern = ["friends", "everyone", "friends", "promoted"];
-
-      function take(kind) {
-        if (kind === "friends" && friendsQueue.length) return friendsQueue.shift();
-        if (kind === "everyone" && everyoneQueue.length) return everyoneQueue.shift();
-        if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
-
-        if (kind === "everyone" && friendsQueue.length) return friendsQueue.shift();
-        if (kind === "promoted") {
-          if (friendsQueue.length) return friendsQueue.shift();
-          if (everyoneQueue.length) return everyoneQueue.shift();
-        }
-        if (kind === "friends" && everyoneQueue.length) return everyoneQueue.shift();
-        return null;
+      if (firstOwn) {
+        result.push(firstOwn);
+        removeById(friendsQueue, firstOwn.id);
+        removeById(everyoneQueue, firstOwn.id);
+        removeById(promotedQueue, firstOwn.id);
       }
 
       while (friendsQueue.length || everyoneQueue.length || promotedQueue.length) {
-        let added = false;
-        for (const kind of pattern) {
-          const nextItem = take(kind);
-          if (nextItem) {
-            sequence.push(nextItem);
-            added = true;
-          }
+        let addedThisRound = false;
+
+        if (friendsQueue.length) {
+          result.push(friendsQueue.shift());
+          addedThisRound = true;
+        } else if (everyoneQueue.length) {
+          result.push(everyoneQueue.shift());
+          addedThisRound = true;
         }
-        if (!added) break;
+
+        if (everyoneQueue.length) {
+          result.push(everyoneQueue.shift());
+          addedThisRound = true;
+        }
+
+        if (friendsQueue.length) {
+          result.push(friendsQueue.shift());
+          addedThisRound = true;
+        } else if (everyoneQueue.length) {
+          result.push(everyoneQueue.shift());
+          addedThisRound = true;
+        }
+
+        if (promotedQueue.length) {
+          result.push(promotedQueue.shift());
+          addedThisRound = true;
+        } else if (friendsQueue.length) {
+          result.push(friendsQueue.shift());
+          addedThisRound = true;
+        } else if (everyoneQueue.length) {
+          result.push(everyoneQueue.shift());
+          addedThisRound = true;
+        }
+
+        if (!addedThisRound) break;
       }
 
-      return sequence;
+      return result;
     }
 
     function getFrontendModeration(text) {
@@ -1628,7 +1694,7 @@
                   <div class="metaChip"><span class="metaChipLabel">Gegeven punten</span><span class="metaChipValue">${Number(getDonationModuleState().givenPoints || 0)}</span></div>
                 </div>
                 <div class="frontBio" style="margin-top:12px;">${escapeHtml(user.bio || "")}</div>
-                <div class="frontBio">Feedlogica: eerst je eigen nieuwste content, daarna vrienden, dan iedereen, en betaald paars valt in de sequence met fallback naar gewone content als die er niet is.</div>
+                <div class="frontBio">Feedlogica: eerst je eigen nieuwste content. Daarna: vrienden → iedereen → vrienden → betaald. Als geel of paars ontbreekt, vult gewone content die plek op.</div>
               </div>
 
               <div class="homeSection area-react">
@@ -1844,7 +1910,7 @@
     function renderRecentPostLink(post) {
       return `
         <div class="miniPost" data-link-post-id="${post.id}" onclick="goToSplitContent(${post.id})">
-          <div class="miniPostType">${escapeHtml(post.feedKind)} · ${escapeHtml(post.postType)}</div>
+          <div class="miniPostType">${escapeHtml(getEffectiveFeedKind(post))} · ${escapeHtml(post.postType)}</div>
           <div class="miniPostText">${escapeHtml(post.caption || "")}</div>
         </div>
       `;
@@ -1924,7 +1990,7 @@
                   </div>
                 </div>
                 <div class="overlayBadgeRow">
-                  <div class="overlayBadge">${getKindLabel(item.feedKind)}</div>
+                  <div class="overlayBadge">${getKindLabel(getEffectiveFeedKind(item))}</div>
                   <div class="overlayBadge">${escapeHtml(item.postType)}</div>
                   <div class="overlayBadge">${feedMode === "creator" ? "Alleen deze maker" : (safeIndex === 0 && item.owner?.id === activeUserId ? "Start met eigen content" : `${safeIndex + 1}/${currentItems.length}`)}</div>
                   <div class="overlayBadge">${getFeedBucketLabel(item)}</div>
@@ -1939,7 +2005,8 @@
                   </div>
                   <div class="postActionOverlay">
                     <button class="overlayButton" onclick="event.stopPropagation(); dislikePost(${item.id})">Verberg</button>
-                    ${item.feedKind === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
+                    ${owner.id === activeUserId ? `<button class="overlayButton" onclick="cycleOwnPostFeedKind(${item.id}, event)">${getOwnFeedKindButtonLabel(getEffectiveFeedKind(item))}</button>` : ``}
+                    ${getEffectiveFeedKind(item) === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
                     <button class="overlayButton" onclick="event.stopPropagation();">${feedMode === "creator" ? "3x klik = terug" : "3x klik = alleen maker"}</button>
                   </div>
                   <div class="donationDesktopStack">
