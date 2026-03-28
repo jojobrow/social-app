@@ -2003,6 +2003,7 @@
                   </div>
                   <div class="postActionOverlay">
                     ${owner.id === activeUserId ? `<button class="overlayButton" onclick="deleteOwnPost(${item.id}, event)">Verwijderen</button>` : `<button class="overlayButton" onclick="event.stopPropagation(); dislikePost(${item.id})">Verberg</button>`}
+                    ${owner.id === activeUserId ? `<button class="overlayButton" onclick="cycleOwnPostFeedKind(${item.id}, event)">${getOwnFeedKindButtonLabel(getEffectiveFeedKind(item))}</button>` : ``}
                     ${getEffectiveFeedKind(item) === "promoted" ? `<button class="overlayButton" onclick="event.stopPropagation();">Budget €${Number(getDonationModuleState().promotionBudget || 0)}</button>` : ``}
                     <button class="overlayButton" onclick="event.stopPropagation();">${feedMode === "creator" ? "3x klik = terug" : "3x klik = alleen maker"}</button>
                   </div>
