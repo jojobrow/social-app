@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Social Prototype Mobile - Homepage</title>
+  <title>Social Prototype Mobile - Feed & Maker</title>
   <style>
 
     :root {
@@ -1020,23 +1020,34 @@
 </head>
 <body>
   <div class="appShell">
-    <section class="screen active" id="homeScreen"></section>
+    <section class="screen active" id="feedScreen"></section>
+    <section class="screen" id="creatorScreen"></section>
   </div>
   <script>
 
 const API_BASE = window.location.origin;
 const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
-const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
-const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
+const params = new URLSearchParams(window.location.search);
 
 const state = {
   activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
   users: [],
   feedItems: [],
-  ownFrontpage: null,
-  incomingFriendRequests: [],
-  outgoingFriendRequests: [],
-  friendsList: []
+  activeScreen: params.get("creator") ? "creator" : "feed",
+  currentFeedIndex: 0,
+  currentFeedScopeUserId: "",
+  feedMode: "global",
+  makerModeUserId: "",
+  makerModeReturnPostId: null,
+  homeEntryPostId: null,
+  viewedCreatorUserId: "",
+  creatorFrontpage: null,
+  lastTapAt: 0,
+  tapBurstCount: 0,
+  tapBurstOwnerId: "",
+  wheelLockUntil: 0,
+  touchStartY: null,
+  touchActive: false
 };
 
 const $ = (id) => document.getElementById(id);
@@ -1065,20 +1076,22 @@ function getUserById(userId) {
   return state.users.find((user) => user.id === userId) || null;
 }
 
-function getHeroMediaHtml(user) {
-  if (!user?.backgroundUrl) return "";
-  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" /></div>`;
-}
-
-function getPageBackgroundValue(user) {
-  return user?.backgroundUrl ? `url('${encodeURI(user.backgroundUrl)}')` : 'none';
-}
-
 function getAvatarHtml(user, className = "avatar") {
   if (user?.avatarUrl) {
     return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
   }
   return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
+}
+
+function getHeroMediaHtml(user) {
+  if (!user?.backgroundUrl) return "";
+  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" /></div>`;
+}
+
+function getKindLabel(kind) {
+  if (kind === "promoted") return "Promoted";
+  if (kind === "recommended") return "Recommended";
+  return "Normal";
 }
 
 function timeAgo(timestamp) {
@@ -1092,20 +1105,6 @@ function timeAgo(timestamp) {
   return `${days} d geleden`;
 }
 
-function setStatusLine(id, message = "", kind = "") {
-  const element = $(id);
-  if (!element) return;
-  element.textContent = message;
-  element.className = `statusLine${kind ? ` ${kind}` : ""}`;
-}
-
-function switchAccount() {
-  localStorage.removeItem(LOGIN_STORAGE_KEY);
-  localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
-  localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
-  window.location.href = "index.html";
-}
-
 async function loadUsers() {
   state.users = await fetchJson(`${API_BASE}/users`);
 }
@@ -1115,64 +1114,165 @@ async function loadFeed() {
   state.feedItems = Array.isArray(result.items) ? result.items : [];
 }
 
-async function loadOwnFrontpage() {
-  state.ownFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(state.activeUserId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
+async function loadCreatorFrontpage(userId) {
+  state.creatorFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
+  state.viewedCreatorUserId = userId;
 }
 
-async function loadFriendsData() {
-  const [listResult, requestsResult] = await Promise.all([
-    fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(state.activeUserId)}`),
-    fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(state.activeUserId)}`)
-  ]);
-  state.friendsList = Array.isArray(listResult.items) ? listResult.items : [];
-  state.incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
-  state.outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
+function setActiveScreen(screen) {
+  state.activeScreen = screen;
+  ["feedScreen", "creatorScreen"].forEach((id) => {
+    $(id).classList.toggle("active", id === `${screen}Screen`);
+  });
 }
 
-function homepageHasUpdates() {
-  const incomingCount = Array.isArray(state.incomingFriendRequests) ? state.incomingFriendRequests.length : 0;
-  const pendingCount = Array.isArray(state.ownFrontpage?.pendingReactions) ? state.ownFrontpage.pendingReactions.length : 0;
-  return {
-    friends: incomingCount > 0,
-    pending: pendingCount > 0,
-    feed: incomingCount > 0 || pendingCount > 0
-  };
+function getCurrentFeedItems() {
+  if (state.feedMode === "creator" && state.makerModeUserId) return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
+  if (state.homeEntryPostId) {
+    const featured = state.feedItems.find((item) => item.id === state.homeEntryPostId);
+    const remainder = state.feedItems.filter((item) => item.id !== state.homeEntryPostId);
+    return featured ? [featured, ...remainder] : state.feedItems;
+  }
+  if (state.currentFeedScopeUserId) {
+    const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
+    return scoped.length ? scoped : state.feedItems;
+  }
+  return state.feedItems;
 }
 
-async function publishQuickTextPost() {
-  const textarea = $("homePostInput");
-  if (!textarea) return;
-  const caption = textarea.value.trim();
-  if (!caption) return;
+function getCurrentFeedItem() {
+  const items = getCurrentFeedItems();
+  if (!items.length) return null;
+  const safeIndex = ((state.currentFeedIndex % items.length) + items.length) % items.length;
+  state.currentFeedIndex = safeIndex;
+  return items[safeIndex] || null;
+}
 
-  setStatusLine("homePostStatus", "Bericht wordt geplaatst...", "");
+function moveFeed(step) {
+  const items = getCurrentFeedItems();
+  if (!items.length) return;
+  const len = items.length;
+  state.currentFeedIndex = ((state.currentFeedIndex + step) % len + len) % len;
+  renderFeedScreen();
+}
+
+function scrollFeedByIntent(direction) {
+  const now = Date.now();
+  if (now < state.wheelLockUntil) return;
+  state.wheelLockUntil = now + 420;
+  if (direction > 0) moveFeed(1);
+  if (direction < 0) moveFeed(-1);
+}
+
+function onFeedWheel(event) {
+  if (state.activeScreen !== "feed") return;
+  if (Math.abs(event.deltaY) < 12) return;
+  event.preventDefault();
+  scrollFeedByIntent(event.deltaY > 0 ? 1 : -1);
+}
+
+function onFeedTouchStart(event) {
+  if (state.activeScreen !== "feed") return;
+  const target = event.target;
+  if (target && target.closest(".feedVideoControlsInline")) return;
+  state.touchActive = true;
+  state.touchStartY = event.touches?.[0]?.clientY ?? null;
+}
+
+function onFeedTouchMove(event) {
+  if (state.activeScreen !== "feed") return;
+  if (!state.touchActive || state.touchStartY == null) return;
+  const target = event.target;
+  if (target && target.closest(".feedVideoControlsInline")) return;
+  const currentY = event.touches?.[0]?.clientY ?? state.touchStartY;
+  const delta = state.touchStartY - currentY;
+  if (Math.abs(delta) < 58) return;
+  event.preventDefault();
+  scrollFeedByIntent(delta > 0 ? 1 : -1);
+  state.touchActive = false;
+  state.touchStartY = null;
+}
+
+function onFeedTouchEnd() {
+  state.touchActive = false;
+  state.touchStartY = null;
+}
+
+function bindFeedGestures() {
+  window.addEventListener("wheel", onFeedWheel, { passive: false });
+  window.addEventListener("touchstart", onFeedTouchStart, { passive: true });
+  window.addEventListener("touchmove", onFeedTouchMove, { passive: false });
+  window.addEventListener("touchend", onFeedTouchEnd, { passive: true });
+  window.addEventListener("touchcancel", onFeedTouchEnd, { passive: true });
+}
+
+async function likePost(postId) {
   try {
-    await fetchJson(`${API_BASE}/posts`, {
+    await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+    await loadFeed();
+    if (state.activeScreen === "feed") renderFeedScreen();
+    if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
+      await loadCreatorFrontpage(state.viewedCreatorUserId);
+      renderCreatorScreen();
+    }
+  } catch (error) {
+    alert(error.message || "Liken mislukt.");
+  }
+}
+
+async function dislikePost(postId) {
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ownerUserId: state.activeUserId,
-        caption,
-        imageUrl: "",
-        videoUrl: "",
-        hashtags: [],
-        feedKind: "normal"
-      })
+      body: JSON.stringify({ viewerUserId: state.activeUserId })
     });
-    textarea.value = "";
-    await refreshAll();
-    setStatusLine("homePostStatus", "Bericht geplaatst.", "ok");
+    await loadFeed();
+    renderFeedScreen();
   } catch (error) {
-    setStatusLine("homePostStatus", error.message || "Plaatsen mislukt.", "error");
+    alert(error.message || "Verbergen mislukt.");
+  }
+}
+
+async function deletePost(postId) {
+  const currentIndexBeforeDelete = state.currentFeedIndex;
+  if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) return;
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerUserId: state.activeUserId })
+    });
+    await loadFeed();
+    if (state.viewedCreatorUserId) await loadCreatorFrontpage(state.viewedCreatorUserId);
+    const updatedItems = getCurrentFeedItems();
+    if (!updatedItems.length) {
+      window.location.href = "mobile-homepage-split.html";
+      return;
+    }
+    state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
+    if (state.activeScreen === "feed") renderFeedScreen();
+    else renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Verwijderen mislukt.");
+  }
+}
+
+async function likeFrontpage(userId) {
+  try {
+    await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+    await loadCreatorFrontpage(userId);
+    renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Homepage-like mislukt.");
   }
 }
 
 async function sendFrontpageReaction(targetUserId) {
-  const textarea = $("homeReactionInput");
+  const textarea = $("creatorReactionInput");
   if (!textarea) return;
   const text = textarea.value.trim();
   if (!text) return;
-
   try {
     await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
       method: "POST",
@@ -1181,41 +1281,143 @@ async function sendFrontpageReaction(targetUserId) {
     });
     textarea.value = "";
     alert("Bericht is naar pending moderatie gestuurd.");
-    await loadOwnFrontpage();
-    renderHomeScreen();
+    await loadCreatorFrontpage(targetUserId);
+    renderCreatorScreen();
   } catch (error) {
     alert(error.message || "Versturen mislukt.");
   }
 }
 
-async function moderateReaction(reactionId, action) {
+async function sendFriendRequest(targetUserId) {
   try {
-    await fetchJson(`${API_BASE}/frontpage/${state.activeUserId}/reactions/${reactionId}/${action}`, { method: "POST" });
-    await loadOwnFrontpage();
-    renderHomeScreen();
-  } catch (error) {
-    alert(error.message || "Moderatie mislukt.");
-  }
-}
-
-async function deletePost(postId) {
-  if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) return;
-  try {
-    await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+    await fetchJson(`${API_BASE}/friends/request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ownerUserId: state.activeUserId })
+      body: JSON.stringify({ requesterUserId: state.activeUserId, targetUserId })
     });
-    await refreshAll();
+    await loadCreatorFrontpage(targetUserId);
+    renderCreatorScreen();
   } catch (error) {
-    alert(error.message || "Verwijderen mislukt.");
+    alert(error.message || "Vriendschapsverzoek mislukt.");
   }
 }
 
-function renderReactionList(reactions, showModeration = false) {
-  if (!Array.isArray(reactions) || !reactions.length) {
-    return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+function openHomepage() {
+  window.location.href = "mobile-homepage-split.html";
+}
+
+async function openCurrentCreatorHomepage() {
+  const current = getCurrentFeedItem();
+  if (!current?.owner?.id) return;
+  await loadCreatorFrontpage(current.owner.id);
+  setActiveScreen("creator");
+  renderCreatorScreen();
+}
+
+async function openCreatorHomepageFromCard(userId) {
+  if (!userId) return;
+  await loadCreatorFrontpage(userId);
+  setActiveScreen("creator");
+  renderCreatorScreen();
+}
+
+function findFeedIndexByPostId(postId) {
+  if (postId == null) return 0;
+  const index = state.feedItems.findIndex((item) => item.id === postId);
+  return index >= 0 ? index : 0;
+}
+
+function enterMakerMode(userId) {
+  if (!userId) return;
+  const current = getCurrentFeedItem();
+  state.makerModeReturnPostId = current?.id ?? null;
+  state.feedMode = "creator";
+  state.makerModeUserId = userId;
+  state.currentFeedScopeUserId = "";
+  state.currentFeedIndex = 0;
+  renderFeedScreen();
+}
+
+function exitMakerModeToFeed() {
+  const returnPostId = state.makerModeReturnPostId;
+  state.feedMode = "global";
+  state.makerModeUserId = "";
+  state.currentFeedScopeUserId = "";
+  const items = getCurrentFeedItems();
+  const indexInCurrentList = items.findIndex((item) => item.id === returnPostId);
+  state.currentFeedIndex = indexInCurrentList >= 0 ? indexInCurrentList : findFeedIndexByPostId(returnPostId);
+  renderFeedScreen();
+}
+
+function jumpFeedUpOne(event) {
+  if (event) event.stopPropagation();
+  moveFeed(-1);
+}
+
+function handleFeedLeftArrow() {
+  openHomepage();
+}
+
+function handlePostTap(ownerUserId) {
+  const now = Date.now();
+  if (now - state.lastTapAt > 650 || state.tapBurstOwnerId !== ownerUserId) state.tapBurstCount = 0;
+  state.lastTapAt = now;
+  state.tapBurstOwnerId = ownerUserId;
+  state.tapBurstCount += 1;
+  if (state.tapBurstCount >= 3) {
+    state.tapBurstCount = 0;
+    if (state.feedMode === "creator") exitMakerModeToFeed();
+    else enterMakerMode(ownerUserId);
   }
+}
+
+function renderPostCard(item, options = {}) {
+  const owner = item.owner || getUserById(item.ownerUserId) || {};
+  const isOwn = owner.id === state.activeUserId;
+  const mediaHtml = item.postType === "image" && item.imageUrl
+    ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+    : item.postType === "video" && item.videoUrl
+    ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
+    : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
+  const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
+    ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
+    : "";
+  const caption = item.postType === "text" && !item.imageUrl && !item.videoUrl ? "" : `<div class="caption">${escapeHtml(item.caption || "")}</div>`;
+  const ownerAction = options.creatorCard
+    ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
+    : isOwn
+    ? `<button class="ghostBtn" onclick="window.location.href='mijn-content.html'">Mijn content</button>`
+    : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
+  return `
+    <article class="postCard">
+      ${mediaHtml}
+      <div class="postMeta">
+        <div class="miniRow">
+          <div class="ownerMini">
+            ${getAvatarHtml(owner, "ownerMiniAvatar")}
+            <div>
+              <div class="ownerMiniName">${escapeHtml(owner.displayName || "Gebruiker")}</div>
+              <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
+            </div>
+          </div>
+          <span class="kindBadge">${escapeHtml(getKindLabel(item.feedKind || "normal"))}</span>
+        </div>
+        ${caption}
+        ${hashtags}
+        <div class="actionRow">
+          <div class="buttonGroup">
+            <button class="ghostBtn" onclick="likePost(${Number(item.id)})">♥ ${Number(item.likes || 0)}</button>
+            <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
+          </div>
+          ${ownerAction}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderReactionList(reactions) {
+  if (!Array.isArray(reactions) || !reactions.length) return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
   return `
     <div class="reactionList">
       ${reactions.map((reaction) => {
@@ -1224,233 +1426,190 @@ function renderReactionList(reactions, showModeration = false) {
           <div class="reactionItem">
             <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
             <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
-            <div class="miniRow" style="margin-top:10px;">
-              <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
-              ${showModeration ? `
-                <div class="buttonGroup">
-                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
-                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
-                  <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
+            <div class="smallNote" style="margin-top:10px;">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function getFeedVideo() {
+  return document.getElementById("feedVideoElement");
+}
+
+function updateFeedVideoUi() {
+  const video = getFeedVideo();
+  const playBtn = document.getElementById("feedVideoPlayBtn");
+  const muteBtn = document.getElementById("feedVideoMuteBtn");
+  if (!video || !playBtn || !muteBtn) return;
+  playBtn.textContent = video.paused ? "▶" : "❚❚";
+  muteBtn.textContent = video.muted ? "🔇" : "🔊";
+}
+
+function toggleFeedVideoPlay(event) {
+  if (event) event.stopPropagation();
+  const video = getFeedVideo();
+  if (!video) return;
+  if (video.paused) video.play().catch(() => {});
+  else video.pause();
+  updateFeedVideoUi();
+}
+
+function toggleFeedVideoMute(event) {
+  if (event) event.stopPropagation();
+  const video = getFeedVideo();
+  if (!video) return;
+  video.muted = !video.muted;
+  updateFeedVideoUi();
+}
+
+function renderFeedScreen() {
+  const items = getCurrentFeedItems();
+  const item = getCurrentFeedItem();
+
+  if (!items.length || !item) {
+    $("feedScreen").innerHTML = `<div class="feedScreen"><div class="page" style="padding-top:calc(var(--safe-top) + 24px);"><div class="emptyState">Nog geen feeditems gevonden.</div></div></div>`;
+    return;
+  }
+
+  const owner = item.owner || getUserById(item.ownerUserId) || {};
+  const mediaHtml = item.postType === "image" && item.imageUrl
+    ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
+    : item.postType === "video" && item.videoUrl
+    ? `<div class="feedMediaWrap" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"><video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video></div>`
+    : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
+
+  const scopeLabel = state.feedMode === "creator"
+    ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
+    : state.homeEntryPostId && state.currentFeedIndex === 0
+    ? `start vanuit homepage · eerst jouw content`
+    : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+
+  $("feedScreen").innerHTML = `
+    <div class="feedScreen">
+      <div class="feedCanvas">
+        <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
+          ${mediaHtml}
+          <div class="feedShade"></div>
+          <div class="feedOverlay">
+            <div class="feedOverlayRow" style="justify-content:center;">
+              <div class="feedInfo">
+                <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
+                <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
+              </div>
+            </div>
+
+            <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
+            <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
+            <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
+
+            <div class="feedBottom">
+              <div class="feedContentMeta">
+                <div class="feedStats">
+                  <span class="feedModeBadge">${escapeHtml(getKindLabel(item.feedKind || 'normal'))}</span>
+                  <span class="feedModeBadge">♥ ${Number(item.likes || 0)}</span>
+                  <span class="feedModeBadge">${escapeHtml(timeAgo(item.createdAt))}</span>
                 </div>
-              ` : ""}
+                <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
+                ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="feedStats">${item.hashtags.map((tag) => `<span class="feedModeBadge">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+              </div>
+
+              <div class="bottomActionRow">
+                <div class="buttonGroup">
+                  <button class="pill likeBtn" onclick="event.stopPropagation(); likePost(${Number(item.id)})">Like</button>
+                  <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
+                  ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
+                  ${item.postType === "video" && item.videoUrl ? `
+                    <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+                      <button id="feedVideoPlayBtn" class="feedVideoInlineBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
+                      <button id="feedVideoMuteBtn" class="feedVideoInlineBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
+                    </div>
+                  ` : ``}
+                </div>
+                <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
+              </div>
+
+              <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
+                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
+              </div>
             </div>
           </div>
-        `;
-      }).join("")}
+        </article>
+      </div>
     </div>
   `;
+  updateFeedVideoUi();
 }
 
-function renderCompactOwnPosts(posts) {
-  if (!Array.isArray(posts) || !posts.length) {
-    return `<div class="emptyState">Nog geen posts op je homepage.</div>`;
-  }
-  return `
-    <div class="compactChatList">
-      ${posts.map((item) => {
-        const thumb = item.postType === "image" && item.imageUrl
-          ? `<div class="compactChatThumb"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
-          : item.postType === "video" && item.videoUrl
-          ? `<div class="compactChatThumb"><video src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video></div>`
-          : `<div class="compactChatThumb">tekst</div>`;
-        const metaBits = [item.postType === "text" ? "chat" : item.postType, timeAgo(item.createdAt)].filter(Boolean).join(" · ");
-        return `
-          <div class="compactChatItem">
-            ${thumb}
-            <div class="compactChatBody">
-              <div class="compactChatMeta">${escapeHtml(metaBits)}</div>
-              <div class="compactChatText">${escapeHtml(item.caption || "")}</div>
-            </div>
-            <button class="dangerBtn" onclick="deletePost(${Number(item.id)})">×</button>
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
+function openCreatorContentFeed(userId) {
+  if (!userId) return;
+  state.feedMode = "creator";
+  state.makerModeUserId = userId;
+  state.makerModeReturnPostId = getCurrentFeedItem()?.id || null;
+  state.currentFeedScopeUserId = "";
+  state.currentFeedIndex = 0;
+  setActiveScreen("feed");
+  renderFeedScreen();
 }
 
-async function saveProfile() {
-  const displayName = $("profileDisplayName")?.value.trim() || "";
-  const handleRaw = $("profileHandle")?.value.trim() || "";
-  const bio = $("profileBio")?.value.trim() || "";
-  const password = $("profilePassword")?.value || "";
-
-  if (!displayName) {
-    setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
-    return;
-  }
-  if (!handleRaw) {
-    setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
-    return;
-  }
-
-  const payload = { displayName, handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`, bio };
-  if (password.length > 0) payload.password = password;
-
-  setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
-  try {
-    const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (result?.user?.displayName) localStorage.setItem(LOGIN_NAME_STORAGE_KEY, result.user.displayName);
-    if ($("profilePassword")) $("profilePassword").value = "";
-    await refreshAll();
-    setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
-  } catch (error) {
-    setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
-  }
-}
-
-async function uploadProfileBackground() {
-  const file = $("profileBackgroundFile")?.files?.[0] || null;
-  if (!file) {
-    setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
-    return;
-  }
-  setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
-  try {
-    const formData = new FormData();
-    formData.append("background", file);
-    const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
-      method: "POST",
-      body: formData
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.message || "Upload mislukt.");
-    if ($("profileBackgroundFile")) $("profileBackgroundFile").value = "";
-    await refreshAll();
-    setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
-  } catch (error) {
-    setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
-  }
-}
-
-function goToFriendsPage() {
-  window.location.href = "vrienden-module-pagina.html";
-}
-
-function goToMyContentPage() {
-  window.location.href = "mijn-content.html";
-}
-
-function openFeedFromHomepageEntry() {
-  window.location.href = "mobile-feed-maker.html?entry=ownlatest";
-}
-
-function openFeedFromOwnContent() {
-  window.location.href = "mobile-feed-maker.html?scope=me";
-}
-
-function renderHomeScreen() {
-  const frontpage = state.ownFrontpage;
-  const user = frontpage?.user || getUserById(state.activeUserId) || {};
+function renderCreatorScreen() {
+  const frontpage = state.creatorFrontpage;
+  const user = frontpage?.user || getUserById(state.viewedCreatorUserId) || {};
   const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
   const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
-  const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
-  const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
-  const homeLamps = homepageHasUpdates();
+  const reactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
+  const friendshipStatus = frontpage?.friendshipStatus || "none";
+  const canFriend = user.id && user.id !== state.activeUserId;
 
-  $("homeScreen").innerHTML = `
-    <div class="page pageWithUserBg" style="--page-bg-image:${getPageBackgroundValue(user)};">
+  $("creatorScreen").innerHTML = `
+    <div class="page">
       <div class="stack">
         <div class="topRow">
           <div>
-            <h1 class="pageTitle">Homepage</h1>
-            <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
+            <h1 class="pageTitle">Maker-homepage</h1>
+            <div class="pageIntro">Deze pagina hoort nu bij dezelfde losse feed-module.</div>
           </div>
           <div class="buttonGroup">
-            <span class="navBtnWrap">
-              <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
-              ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
-            </span>
-            <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
-            <span class="navBtnWrap">
-              <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
-              ${homeLamps.friends ? '<span class="tinyLamp"></span>' : ''}
-            </span>
-            <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
-            <button class="ghostBtn" onclick="switchAccount()">Account</button>
+            <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
+            <button class="ghostBtn" onclick="openHomepage()">Homepage</button>
           </div>
         </div>
 
-        <section class="card hero">
+        <section class="card hero" style="min-height: 192px;">
           ${getHeroMediaHtml(user)}
           <div class="avatarRow">
             ${getAvatarHtml(user)}
             <div class="identityBlock">
-              <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+              <h2 class="identityName">${escapeHtml(user.displayName || 'Maker')}</h2>
               <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
             </div>
           </div>
-          <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
-          <div class="heroMeta">
-            <span class="heroChip">${Number(stats.posts || 0)} posts</span>
-            <span class="heroChip">${Number(stats.homepageLikes || 0)} likes</span>
-            <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
-          </div>
+          <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
         </section>
 
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
-                <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
-                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
-              </div>
-            </div>
-            <div class="compactComposer">
-              <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
-              <div class="actionRow">
-                <div id="homePostStatus" class="statusLine"></div>
-                <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="cardBody stack">
-            <div class="sectionHeader">
-              <div>
-                <h3 class="sectionTitle">Reacties</h3>
-                <div class="sectionText">Publieke berichten voor jouw homepage.</div>
-              </div>
-            </div>
-            <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
-            <div class="actionRow">
-              <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
-              <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
-            </div>
-            ${renderReactionList(acceptedReactions, false)}
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="cardBody stack">
-            <div class="sectionHeader">
-              <div>
-                <h3 class="sectionTitle">Pending ${homeLamps.pending ? '<span class="tinyLamp" style="position:static; display:inline-block; margin-left:8px; vertical-align:middle;"></span>' : ''}</h3>
-                <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
-              </div>
-            </div>
-            ${renderReactionList(pendingReactions, true)}
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="cardBody stack">
-            <div class="sectionHeader">
-              <div>
-                <h3 class="sectionTitle">Jouw content</h3>
-                <div class="sectionText">Compact overzicht van je laatste posts.</div>
+                <h3 class="sectionTitle">Korte makerlaag</h3>
+                <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
               </div>
               <div class="buttonGroup">
-                <button class="ghostBtn" onclick="openFeedFromOwnContent()">Open in feed</button>
+                <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
+                <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
               </div>
             </div>
-            ${renderCompactOwnPosts(posts)}
+            <div class="gridStats">
+              <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+              <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
+              <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
+              <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+            </div>
+            <div class="actionRow">
+              <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
+              ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+            </div>
           </div>
         </section>
 
@@ -1458,25 +1617,29 @@ function renderHomeScreen() {
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
-                <h3 class="sectionTitle">Profiel bewerken</h3>
-                <div class="sectionText">Pas je profiel aan en upload je homepage-achtergrond.</div>
+                <h3 class="sectionTitle">Publieke reactie sturen</h3>
+                <div class="sectionText">Interactie loopt hier via de homepage van de maker.</div>
               </div>
             </div>
-            <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
-            <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
-            <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
-            <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
-            <div class="profileUploadRow">
-              <div class="fieldLabel">Homepage-achtergrond</div>
-              <input id="profileBackgroundFile" class="fileInputPlain" type="file" accept="image/jpeg,image/png,image/webp" />
-              <div class="inlineActionRow">
-                <button class="ghostBtn" onclick="uploadProfileBackground()">Achtergrond uploaden</button>
-                <div id="backgroundStatus" class="statusLine"></div>
+            <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
+            <div class="actionRow">
+              <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
+              <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
+            </div>
+            ${renderReactionList(reactions)}
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Content van deze maker</h3>
+                <div class="sectionText">Compact gehouden, omdat dit een lichte publieke makerspagina is.</div>
               </div>
             </div>
-            <div class="composerActions">
-              <div id="profileStatus" class="statusLine"></div>
-              <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
+            <div class="creatorSimpleList">
+              ${posts.length ? posts.map((item) => renderPostCard(item, { creatorCard: true })).join("") : `<div class="emptyState">Deze maker heeft nog geen content.</div>`}
             </div>
           </div>
         </section>
@@ -1485,12 +1648,26 @@ function renderHomeScreen() {
   `;
 }
 
-async function refreshAll() {
-  await loadUsers();
-  await loadFeed();
-  await loadOwnFrontpage();
-  await loadFriendsData();
-  renderHomeScreen();
+function applyQueryStartMode() {
+  if (params.get("scope") === "me") state.currentFeedScopeUserId = state.activeUserId;
+  if (params.get("entry") === "ownlatest") {
+    const ownPosts = state.feedItems.filter((item) => item.owner?.id === state.activeUserId).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const firstOwnPost = ownPosts[0] || null;
+    state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
+  }
+  const postId = params.get("postId");
+  if (postId) {
+    const idx = state.feedItems.findIndex((item) => String(item.id) === String(postId));
+    if (idx >= 0) state.currentFeedIndex = idx;
+  }
+}
+
+function bindGlobalKeys() {
+  window.addEventListener("keydown", (event) => {
+    if (state.activeScreen !== "feed") return;
+    if (event.key === "ArrowDown") moveFeed(1);
+    if (event.key === "ArrowUp") moveFeed(-1);
+  });
 }
 
 async function startApp() {
@@ -1499,10 +1676,24 @@ async function startApp() {
       window.location.href = "index.html";
       return;
     }
-    await refreshAll();
+    await loadUsers();
+    await loadFeed();
+    applyQueryStartMode();
+
+    if (params.get("creator")) {
+      await loadCreatorFrontpage(params.get("creator"));
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    } else {
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    bindGlobalKeys();
+    bindFeedGestures();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Kon de mobiele homepage niet laden.");
+    alert(error.message || "Kon de feed-module niet laden.");
   }
 }
 
