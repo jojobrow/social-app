@@ -1222,9 +1222,13 @@
       return url ? `url('${String(url).replace(/'/g, "\'")}')` : "none";
     }
 
+    function getDonationStorageKey() {
+      return `${DONATION_STORAGE_KEY}_${activeUserId || "guest"}`;
+    }
+
     function getDonationModuleState() {
       try {
-        const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+        const saved = JSON.parse(localStorage.getItem(getDonationStorageKey()) || "{}");
         return {
           promotionBudget: Number(saved.promotionBudget || 0),
           tipPoints: Number(saved.tipPoints || 0),
@@ -1246,7 +1250,7 @@
     }
 
     function saveDonationModuleState(nextState) {
-      localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(nextState));
+      localStorage.setItem(getDonationStorageKey(), JSON.stringify(nextState));
     }
 
     function getCurrentLikeMonthKey() {

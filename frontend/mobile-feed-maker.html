@@ -1161,6 +1161,7 @@
 </head>
 <body>
   <div class="appShell">
+    <audio id="partnerAudioElement" preload="none" playsinline style="display:none;"></audio>
     <section class="screen active" id="feedScreen"></section>
     <section class="screen" id="creatorScreen"></section>
   </div>
@@ -1171,6 +1172,14 @@ const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
 const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverrides";
 const PROMOTED_VIEW_STORAGE_KEY = "socialPrototypePromotedViewCharges";
 const params = new URLSearchParams(window.location.search);
+const SPECIAL_AUDIO_USER = {
+  id: "muziek",
+  handle: "@muziek",
+  displayName: "Muziek"
+};
+const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
 
 const state = {
   activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -1193,7 +1202,50 @@ const state = {
   touchActive: false
 };
 
+let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+let partnerAudioMounted = false;
+
 const $ = (id) => document.getElementById(id);
+
+function isSpecialAudioUserId(userId) {
+  return String(userId || "") === SPECIAL_AUDIO_USER.id;
+}
+
+function getPartnerAudioEl() {
+  return $("partnerAudioElement");
+}
+
+function syncPartnerAudioUi() {
+  const audio = getPartnerAudioEl();
+  if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+}
+
+function mountPartnerAudioIfNeeded() {
+  const audio = getPartnerAudioEl();
+  if (!audio || partnerAudioMounted || !isSpecialAudioUserId(state.activeUserId)) return;
+  partnerAudioMounted = true;
+  audio.src = SPECIAL_AUDIO_STREAM;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+  window.addEventListener("beforeunload", () => {
+    try { audio.pause(); } catch (_e) {}
+  });
+  syncPartnerAudioUi();
+}
+
+async function ensurePartnerAudioAutoplay() {
+  const audio = getPartnerAudioEl();
+  if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+  try {
+    await audio.play();
+  } catch (_e) {}
+  syncPartnerAudioUi();
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -1320,9 +1372,13 @@ function timeAgo(timestamp) {
 
 const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
 
+function getDonationStorageKey() {
+  return `${DONATION_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
 function getDonationModuleState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+    const saved = JSON.parse(localStorage.getItem(getDonationStorageKey()) || "{}");
     return {
       promotionBudget: Number(saved.promotionBudget || 0),
       tipPoints: Number(saved.tipPoints || 0),
@@ -1344,7 +1400,7 @@ function getDonationModuleState() {
 }
 
 function saveDonationModuleState(data) {
-  localStorage.setItem(DONATION_STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(getDonationStorageKey(), JSON.stringify(data));
 }
 
 function getAvailableTipPoints() {
@@ -2175,6 +2231,9 @@ async function startApp() {
 
     bindGlobalKeys();
     bindFeedGestures();
+    mountPartnerAudioIfNeeded();
+    ensurePartnerAudioAutoplay();
+    syncPartnerAudioUi();
   } catch (error) {
     console.error(error);
     alert(error.message || "Kon de feed-module niet laden.");

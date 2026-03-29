@@ -174,11 +174,13 @@
 </head>
 <body>
   <div class="appShell">
+    <audio id="partnerAudioElement" preload="none" playsinline style="display:none;"></audio>
     <div class="stack">
       <div class="topRow">
         <div>
           <h1 class="pageTitle">Budget & donaties</h1>
           <div class="pageIntro">Losse prototype-module zonder echte betaalpagina. Gewoon euro’s invullen, budget en punten direct bijwerken.</div>
+          <div class="smallNote">Actieve wallet: <strong id="activeWalletUserLabel">onbekend</strong></div>
         </div>
         <div class="buttonGroup">
           <button class="ghostBtn" onclick="goBack()">Terug</button>
@@ -254,6 +256,15 @@
 
   <script>
     const STORAGE_KEY = "socialPrototypeBudgetModule";
+    const ACTIVE_USER_KEY = "socialPrototypeActiveUserId";
+    const SPECIAL_AUDIO_USER = {
+      id: "muziek",
+      handle: "@muziek",
+      displayName: "Muziek"
+    };
+    const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+    const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+    const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
 
     const state = {
       promotionBudget: 0,
@@ -264,17 +275,73 @@
       receivedByMaker: {}
     };
 
+    const activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
+
+    function getWalletStorageKey() {
+      return `${STORAGE_KEY}_${activeUserId || "guest"}`;
+    }
+
+    let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+    let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+    let partnerAudioMounted = false;
+
+    function isSpecialAudioUserId(userId) {
+      return String(userId || "") === SPECIAL_AUDIO_USER.id;
+    }
+
+    function getPartnerAudioEl() {
+      return document.getElementById("partnerAudioElement");
+    }
+
+    function syncPartnerAudioUi() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+    }
+
+    function mountPartnerAudioIfNeeded() {
+      const audio = getPartnerAudioEl();
+      if (!audio || partnerAudioMounted || !isSpecialAudioUserId(activeUserId)) return;
+      partnerAudioMounted = true;
+      audio.src = SPECIAL_AUDIO_STREAM;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      window.addEventListener("beforeunload", () => {
+        try { audio.pause(); } catch (_e) {}
+      });
+      syncPartnerAudioUi();
+    }
+
+    async function ensurePartnerAudioAutoplay() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      try {
+        await audio.play();
+      } catch (_e) {}
+      syncPartnerAudioUi();
+    }
+
     function euro(amount) {
       return "€" + Number(amount || 0).toFixed(0);
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(getWalletStorageKey(), JSON.stringify(state));
     }
 
     function loadState() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        state.promotionBudget = 0;
+        state.tipPoints = 0;
+        state.givenPoints = 0;
+        state.receivedPoints = 0;
+        state.donations = [];
+        state.receivedByMaker = {};
+
+        const saved = JSON.parse(localStorage.getItem(getWalletStorageKey()) || "{}");
         if (typeof saved.promotionBudget === "number") state.promotionBudget = saved.promotionBudget;
         if (typeof saved.tipPoints === "number") state.tipPoints = saved.tipPoints;
         if (typeof saved.givenPoints === "number") state.givenPoints = saved.givenPoints;
@@ -301,6 +368,8 @@
     }
 
     function renderWallet() {
+      const walletUserLabel = document.getElementById("activeWalletUserLabel");
+      if (walletUserLabel) walletUserLabel.textContent = activeUserId || "guest";
       document.getElementById("budgetValue").textContent = euro(state.promotionBudget);
       document.getElementById("pointsValue").textContent = String(state.tipPoints);
       document.getElementById("givenPointsValue").textContent = String(state.givenPoints || 0);
@@ -411,6 +480,9 @@
     loadState();
     renderWallet();
     updatePreview();
+    mountPartnerAudioIfNeeded();
+    ensurePartnerAudioAutoplay();
+    syncPartnerAudioUi();
   </script>
 </body>
 </html>

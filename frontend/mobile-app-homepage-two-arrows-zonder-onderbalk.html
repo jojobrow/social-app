@@ -1456,9 +1456,13 @@ function setSpecialHomepageVolume(value) {
 }
 
 
+function getDonationStorageKey() {
+  return `${DONATION_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
 function getDonationModuleState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(DONATION_STORAGE_KEY) || "{}");
+    const saved = JSON.parse(localStorage.getItem(getDonationStorageKey()) || "{}");
     return {
       promotionBudget: Number(saved.promotionBudget || 0),
       tipPoints: Number(saved.tipPoints || 0),
@@ -1640,8 +1644,6 @@ async function publishQuickTextPost() {
     await refreshAll();
     ensureSpecialAudioAutoplay();
     syncSpecialAudioUi();
-    ensureSpecialAudioAutoplay();
-    syncSpecialAudioUi();
     setStatusLine("homePostStatus", "Bericht geplaatst.", "ok");
   } catch (error) {
     setStatusLine("homePostStatus", error.message || "Plaatsen mislukt.", "error");
@@ -1719,6 +1721,8 @@ function renderReactionList(reactions, showModeration = false) {
         `;
       }).join("")}
     </div>
+  `;
+}
 
 function renderCompactOwnPosts(posts) {
   if (!Array.isArray(posts) || !posts.length) {
@@ -1954,6 +1958,9 @@ function renderHomeScreen() {
               <div class="buttonGroup">
                 <button class="ghostBtn" onclick="goToDonationsPage()">Open wallet</button>
               </div>
+            </div>
+            <div class="smallNote">Actieve wallet: <strong>${escapeHtml(state.activeUserId || "guest")}</strong></div>
+            <div class="walletGrid">
             </div>
             <div class="walletGrid">
               <div class="walletStat">
