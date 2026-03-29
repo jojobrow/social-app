@@ -351,7 +351,7 @@
       <h1>Sociale updates</h1>
       <div class="sub">
         Eerst pending. Daarna je vriendenlijst en de nieuwste content van vrienden in rastervorm.
-        Tik op een vriend om naar de homepage te gaan, of op content om die post in de feed te openen.
+        Tik op een vriend om naar de homepage te gaan, of op content om direct naar die post in de feed te gaan.
       </div>
     </section>
 
@@ -392,6 +392,7 @@
     const API_BASE = window.location.origin;
     const ACTIVE_USER_KEY = "socialPrototypeActiveUserId";
     const MAIN_APP_FILE = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+    const FEED_APP_FILE = "mobile-feed-maker.html";
     const FRIEND_TARGET_KEY = "socialPrototypeFriendTargetUserId";
     const FEED_ENTRY_POST_KEY = "socialPrototypeFriendEntryPostId";
 
@@ -472,7 +473,7 @@
     function openFriendPost(postId, friendUserId) {
       localStorage.setItem(FRIEND_TARGET_KEY, friendUserId);
       localStorage.setItem(FEED_ENTRY_POST_KEY, String(postId));
-      window.location.href = MAIN_APP_FILE;
+      window.location.href = FEED_APP_FILE;
     }
 
     async function loadFriendsData() {
