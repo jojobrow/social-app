@@ -177,6 +177,32 @@
       pointer-events: none;
     }
 
+    .uploadLabelWrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .uploadLabelInput {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .uploadLabelBtn {
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+
 
     .pill,
     .ghostBtn,
@@ -1812,6 +1838,12 @@ async function uploadProfileBackground() {
   }
 }
 
+function handleTopBackgroundFileChange(event) {
+  const file = event?.target?.files?.[0] || null;
+  if (!file) return;
+  uploadProfileBackground();
+}
+
 function handleHeroBioTap() {
   const now = Date.now();
   if (now - Number(state.heroTitleLastTapAt || 0) > 650) state.heroTitleTapCount = 0;
@@ -1905,7 +1937,10 @@ function renderHomeScreen() {
               <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
               ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
             </span>
-            <button class="ghostBtn" onclick="triggerProfileBackgroundUpload()">Upload achtergrond</button>
+            <label class="uploadLabelWrap">
+              <input id="profileBackgroundFile" class="uploadLabelInput" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopBackgroundFileChange(event)" />
+              <span class="ghostBtn uploadLabelBtn">Upload achtergrond</span>
+            </label>
             <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
             <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
@@ -2070,12 +2105,11 @@ function renderHomeScreen() {
           </div>
         </section>
 
-        <section class="hidden" aria-hidden="true" style="display:none !important;">
-          <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" />
-          <input id="profileHandle" value="${escapeHtml(user.handle || '')}" />
-          <textarea id="profileBio">${escapeHtml(user.bio || '')}</textarea>
-          <input id="profilePassword" type="password" value="" />
-          <input id="profileBackgroundFile" type="file" accept="image/jpeg,image/png,image/webp" />
+        <section aria-hidden="true" style="position:absolute !important; left:-9999px !important; top:auto !important; width:1px !important; height:1px !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important;">
+          <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" tabindex="-1" />
+          <input id="profileHandle" value="${escapeHtml(user.handle || '')}" tabindex="-1" />
+          <textarea id="profileBio" tabindex="-1">${escapeHtml(user.bio || '')}</textarea>
+          <input id="profilePassword" type="password" value="" tabindex="-1" />
           <div id="backgroundStatus" class="statusLine"></div>
           <div id="profileStatus" class="statusLine"></div>
         </section>
