@@ -1,14 +1,14 @@
 
 function applyMockData(db, saveDb, hashPassword) {
   function mockPasswordForId(id) {
-    return /^(u130|u131|u132|u133|u134|u135|u136|u137|u138|u139|u140|u141)$/.test(String(id || ""))
+    return /^(u130|u131|u132|u133|u134|u135|u136|u137|u138|u139|u140|u141|muziek)$/.test(String(id || ""))
       ? "4321"
       : "1234";
   }
 
   function ensureMockPassword(user) {
     const id = String(user?.id || "");
-    const isMockUser = /^u1\d\d$/.test(id);
+    const isMockUser = /^u1\d\d$/.test(id) || id === "muziek";
     if (isMockUser && (!user.passwordSalt || !user.passwordHash)) {
       user.passwordSalt = "seed-mock-salt";
       user.passwordHash = hashPassword(mockPasswordForId(id), "seed-mock-salt");
@@ -51,6 +51,8 @@ function applyMockData(db, saveDb, hashPassword) {
     { id: "u140", displayName: "Eduard", handle: "@eduard", bio: "Rustige updates, familiebeelden en warme homepage-sfeer.", avatarColor: "#c9b29d", heroColor: "#eadcd0", homepageLikes: 13, backgroundUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80" },
     { id: "u141", displayName: "Grada", handle: "@grada", bio: "Lieve portretten, zachte kleuren en kleine familiemomenten.", avatarColor: "#e2cdbf", heroColor: "#faeee6", homepageLikes: 17, backgroundUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1600&q=80" }
   ];
+
+    { id: "muziek", displayName: "Muziek", handle: "@muziek", bio: "Generieke muziek-demo gebruiker voor partnerpitches met ingebakken radiofunctie.", avatarColor: "#f2c14e", heroColor: "#fff0bf", homepageLikes: 42, backgroundUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80" },
 
   const imagePool = [
     "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
