@@ -1825,28 +1825,46 @@ function handleHeroTitleTap() {
 }
 
 function openHeroTitleEditor() {
-  const currentName = state.ownFrontpage?.user?.displayName || "";
-  const nextName = window.prompt("Pas de hero-tekst aan", currentName);
+  const currentUser = state.ownFrontpage?.user || {};
+  const currentName = currentUser.displayName || "";
+  const currentHandle = currentUser.handle || "";
+  const currentBio = currentUser.bio || "";
+
+  const nextName = window.prompt("Pas de naam in de hero aan", currentName);
   if (nextName == null) return;
-  const cleaned = String(nextName).trim();
-  if (!cleaned) return;
+  const cleanedName = String(nextName).trim();
+  if (!cleanedName) return;
 
-  const handleRaw = $("profileHandle")?.value.trim() || (state.ownFrontpage?.user?.handle || "");
-  const bio = $("profileBio")?.value.trim() || (state.ownFrontpage?.user?.bio || "");
+  const nextHandle = window.prompt("Pas de handle in de hero aan", currentHandle);
+  if (nextHandle == null) return;
+  const cleanedHandleRaw = String(nextHandle).trim();
+  if (!cleanedHandleRaw) return;
+  const cleanedHandle = cleanedHandleRaw.startsWith("@") ? cleanedHandleRaw : `@${cleanedHandleRaw}`;
 
-  setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+  const nextBio = window.prompt("Pas de bio in de hero aan", currentBio);
+  if (nextBio == null) return;
+  const cleanedBio = String(nextBio).trim();
+
+  const profileName = $("profileDisplayName");
+  const profileHandle = $("profileHandle");
+  const profileBio = $("profileBio");
+  if (profileName) profileName.value = cleanedName;
+  if (profileHandle) profileHandle.value = cleanedHandle;
+  if (profileBio) profileBio.value = cleanedBio;
+
+  setStatusLine("profileStatus", "Hero-tekst wordt opgeslagen...", "");
   fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      displayName: cleaned,
-      handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
-      bio
+      displayName: cleanedName,
+      handle: cleanedHandle,
+      bio: cleanedBio
     })
   }).then(async (result) => {
     if (result?.user?.displayName) localStorage.setItem(LOGIN_NAME_STORAGE_KEY, result.user.displayName);
     await refreshAll();
-    setStatusLine("profileStatus", "Hero-tekst opgeslagen.", "ok");
+    setStatusLine("profileStatus", "Alle hero-tekst opgeslagen.", "ok");
   }).catch((error) => {
     setStatusLine("profileStatus", error.message || "Opslaan mislukt.", "error");
   });
@@ -1937,7 +1955,7 @@ function renderHomeScreen() {
             <div class="identityBlock">
               <h2 class="identityName" onclick="handleHeroTitleTap()" title="Tik 3x om aan te passen">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
               <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
-              <div class="smallNote">Tik 3x op de naam om de hero-tekst direct aan te passen.</div>
+              <div class="smallNote">Tik 3x op de naam om naam, @handle en bio van de hero direct aan te passen.</div>
             </div>
           </div>
           <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
