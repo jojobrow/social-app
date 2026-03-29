@@ -1338,15 +1338,8 @@
 </head>
 <body>
   <div class="appShell">
-    <section class="screen active" id="homeScreen">
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
-  </div>
+    <section class="screen active" id="homeScreen"></section>
+  
   <script>
 
 const API_BASE = window.location.origin;
@@ -1583,7 +1576,7 @@ function getUserById(userId) {
 
 function getHeroMediaHtml(user) {
   if (!user?.backgroundUrl) return "";
-  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" /></div>`;
+  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" />`;
 }
 
 function getPageBackgroundValue(user) {
@@ -1592,9 +1585,9 @@ function getPageBackgroundValue(user) {
 
 function getAvatarHtml(user, className = "avatar") {
   if (user?.avatarUrl) {
-    return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
+    return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" />`;
   }
-  return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
+  return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}`;
 }
 
 function timeAgo(timestamp) {
@@ -1732,7 +1725,7 @@ async function deletePost(postId) {
 
 function renderReactionList(reactions, showModeration = false) {
   if (!Array.isArray(reactions) || !reactions.length) {
-    return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+    return `<div class="emptyState">Nog geen berichten op deze voorpagina.`;
   }
   return `
     <div class="reactionList">
@@ -1740,50 +1733,50 @@ function renderReactionList(reactions, showModeration = false) {
         const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
         return `
           <div class="reactionItem">
-            <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
-            <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
+            <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}
+            <div class="reactionText">${escapeHtml(reaction.text || "")}
             <div class="miniRow" style="margin-top:10px;">
-              <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+              <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}
               ${showModeration ? `
                 <div class="buttonGroup">
                   <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
                   <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
                   <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
-                </div>
+                
               ` : ""}
-            </div>
-          </div>
+            
+          
         `;
       }).join("")}
-    </div>
+    
   `;
 }
 
 function renderCompactOwnPosts(posts) {
   if (!Array.isArray(posts) || !posts.length) {
-    return `<div class="emptyState">Nog geen posts op je homepage.</div>`;
+    return `<div class="emptyState">Nog geen posts op je homepage.`;
   }
   return `
     <div class="compactChatList">
       ${posts.map((item) => {
         const thumb = item.postType === "image" && item.imageUrl
-          ? `<div class="compactChatThumb"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+          ? `<div class="compactChatThumb"><img src="${escapeHtml(item.imageUrl)}" alt="post" />`
           : item.postType === "video" && item.videoUrl
-          ? `<div class="compactChatThumb"><video src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video></div>`
-          : `<div class="compactChatThumb">tekst</div>`;
+          ? `<div class="compactChatThumb"><video src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video>`
+          : `<div class="compactChatThumb">tekst`;
         const metaBits = [item.postType === "text" ? "chat" : item.postType, timeAgo(item.createdAt)].filter(Boolean).join(" · ");
         return `
           <div class="compactChatItem">
             ${thumb}
             <div class="compactChatBody">
-              <div class="compactChatMeta">${escapeHtml(metaBits)}</div>
-              <div class="compactChatText">${escapeHtml(item.caption || "")}</div>
-            </div>
+              <div class="compactChatMeta">${escapeHtml(metaBits)}
+              <div class="compactChatText">${escapeHtml(item.caption || "")}
+            
             <button class="dangerBtn" onclick="deletePost(${Number(item.id)})">×</button>
-          </div>
+          
         `;
       }).join("")}
-    </div>
+    
   `;
 }
 
@@ -1937,8 +1930,8 @@ function renderHomeScreen() {
         <div class="topRow">
           <div>
             <h1 class="pageTitle">Homepage</h1>
-            <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
-          </div>
+            <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.
+          
           <div class="buttonGroup">
             <span class="navBtnWrap">
               <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
@@ -1957,8 +1950,8 @@ function renderHomeScreen() {
             </span>
             <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
             <button class="ghostBtn" onclick="switchAccount()">Account</button>
-          </div>
-        </div>
+          
+        
 
         <section class="card hero" style="padding-top: 86px;">
           ${getHeroMediaHtml(user)}
@@ -1972,29 +1965,22 @@ function renderHomeScreen() {
                   <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
                 </span>
               </button>
-            </div>
-          </div>
+            
+          
           <div class="avatarRow">
             ${getAvatarHtml(user)}
             <div class="identityBlock">
               <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
-              <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
-              <div class="smallNote">Tik 3x op de tekst hieronder om alleen de hero-tekst aan te passen.</div>
-            </div>
-          </div>
+              <div class="identityHandle">${escapeHtml(user.handle || '')}
+              <div class="smallNote">Tik 3x op de tekst hieronder om alleen de hero-tekst aan te passen.
+            
+          
           <p class="identityBio" onclick="handleHeroBioTap()" title="Tik 3x om de tekst aan te passen">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
           <div class="heroMeta">
             <span class="heroChip">${Number(stats.posts || 0)} posts</span>
             <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+          
+        </section>
 
 
         ${hasSpecialAudio ? `
@@ -2003,181 +1989,342 @@ function renderHomeScreen() {
             <div class="partnerAudioShell">
               <div class="partnerAudioScreen">
                 <div>
-                  <div class="partnerAudioLabel">Partner homepage audio</div>
-                  <div class="partnerAudioTitle">Qmusic</div>
-                  <div class="partnerAudioStatus" id="specialAudioStatus">Qmusic probeert direct te starten op 30% volume.</div>
-                </div>
+                  <div class="partnerAudioLabel">Partner homepage audio
+                  <div class="partnerAudioTitle">Qmusic
+                  <div class="partnerAudioStatus" id="specialAudioStatus">Qmusic probeert direct te starten op 30% volume.
+                
                 <div class="partnerAudioVisualizer" id="specialAudioVisualizer" aria-hidden="true">
                   <span></span><span></span><span></span><span></span><span></span>
-                </div>
-              </div>
+                
+              
               <div class="partnerAudioControls">
                 <button class="partnerAudioBtn" id="specialAudioPlayBtn" onclick="toggleSpecialHomepageAudio()" aria-label="Play of pauze">▶</button>
                 <button class="partnerAudioBtn" id="specialAudioMuteBtn" onclick="toggleSpecialHomepageMute()" aria-label="Mute">🔊</button>
-                <div class="partnerAudioHint">Alleen op de homepage van <strong>Muziek</strong> bedienbaar. In andere pagina’s speelt Qmusic alleen passief door.</div>
-              </div>
+                <div class="partnerAudioHint">Alleen op de homepage van <strong>Muziek</strong> bedienbaar. In andere pagina’s speelt Qmusic alleen passief door.
+              
               <div class="partnerAudioVolumeRow">
                 <input id="specialAudioVolume" type="range" min="0" max="100" value="30" oninput="setSpecialHomepageVolume(this.value)" />
-                <div class="partnerAudioVolumeValue" id="specialAudioVolumeValue">30%</div>
-              </div>
+                <div class="partnerAudioVolumeValue" id="specialAudioVolumeValue">30%
+              
               <audio id="specialHomepageAudio" preload="none" playsinline></audio>
-            </div>
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+            
+          
+        </section>
         ` : `
-        <section class="card">
+        
+    <!-- Link Bar Above Direct Message -->
+    
+    <!-- Corrected link bar placement above the direct message box -->
+    
+    <!-- Correct placement of the first link bar above the "Direct berichtje voor je feed" -->
+    <section class="card">
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.
+          
+        
+        
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        
+    
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
-                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
-              </div>
-            </div>
+                <div class="sectionText">Typ iets en zet het direct in je contentfeed.
+              
+            
             <div class="compactComposer">
               <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
               <div class="actionRow">
-                <div id="homePostStatus" class="statusLine"></div>
+                <div id="homePostStatus" class="statusLine">
                 <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
-              </div>
-            </div>
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+              
+            
+          
+        </section>
         `}
 
 
-        <section class="card">
+        
+    <!-- Link Bar Above Direct Message -->
+    
+    <!-- Corrected link bar placement above the direct message box -->
+    
+    <!-- Correct placement of the first link bar above the "Direct berichtje voor je feed" -->
+    <section class="card">
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.
+          
+        
+        
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        
+    
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Jouw wallet</h3>
-                <div class="sectionText">Snel overzicht van promotiebudget, donatiepunten en ontvangen donaties.</div>
-              </div>
+                <div class="sectionText">Snel overzicht van promotiebudget, donatiepunten en ontvangen donaties.
+              
               <div class="buttonGroup">
                 <button class="ghostBtn" onclick="goToDonationsPage()">Open wallet</button>
-              </div>
-            </div>
-            <div class="smallNote">Actieve wallet: <strong>${escapeHtml(state.activeUserId || "guest")}</strong></div>
+              
+            
+            <div class="smallNote">Actieve wallet: <strong>${escapeHtml(state.activeUserId || "guest")}</strong>
             <div class="walletGrid">
-            </div>
+            
             <div class="walletGrid">
               <div class="walletStat">
-                <div class="walletStatValue">€${Number(wallet.promotionBudget || 0)}</div>
-                <div class="walletStatLabel">Overgebleven euro’s</div>
-              </div>
+                <div class="walletStatValue">€${Number(wallet.promotionBudget || 0)}
+                <div class="walletStatLabel">Overgebleven euro’s
+              
               <div class="walletStat">
-                <div class="walletStatValue">${Number(wallet.tipPoints || 0)}</div>
-                <div class="walletStatLabel">Donatiepunten</div>
-              </div>
+                <div class="walletStatValue">${Number(wallet.tipPoints || 0)}
+                <div class="walletStatLabel">Donatiepunten
+              
               <div class="walletStat">
-                <div class="walletStatValue">${Number(wallet.receivedPoints || 0)}</div>
-                <div class="walletStatLabel">Ontvangen donaties</div>
-              </div>
-            </div>
-          </div>
+                <div class="walletStatValue">${Number(wallet.receivedPoints || 0)}
+                <div class="walletStatLabel">Ontvangen donaties
+              
+            
+          
+        </section>
         
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
+    <!-- Link Bar Above Direct Message -->
     
-        <section class="card">
+    <!-- Corrected link bar placement above the direct message box -->
+    
+    <!-- Correct placement of the first link bar above the "Direct berichtje voor je feed" -->
+    <section class="card">
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.
+          
+        
+        
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        
+    
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Reacties</h3>
-                <div class="sectionText">Publieke berichten voor jouw homepage.</div>
-              </div>
-            </div>
+                <div class="sectionText">Publieke berichten voor jouw homepage.
+              
+            
             <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
             <div class="actionRow">
-              <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
+              <div class="smallNote">Nieuwe berichten komen eerst in pending.
               <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
-            </div>
+            
             ${renderReactionList(acceptedReactions, false)}
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+          
+        </section>
 
-        <section class="card">
+        
+    <!-- Link Bar Above Direct Message -->
+    
+    <!-- Corrected link bar placement above the direct message box -->
+    
+    <!-- Correct placement of the first link bar above the "Direct berichtje voor je feed" -->
+    <section class="card">
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.
+          
+        
+        
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        
+    
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Pending ${homeLamps.pending ? '<span class="tinyLamp" style="position:static; display:inline-block; margin-left:8px; vertical-align:middle;"></span>' : ''}</h3>
-                <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
-              </div>
-            </div>
+                <div class="sectionText">Keuren, afwijzen of blokkeren.
+              
+            
             ${renderReactionList(pendingReactions, true)}
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+          
+        </section>
 
-        <section class="card">
+        
+    <!-- Link Bar Above Direct Message -->
+    
+    <!-- Corrected link bar placement above the direct message box -->
+    
+    <!-- Correct placement of the first link bar above the "Direct berichtje voor je feed" -->
+    <section class="card">
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.</div>
+          </div>
+        </div>
+        <div class="link-bar">
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        </div>
+    
+      <div class="cardBody stack">
+        <div class="sectionHeader">
+          <div>
+            <h3 class="sectionTitle">Voeg een link toe</h3>
+            <div class="sectionText">Voeg een link toe voor media-inhoud in je post.
+          
+        
+        
+          <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
+          <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
+        
+    
           <div class="cardBody stack">
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Jouw content</h3>
-                <div class="sectionText">Compact overzicht van je laatste posts.</div>
-              </div>
+                <div class="sectionText">Compact overzicht van je laatste posts.
+              
               <div class="buttonGroup">
                 <button class="ghostBtn" onclick="openFeedFromOwnContent()">Open in feed</button>
-              </div>
-            </div>
+              
+            
             ${renderCompactOwnPosts(posts)}
-          </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+          
+        </section>
 
         <section aria-hidden="true" style="position:absolute !important; left:-9999px !important; top:auto !important; width:1px !important; height:1px !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important;">
           <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" tabindex="-1" />
           <input id="profileHandle" value="${escapeHtml(user.handle || '')}" tabindex="-1" />
           <textarea id="profileBio" tabindex="-1">${escapeHtml(user.bio || '')}</textarea>
           <input id="profilePassword" type="password" value="" tabindex="-1" />
-          <div id="backgroundStatus" class="statusLine"></div>
-          <div id="profileStatus" class="statusLine"></div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
+          <div id="backgroundStatus" class="statusLine">
+          <div id="profileStatus" class="statusLine">
+        </section>
+      
     
-      </div>
-    </div>
   `;
 
   if (hasSpecialAudio) {
@@ -2291,77 +2438,5 @@ function displayLinkAsMedia(url) {
 }
 
 </script>
-</body>
-</html>
-
-  <script>
-    const blacklistedWords = [
-      'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
-      'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
-      'blood', 'mutilation', 'disturbing', 'gruesome'
-    ];
-
-    function containsBlacklistedWords(url) {
-      return blacklistedWords.some(word => url.toLowerCase().includes(word));
-    }
-
-    async function checkLinkAccessibility(url) {
-      try {
-        const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-        const headers = response.headers;
-
-        // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
-        if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
-          console.log('The site blocks embedding via iframe.');
-          return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
-        }
-
-        if (response.ok) {
-          console.log('The link is accessible:', url);
-          return { blockedBySite: false, accessible: true }; // The link is accessible
-        } else {
-          console.log('The link is not accessible:', url, 'Status code:', response.status);
-          return { blockedBySite: false, accessible: false }; // The site is not accessible
-        }
-      } catch (error) {
-        console.error('Error opening the link:', url, error);
-        return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
-      }
-    }
-
-    function displayLinkAsText(url) {
-      // Display the link as text in the feed (for inaccessible links or sites that block embedding)
-      console.log('Displaying link as text:', url);
-    }
-
-    function displayLinkAsMedia(url) {
-      // Display the media (video/audio) in the feed (if accessible)
-      console.log('Displaying link as media:', url);
-    }
-
-    async function handleLinkSubmit(url) {
-      // First check if the URL is safe (doesn't contain blacklisted words)
-      if (containsBlacklistedWords(url)) {
-        alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
-        return;
-      }
-      
-      // Then check if the link is accessible
-      const { blockedBySite, accessible } = await checkLinkAccessibility(url);
-
-      if (!accessible) {
-        alert('Deze link kan niet worden geopend door firewall- of netwerkbeperkingen.');
-        return;
-      }
-
-      if (blockedBySite) {
-        alert('Deze site blokkeert het insluiten van content, maar de link zal als tekst worden weergegeven.');
-        displayLinkAsText(url);
-      } else {
-        // Continue with processing the link (e.g., displaying media or playing audio)
-        displayLinkAsMedia(url);
-      }
-    }
-  </script>
 </body>
 </html>
