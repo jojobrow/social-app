@@ -177,32 +177,6 @@
       pointer-events: none;
     }
 
-    .uploadLabelWrap {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .uploadLabelInput {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    .uploadLabelBtn {
-      position: relative;
-      z-index: 1;
-      pointer-events: none;
-    }
-
 
     .pill,
     .ghostBtn,
@@ -1338,14 +1312,7 @@
 </head>
 <body>
   <div class="appShell">
-    <section class="screen active" id="homeScreen">
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+    <section class="screen active" id="homeScreen"></section>
   </div>
   <script>
 
@@ -1378,9 +1345,7 @@ const state = {
   specialAudioPlaying: false,
   specialAudioMuted: localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true",
   specialAudioVolume: Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3),
-  specialAudioMounted: false,
-  heroTitleTapCount: 0,
-  heroTitleLastTapAt: 0
+  specialAudioMounted: false
 };
 
 
@@ -1845,56 +1810,6 @@ async function uploadProfileBackground() {
   }
 }
 
-function handleTopBackgroundFileChange(event) {
-  const file = event?.target?.files?.[0] || null;
-  if (!file) return;
-  uploadProfileBackground();
-}
-
-function handleHeroBioTap() {
-  const now = Date.now();
-  if (now - Number(state.heroTitleLastTapAt || 0) > 650) state.heroTitleTapCount = 0;
-  state.heroTitleLastTapAt = now;
-  state.heroTitleTapCount = Number(state.heroTitleTapCount || 0) + 1;
-
-  if (state.heroTitleTapCount >= 3) {
-    state.heroTitleTapCount = 0;
-    openHeroBioEditor();
-  }
-}
-
-function openHeroBioEditor() {
-  const currentUser = state.ownFrontpage?.user || {};
-  const currentBio = currentUser.bio || "";
-
-  const nextBio = window.prompt("Pas de tekst in de hero aan", currentBio);
-  if (nextBio == null) return;
-  const cleanedBio = String(nextBio).trim();
-
-  const profileBio = $("profileBio");
-  if (profileBio) profileBio.value = cleanedBio;
-
-  setStatusLine("profileStatus", "Hero-tekst wordt opgeslagen...", "");
-  fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      displayName: currentUser.displayName || "",
-      handle: currentUser.handle || "",
-      bio: cleanedBio
-    })
-  }).then(async () => {
-    await refreshAll();
-    setStatusLine("profileStatus", "Hero-tekst opgeslagen.", "ok");
-  }).catch((error) => {
-    setStatusLine("profileStatus", error.message || "Opslaan mislukt.", "error");
-  });
-}
-
-function triggerProfileBackgroundUpload() {
-  $("profileBackgroundFile")?.click();
-}
-
 function goToFriendsPage() {
   window.location.href = "vrienden-module-pagina.html";
 }
@@ -1944,10 +1859,6 @@ function renderHomeScreen() {
               <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
               ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
             </span>
-            <label class="uploadLabelWrap">
-              <input id="profileBackgroundFile" class="uploadLabelInput" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopBackgroundFileChange(event)" />
-              <span class="ghostBtn uploadLabelBtn">Upload achtergrond</span>
-            </label>
             <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
             <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
@@ -1979,22 +1890,14 @@ function renderHomeScreen() {
             <div class="identityBlock">
               <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
               <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
-              <div class="smallNote">Tik 3x op de tekst hieronder om alleen de hero-tekst aan te passen.</div>
             </div>
           </div>
-          <p class="identityBio" onclick="handleHeroBioTap()" title="Tik 3x om de tekst aan te passen">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
+          <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
           <div class="heroMeta">
             <span class="heroChip">${Number(stats.posts || 0)} posts</span>
             <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
 
         ${hasSpecialAudio ? `
@@ -2023,14 +1926,7 @@ function renderHomeScreen() {
               <audio id="specialHomepageAudio" preload="none" playsinline></audio>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         ` : `
         <section class="card">
           <div class="cardBody stack">
@@ -2048,14 +1944,7 @@ function renderHomeScreen() {
               </div>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         `}
 
 
@@ -2088,14 +1977,7 @@ function renderHomeScreen() {
               </div>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">
@@ -2111,14 +1993,7 @@ function renderHomeScreen() {
             </div>
             ${renderReactionList(acceptedReactions, false)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
         <section class="card">
           <div class="cardBody stack">
@@ -2130,14 +2005,7 @@ function renderHomeScreen() {
             </div>
             ${renderReactionList(pendingReactions, true)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
         <section class="card">
           <div class="cardBody stack">
@@ -2152,30 +2020,34 @@ function renderHomeScreen() {
             </div>
             ${renderCompactOwnPosts(posts)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
-        <section aria-hidden="true" style="position:absolute !important; left:-9999px !important; top:auto !important; width:1px !important; height:1px !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important;">
-          <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" tabindex="-1" />
-          <input id="profileHandle" value="${escapeHtml(user.handle || '')}" tabindex="-1" />
-          <textarea id="profileBio" tabindex="-1">${escapeHtml(user.bio || '')}</textarea>
-          <input id="profilePassword" type="password" value="" tabindex="-1" />
-          <div id="backgroundStatus" class="statusLine"></div>
-          <div id="profileStatus" class="statusLine"></div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Profiel bewerken</h3>
+                <div class="sectionText">Pas je profiel aan en upload je homepage-achtergrond.</div>
+              </div>
+            </div>
+            <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
+            <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
+            <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
+            <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
+            <div class="profileUploadRow">
+              <div class="fieldLabel">Homepage-achtergrond</div>
+              <input id="profileBackgroundFile" class="fileInputPlain" type="file" accept="image/jpeg,image/png,image/webp" />
+              <div class="inlineActionRow">
+                <button class="ghostBtn" onclick="uploadProfileBackground()">Achtergrond uploaden</button>
+                <div id="backgroundStatus" class="statusLine"></div>
+              </div>
+            </div>
+            <div class="composerActions">
+              <div id="profileStatus" class="statusLine"></div>
+              <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   `;
@@ -2217,151 +2089,6 @@ async function startApp() {
 
 startApp();
 
-  
-const blacklistedWords = [
-  'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
-  'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
-  'blood', 'mutilation', 'disturbing', 'gruesome'
-];
-
-function containsBlacklistedWords(url) {
-  return blacklistedWords.some(word => url.toLowerCase().includes(word));
-}
-
-function handleLinkSubmit(url) {
-  if (containsBlacklistedWords(url)) {
-    alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
-  } else {
-    // Ga verder met het verwerken van de link (bijvoorbeeld in de feed)
-  }
-}
-
-
-async function checkLinkAccessibility(url) {
-  try {
-    const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-
-    const headers = response.headers;
-
-    // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
-    if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
-      console.log('The site blocks embedding via iframe.');
-      return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
-    }
-
-    if (response.ok) {
-      console.log('The link is accessible:', url);
-      return { blockedBySite: false, accessible: true }; // The link is accessible
-    } else {
-      console.log('The link is not accessible:', url, 'Status code:', response.status);
-      return { blockedBySite: false, accessible: false }; // The site is not accessible
-    }
-  } catch (error) {
-    console.error('Error opening the link:', url, error);
-    return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
-  }
-}
-
-async function handleLinkSubmit(url) {
-  const { blockedBySite, accessible } = await checkLinkAccessibility(url);
-
-  if (!accessible) {
-    alert('This link cannot be opened due to firewall or network restrictions.');
-    return;
-  }
-
-  if (blockedBySite) {
-    alert('This site blocks embedding content, but the link will be displayed.');
-    // Display the link as text in the feed
-    displayLinkAsText(url);
-  } else {
-    // Continue with processing the link (e.g., displaying media or playing audio)
-    displayLinkAsMedia(url);
-  }
-}
-
-function displayLinkAsText(url) {
-  // Display the link as text in the feed (for inaccessible links or sites that block embedding)
-  console.log('Displaying link as text:', url);
-}
-
-function displayLinkAsMedia(url) {
-  // Display the media (video/audio) in the feed (if accessible)
-  console.log('Displaying link as media:', url);
-}
-
-</script>
-</body>
-</html>
-
-  <script>
-    const blacklistedWords = [
-      'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
-      'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
-      'blood', 'mutilation', 'disturbing', 'gruesome'
-    ];
-
-    function containsBlacklistedWords(url) {
-      return blacklistedWords.some(word => url.toLowerCase().includes(word));
-    }
-
-    async function checkLinkAccessibility(url) {
-      try {
-        const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-        const headers = response.headers;
-
-        // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
-        if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
-          console.log('The site blocks embedding via iframe.');
-          return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
-        }
-
-        if (response.ok) {
-          console.log('The link is accessible:', url);
-          return { blockedBySite: false, accessible: true }; // The link is accessible
-        } else {
-          console.log('The link is not accessible:', url, 'Status code:', response.status);
-          return { blockedBySite: false, accessible: false }; // The site is not accessible
-        }
-      } catch (error) {
-        console.error('Error opening the link:', url, error);
-        return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
-      }
-    }
-
-    function displayLinkAsText(url) {
-      // Display the link as text in the feed (for inaccessible links or sites that block embedding)
-      console.log('Displaying link as text:', url);
-    }
-
-    function displayLinkAsMedia(url) {
-      // Display the media (video/audio) in the feed (if accessible)
-      console.log('Displaying link as media:', url);
-    }
-
-    async function handleLinkSubmit(url) {
-      // First check if the URL is safe (doesn't contain blacklisted words)
-      if (containsBlacklistedWords(url)) {
-        alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
-        return;
-      }
-      
-      // Then check if the link is accessible
-      const { blockedBySite, accessible } = await checkLinkAccessibility(url);
-
-      if (!accessible) {
-        alert('Deze link kan niet worden geopend door firewall- of netwerkbeperkingen.');
-        return;
-      }
-
-      if (blockedBySite) {
-        alert('Deze site blokkeert het insluiten van content, maar de link zal als tekst worden weergegeven.');
-        displayLinkAsText(url);
-      } else {
-        // Continue with processing the link (e.g., displaying media or playing audio)
-        displayLinkAsMedia(url);
-      }
-    }
   </script>
 </body>
 </html>
