@@ -1128,6 +1128,195 @@
       gap: 12px;
     }
 
+    .card:not(.hero):not(.radioCard) {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .card:not(.hero):not(.radioCard)::before {
+      display: none;
+    }
+
+    .card:not(.hero):not(.radioCard) .cardBody {
+      padding: 8px 0;
+    }
+
+    .walletStat,
+    .reactionItem,
+    .simpleItem,
+    .compactChatItem,
+    .compactChatThumb,
+    .field,
+    .textarea,
+    .fileInput,
+    .select,
+    .uploadBox,
+    .heroStat {
+      background: rgba(255,255,255,0.025);
+      border-color: rgba(255,255,255,0.06);
+      box-shadow: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .heroMeta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .heroChip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.92);
+      background: rgba(8,7,11,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .radioCard {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      overflow: visible;
+    }
+
+    .radioCard::before {
+      display: none;
+    }
+
+    .radioCard .cardBody {
+      padding: 0;
+    }
+
+    .radioShell {
+      display: grid;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 22px;
+      background: rgba(8,7,11,0.18);
+      border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+    }
+
+    .radioTop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .radioTitleWrap {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .radioEyebrow {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.58);
+      font-weight: 800;
+    }
+
+    .radioNow {
+      font-size: 17px;
+      letter-spacing: -0.03em;
+      font-weight: 900;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .radioStatus {
+      font-size: 12px;
+      color: var(--text-soft);
+      min-height: 18px;
+    }
+
+    .radioVisualizer {
+      display: flex;
+      align-items: end;
+      gap: 4px;
+      height: 18px;
+      opacity: 0.55;
+    }
+
+    .radioVisualizer span {
+      display: block;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(201,165,255,0.95), rgba(155,92,255,0.78));
+      animation: radioPulse 1.1s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .radioVisualizer.isPlaying span {
+      animation-play-state: running;
+    }
+
+    .radioVisualizer span:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .radioVisualizer span:nth-child(2) { height: 14px; animation-delay: .1s; }
+    .radioVisualizer span:nth-child(3) { height: 10px; animation-delay: .2s; }
+    .radioVisualizer span:nth-child(4) { height: 16px; animation-delay: .3s; }
+    .radioVisualizer span:nth-child(5) { height: 12px; animation-delay: .4s; }
+
+    @keyframes radioPulse {
+      0%, 100% { transform: scaleY(.55); opacity: .45; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .radioControls {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .radioPlayBtn,
+    .radioMuteBtn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .radioSelect {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .radioHint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.52);
+      line-height: 1.45;
+    }
+
   
   </style>
 </head>
@@ -1144,6 +1333,228 @@ const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
 const MONTHLY_LIKES_LIMIT = 100;
 const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+
+const RADIO_STORAGE_KEY = "socialPrototypeHomepageRadio";
+const RADIO_PRESETS = [
+  {
+    id: "qmusic",
+    name: "Qmusic",
+    streamUrl: "https://stream.qmusic.nl/qmusic/mp3",
+    pageUrl: "https://qmusic.nl/hier-vind-je-alle-stream-urls-van-qmusic"
+  },
+  {
+    id: "radio538",
+    name: "Radio 538",
+    streamUrl: "",
+    pageUrl: "https://www.538.nl/radio/luisteren"
+  },
+  {
+    id: "100pnl",
+    name: "100% NL",
+    streamUrl: "",
+    pageUrl: "https://www.100p.nl/"
+  },
+  {
+    id: "skyradio",
+    name: "Sky Radio",
+    streamUrl: "",
+    pageUrl: "https://www.skyradio.nl/online-radio"
+  },
+  {
+    id: "radionl",
+    name: "RADIONL",
+    streamUrl: "",
+    pageUrl: "https://radionl.fm/luisteren/"
+  }
+];
+
+function getSavedRadioState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(RADIO_STORAGE_KEY) || "{}");
+    return {
+      stationId: typeof saved.stationId === "string" ? saved.stationId : RADIO_PRESETS[0].id,
+      isPlaying: Boolean(saved.isPlaying),
+      muted: Boolean(saved.muted)
+    };
+  } catch (_error) {
+    return { stationId: RADIO_PRESETS[0].id, isPlaying: false, muted: false };
+  }
+}
+
+function saveRadioState() {
+  localStorage.setItem(RADIO_STORAGE_KEY, JSON.stringify({
+    stationId: state.radio.stationId,
+    isPlaying: state.radio.isPlaying,
+    muted: state.radio.muted
+  }));
+}
+
+state.radio = {
+  stationId: getSavedRadioState().stationId,
+  isPlaying: getSavedRadioState().isPlaying,
+  muted: getSavedRadioState().muted,
+  stations: RADIO_PRESETS.map((station) => ({ ...station })),
+  ready: false,
+  currentUrl: "",
+  initialized: false
+};
+
+function getSelectedRadioStation() {
+  return state.radio.stations.find((station) => station.id === state.radio.stationId) || state.radio.stations[0];
+}
+
+async function resolveRadioStations() {
+  const unresolved = state.radio.stations.filter((station) => !station.streamUrl);
+  if (!unresolved.length) {
+    state.radio.ready = true;
+    return;
+  }
+
+  await Promise.all(unresolved.map(async (station) => {
+    try {
+      const endpoint = `https://de1.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(station.name)}&countrycode=NL&hidebroken=true&limit=10&order=votes&reverse=true`;
+      const results = await fetch(endpoint).then((response) => response.json());
+      const match = Array.isArray(results)
+        ? results.find((item) => {
+            const name = String(item.name || "").toLowerCase();
+            const homepage = String(item.homepage || "").toLowerCase();
+            return name.includes(station.name.toLowerCase().replace(/\s+/g, "")) ||
+              homepage.includes(station.name.toLowerCase().replace(/\s+/g, ""));
+          }) || results[0]
+        : null;
+
+      if (match?.url_resolved) {
+        station.streamUrl = match.url_resolved;
+      }
+    } catch (_error) {
+      // laat leeg; gebruiker kan dan een andere zender kiezen
+    }
+  }));
+
+  state.radio.ready = true;
+}
+
+function getRadioAudioElement() {
+  return $("homepageRadioAudio");
+}
+
+function syncRadioUi() {
+  const playBtn = $("radioPlayBtn");
+  const muteBtn = $("radioMuteBtn");
+  const status = $("radioStatus");
+  const now = $("radioNow");
+  const select = $("radioStationSelect");
+  const visualizer = $("radioVisualizer");
+  const station = getSelectedRadioStation();
+  if (playBtn) playBtn.textContent = state.radio.isPlaying ? "❚❚" : "▶";
+  if (muteBtn) muteBtn.textContent = state.radio.muted ? "🔇" : "🔊";
+  if (status) {
+    if (!station?.streamUrl) {
+      status.textContent = "Deze zender vond nog geen directe stream. Kies een andere om te testen.";
+    } else if (state.radio.isPlaying) {
+      status.textContent = "Speelt op homepage. In feed blijft hij uit.";
+    } else {
+      status.textContent = "Tik op play om te starten.";
+    }
+  }
+  if (now) now.textContent = station?.name || "Radio";
+  if (select && select.value !== state.radio.stationId) select.value = state.radio.stationId;
+  if (visualizer) visualizer.classList.toggle("isPlaying", !!state.radio.isPlaying);
+}
+
+async function applyRadioSource(autoplay = false) {
+  const station = getSelectedRadioStation();
+  const audio = getRadioAudioElement();
+  if (!audio || !station) return;
+  if (!station.streamUrl) {
+    state.radio.isPlaying = false;
+    state.radio.currentUrl = "";
+    audio.removeAttribute("src");
+    audio.load();
+    syncRadioUi();
+    saveRadioState();
+    return;
+  }
+  if (state.radio.currentUrl !== station.streamUrl) {
+    audio.src = station.streamUrl;
+    state.radio.currentUrl = station.streamUrl;
+  }
+  audio.muted = !!state.radio.muted;
+  syncRadioUi();
+  if (autoplay && state.radio.isPlaying) {
+    try {
+      await audio.play();
+      state.radio.isPlaying = true;
+    } catch (_error) {
+      state.radio.isPlaying = false;
+    }
+    syncRadioUi();
+    saveRadioState();
+  }
+}
+
+async function toggleHomepageRadio() {
+  const station = getSelectedRadioStation();
+  const audio = getRadioAudioElement();
+  if (!audio) return;
+  if (!station?.streamUrl) {
+    syncRadioUi();
+    return;
+  }
+  try {
+    if (state.radio.isPlaying) {
+      audio.pause();
+      state.radio.isPlaying = false;
+    } else {
+      audio.muted = !!state.radio.muted;
+      await audio.play();
+      state.radio.isPlaying = true;
+    }
+  } catch (_error) {
+    state.radio.isPlaying = false;
+  }
+  syncRadioUi();
+  saveRadioState();
+}
+
+function toggleHomepageRadioMute() {
+  const audio = getRadioAudioElement();
+  state.radio.muted = !state.radio.muted;
+  if (audio) audio.muted = state.radio.muted;
+  syncRadioUi();
+  saveRadioState();
+}
+
+async function selectHomepageRadioStation(value) {
+  state.radio.stationId = String(value || RADIO_PRESETS[0].id);
+  saveRadioState();
+  await applyRadioSource(true);
+}
+
+function mountHomepageRadioEvents() {
+  const audio = getRadioAudioElement();
+  if (!audio || state.radio.initialized) return;
+  state.radio.initialized = true;
+  audio.addEventListener("pause", () => {
+    if (state.radio.isPlaying) {
+      state.radio.isPlaying = false;
+      syncRadioUi();
+      saveRadioState();
+    }
+  });
+  audio.addEventListener("play", () => {
+    if (!state.radio.isPlaying) {
+      state.radio.isPlaying = true;
+      syncRadioUi();
+      saveRadioState();
+    }
+  });
+  audio.addEventListener("error", () => {
+    state.radio.isPlaying = false;
+    syncRadioUi();
+    saveRadioState();
+  });
+}
 
 function getDonationModuleState() {
   try {
@@ -1586,6 +1997,34 @@ function renderHomeScreen() {
           </div>
         </section>
 
+        <section class="card radioCard">
+          <div class="cardBody">
+            <div class="radioShell">
+              <div class="radioTop">
+                <div class="radioTitleWrap">
+                  <div class="radioEyebrow">Homepage radio</div>
+                  <div class="radioNow" id="radioNow">${escapeHtml((getSelectedRadioStation() || {}).name || 'Qmusic')}</div>
+                </div>
+                <div class="radioVisualizer" id="radioVisualizer" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="radioControls">
+                <button class="radioPlayBtn" id="radioPlayBtn" onclick="toggleHomepageRadio()" aria-label="Play of pauze">▶</button>
+                <select class="radioSelect" id="radioStationSelect" onchange="selectHomepageRadioStation(this.value)" aria-label="Kies zender">
+                  ${state.radio.stations.map((station) => `
+                    <option value="${escapeHtml(station.id)}" ${station.id === state.radio.stationId ? 'selected' : ''}>${escapeHtml(station.name)}</option>
+                  `).join("")}
+                </select>
+                <button class="radioMuteBtn" id="radioMuteBtn" onclick="toggleHomepageRadioMute()" aria-label="Geluid aan of uit">🔊</button>
+              </div>
+              <div class="radioStatus" id="radioStatus">Tik op play om te starten.</div>
+              <div class="radioHint">Dit blijft klein op je homepage. Voor nu proberen we directe streams; sommige zenders kunnen later nog fijner worden aangesloten.</div>
+              <audio id="homepageRadioAudio" preload="none" playsinline></audio>
+            </div>
+          </div>
+        </section>
+
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">
@@ -1725,7 +2164,11 @@ async function startApp() {
       window.location.href = "index.html";
       return;
     }
+    await resolveRadioStations();
     await refreshAll();
+    mountHomepageRadioEvents();
+    await applyRadioSource(true);
+    syncRadioUi();
   } catch (error) {
     console.error(error);
     alert(error.message || "Kon de mobiele homepage niet laden.");
