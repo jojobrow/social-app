@@ -2154,6 +2154,79 @@ async function startApp() {
 
 startApp();
 
-  </script>
+  
+const blacklistedWords = [
+  'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
+  'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
+  'blood', 'mutilation', 'disturbing', 'gruesome'
+];
+
+function containsBlacklistedWords(url) {
+  return blacklistedWords.some(word => url.toLowerCase().includes(word));
+}
+
+function handleLinkSubmit(url) {
+  if (containsBlacklistedWords(url)) {
+    alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
+  } else {
+    // Ga verder met het verwerken van de link (bijvoorbeeld in de feed)
+  }
+}
+
+
+async function checkLinkAccessibility(url) {
+  try {
+    const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
+
+    const headers = response.headers;
+
+    // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
+    if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
+      console.log('The site blocks embedding via iframe.');
+      return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
+    }
+
+    if (response.ok) {
+      console.log('The link is accessible:', url);
+      return { blockedBySite: false, accessible: true }; // The link is accessible
+    } else {
+      console.log('The link is not accessible:', url, 'Status code:', response.status);
+      return { blockedBySite: false, accessible: false }; // The site is not accessible
+    }
+  } catch (error) {
+    console.error('Error opening the link:', url, error);
+    return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
+  }
+}
+
+async function handleLinkSubmit(url) {
+  const { blockedBySite, accessible } = await checkLinkAccessibility(url);
+
+  if (!accessible) {
+    alert('This link cannot be opened due to firewall or network restrictions.');
+    return;
+  }
+
+  if (blockedBySite) {
+    alert('This site blocks embedding content, but the link will be displayed.');
+    // Display the link as text in the feed
+    displayLinkAsText(url);
+  } else {
+    // Continue with processing the link (e.g., displaying media or playing audio)
+    displayLinkAsMedia(url);
+  }
+}
+
+function displayLinkAsText(url) {
+  // Display the link as text in the feed (for inaccessible links or sites that block embedding)
+  console.log('Displaying link as text:', url);
+}
+
+function displayLinkAsMedia(url) {
+  // Display the media (video/audio) in the feed (if accessible)
+  console.log('Displaying link as media:', url);
+}
+
+</script>
 </body>
 </html>
