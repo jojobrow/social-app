@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Social Prototype Mobile</title>
+  <title>Social Prototype Mobile - Homepage</title>
   <style>
+
     :root {
-      --bg: #09070f;
-      --bg-2: #120f19;
-      --bg-3: #19141f;
-      --panel: rgba(20, 17, 25, 0.84);
-      --panel-2: rgba(28, 24, 35, 0.92);
-      --panel-3: rgba(36, 30, 43, 0.96);
+      --bg: #0f0a19;
+      --bg-2: #1a1230;
+      --bg-3: #24183f;
+      --panel: rgba(28, 20, 48, 0.88);
+      --panel-2: rgba(39, 28, 65, 0.96);
+      --panel-3: rgba(54, 39, 87, 0.98);
       --glass: rgba(255,255,255,0.07);
       --line: rgba(255,255,255,0.10);
       --line-strong: rgba(255,255,255,0.16);
-      --text: #f7f3ef;
-      --text-soft: #d8d0c6;
-      --text-dim: #a99f95;
-      --accent: #c8a97e;
-      --accent-2: #f1dfc8;
-      --accent-3: #8e6c4f;
-      --accent-deep: #6f543e;
-      --ok: #94d4b7;
-      --danger: #f0a9a9;
+      --text: #f7f3ff;
+      --text-soft: #cdc3e6;
+      --text-dim: #9b91b8;
+      --accent: #9b5cff;
+      --accent-2: #c9a5ff;
+      --accent-3: #6d35d8;
+      --accent-deep: #5126a6;
+      --ok: #8ff0bc;
+      --danger: #ffb6c1;
       --shadow: 0 24px 60px rgba(0,0,0,0.36);
       --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
       --radius: 26px;
@@ -38,8 +39,8 @@
       padding: 0;
       min-height: 100%;
       background:
-        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
-        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(155,92,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(201,165,255,0.12), transparent 24%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -107,7 +108,7 @@
       inset: 0;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.05), transparent 26%);
+        radial-gradient(circle at top right, rgba(201,165,255,0.12), transparent 28%);
       pointer-events: none;
     }
 
@@ -158,6 +159,50 @@
       align-items: center;
       gap: 8px;
     }
+
+    .navBtnWrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .tinyLamp {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ffcf5a;
+      box-shadow: 0 0 0 2px rgba(9,7,15,0.92), 0 0 14px rgba(255,207,90,0.55);
+      pointer-events: none;
+    }
+
+    .uploadLabelWrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .uploadLabelInput {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .uploadLabelBtn {
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+
 
     .pill,
     .ghostBtn,
@@ -210,21 +255,130 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      background-size: cover;
-      background-position: center;
+      background:
+        radial-gradient(circle at top right, rgba(201,165,255,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(96,43,194,0.92), rgba(20,15,31,0.96));
+    }
+
+    .heroMedia {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .heroMedia img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 18px;
     }
 
     .hero::before {
       content: "";
       position: absolute;
       inset: 0;
+      z-index: 1;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.84)),
-        radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 30%),
-        radial-gradient(circle at top left, rgba(200,169,126,0.12), transparent 28%);
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.64)),
+        radial-gradient(circle at top right, rgba(201,165,255,0.14), transparent 30%),
+        radial-gradient(circle at top left, rgba(155,92,255,0.10), transparent 28%);
     }
 
     .hero > * { position: relative; z-index: 1; }
+
+    .heroLikeWrap {
+      position: absolute !important;
+      top: 16px;
+      right: 16px;
+      z-index: 2 !important;
+    }
+
+    .likeQuotaStack {
+      position: absolute;
+      top: calc(var(--safe-top) + 14px);
+      right: 16px;
+      z-index: 7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .likeIconBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.34);
+      color: rgba(255,255,255,0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+      backdrop-filter: blur(10px);
+      font-size: 18px;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .likeIconCount {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.96);
+      color: #4f3525;
+      border: 1px solid rgba(124,88,58,0.18);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .likeCountStack {
+      position: absolute;
+      top: -18px;
+      right: -8px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      pointer-events: none;
+    }
+
+    .likeCountStack .likeIconCount {
+      position: relative;
+      top: auto;
+      right: auto;
+      min-width: 22px;
+      height: 22px;
+      font-size: 10px;
+    }
+
+    .heroLikeWrap .likeQuotaStack {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: auto;
+      display: inline-flex;
+    }
+
+    .heroLikeWrap .likeCountStack {
+      top: -18px;
+      right: -8px;
+    }
 
     .avatarRow {
       display: flex;
@@ -765,1346 +919,1241 @@
         border-right: 1px solid rgba(255,255,255,0.04);
       }
     }
+  
+
+
+    .pageWithUserBg {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .pageWithUserBg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: var(--page-bg-image);
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      filter: blur(18px);
+      transform: scale(1.08);
+      opacity: 0.5;
+    }
+
+    .pageWithUserBg > * {
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .homeTopActions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .heroMeta {
+      display: grid;
+      gap: 14px;
+    }
+
+    .heroActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .heroStatStrip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .heroStat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(9, 8, 20, 0.42);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(10px);
+    }
+
+    .heroStatValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .heroStatLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .walletGrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .walletStat {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .walletStatValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .walletStatLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+
+    .compactChatList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .compactChatItem {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .compactChatThumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .compactChatThumb img,
+    .compactChatThumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .compactChatBody {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .compactChatMeta {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .compactChatText {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .compactComposer {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chatComposer {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 4px;
+    }
+
+    .modalOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 18px 16px calc(var(--safe-bottom) + 18px);
+      background: rgba(6, 4, 14, 0.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .modalOverlay.show {
+      display: flex !important;
+    }
+
+    .modalCard {
+      width: min(100%, 460px);
+      max-height: 84dvh;
+      overflow: auto;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        linear-gradient(180deg, rgba(46, 27, 88, 0.98), rgba(24, 15, 46, 0.98));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      padding: 18px;
+    }
+
+    .modalHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .modalTitle {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    .modalClose {
+      width: 42px;
+      min-width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modalStack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card:not(.hero):not(.radioCard) {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .card:not(.hero):not(.radioCard)::before {
+      display: none;
+    }
+
+    .card:not(.hero):not(.radioCard) .cardBody {
+      padding: 8px 0;
+    }
+
+    .walletStat,
+    .reactionItem,
+    .simpleItem,
+    .compactChatItem,
+    .compactChatThumb,
+    .field,
+    .textarea,
+    .fileInput,
+    .select,
+    .uploadBox,
+    .heroStat {
+      background: rgba(255,255,255,0.025);
+      border-color: rgba(255,255,255,0.06);
+      box-shadow: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .heroMeta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .heroChip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.92);
+      background: rgba(8,7,11,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+    }
+
+
+
+    .partnerAudioCard::before {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
+        radial-gradient(circle at top right, rgba(255,220,120,0.14), transparent 28%);
+    }
+
+    .partnerAudioShell {
+      display: grid;
+      gap: 12px;
+    }
+
+    .partnerAudioScreen {
+      min-height: 108px;
+      border-radius: 22px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      background:
+        radial-gradient(circle at left bottom, rgba(255,205,84,0.14), transparent 28%),
+        linear-gradient(180deg, rgba(15,12,27,0.96), rgba(10,9,16,0.90));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .partnerAudioLabel {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.56);
+      font-weight: 800;
+    }
+
+    .partnerAudioTitle {
+      margin-top: 4px;
+      font-size: 22px;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .partnerAudioStatus {
+      margin-top: 6px;
+      min-height: 18px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.74);
+      line-height: 1.4;
+    }
+
+    .partnerAudioVisualizer {
+      display: flex;
+      align-items: end;
+      gap: 4px;
+      height: 28px;
+    }
+
+    .partnerAudioVisualizer span {
+      display: block;
+      width: 5px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,224,124,1), rgba(255,182,53,0.78));
+      animation: partnerAudioPulse 1.1s ease-in-out infinite;
+      animation-play-state: paused;
+      box-shadow: 0 0 12px rgba(255,180,72,0.24);
+    }
+
+    .partnerAudioVisualizer.playing span {
+      animation-play-state: running;
+    }
+
+    .partnerAudioVisualizer span:nth-child(1) { height: 10px; animation-delay: 0s; }
+    .partnerAudioVisualizer span:nth-child(2) { height: 20px; animation-delay: .12s; }
+    .partnerAudioVisualizer span:nth-child(3) { height: 14px; animation-delay: .24s; }
+    .partnerAudioVisualizer span:nth-child(4) { height: 26px; animation-delay: .36s; }
+    .partnerAudioVisualizer span:nth-child(5) { height: 18px; animation-delay: .48s; }
+
+    @keyframes partnerAudioPulse {
+      0%, 100% { transform: scaleY(.55); opacity: .45; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .partnerAudioControls {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .partnerAudioBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .partnerAudioHint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.54);
+      line-height: 1.45;
+    }
+
+    .partnerAudioVolumeRow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .partnerAudioVolumeValue {
+      min-width: 42px;
+      text-align: right;
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+
+
   </style>
 </head>
 <body>
   <div class="appShell">
     <section class="screen active" id="homeScreen"></section>
-    <section class="screen" id="feedScreen"></section>
-    <section class="screen" id="creatorScreen"></section>
   </div>
-
   <script>
-    const API_BASE = window.location.origin;
-    const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
-    const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
-    const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
 
-    const state = {
-      activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
-      users: [],
-      feedItems: [],
-      activeScreen: "home",
-      currentFeedIndex: 0,
-      currentFeedScopeUserId: "",
-      feedMode: "global",
-      makerModeUserId: "",
-      makerModeReturnPostId: null,
-      homeEntryPostId: null,
-      viewedCreatorUserId: "",
-      ownFrontpage: null,
-      creatorFrontpage: null,
-      publishBusy: false,
-      lastTapAt: 0,
-      tapBurstCount: 0,
-      tapBurstOwnerId: "",
-      wheelLockUntil: 0,
-      touchStartY: null,
-      touchActive: false,
-      friendSearchResults: [],
-      incomingFriendRequests: [],
-      outgoingFriendRequests: [],
-      friendsList: []
+const API_BASE = window.location.origin;
+const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+const REMEMBER_LOGIN_STORAGE_KEY = "socialPrototypeRememberLogin";
+const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+const MONTHLY_LIKES_LIMIT = 100;
+const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+
+const SPECIAL_AUDIO_USER = {
+  id: "muziek",
+  handle: "@muziek",
+  displayName: "Muziek"
+};
+const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
+
+const state = {
+  activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+  users: [],
+  feedItems: [],
+  ownFrontpage: null,
+  incomingFriendRequests: [],
+  outgoingFriendRequests: [],
+  friendsList: [],
+  specialAudioActive: false,
+  specialAudioPlaying: false,
+  specialAudioMuted: localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true",
+  specialAudioVolume: Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3),
+  specialAudioMounted: false,
+  heroTitleTapCount: 0,
+  heroTitleLastTapAt: 0
+};
+
+
+function isSpecialAudioUser(user) {
+  if (!user) return false;
+  return String(user.id || "") === SPECIAL_AUDIO_USER.id
+    || String(user.handle || "").toLowerCase() === SPECIAL_AUDIO_USER.handle.toLowerCase()
+    || String(user.displayName || "").toLowerCase() === SPECIAL_AUDIO_USER.displayName.toLowerCase();
+}
+
+function getSpecialAudioElement() {
+  return $("specialHomepageAudio");
+}
+
+function saveSpecialAudioPrefs() {
+  localStorage.setItem(SPECIAL_AUDIO_MUTED_KEY, String(!!state.specialAudioMuted));
+  localStorage.setItem(SPECIAL_AUDIO_VOLUME_KEY, String(Number(state.specialAudioVolume || 0.3)));
+}
+
+function syncSpecialAudioUi() {
+  const audio = getSpecialAudioElement();
+  const playBtn = $("specialAudioPlayBtn");
+  const muteBtn = $("specialAudioMuteBtn");
+  const status = $("specialAudioStatus");
+  const viz = $("specialAudioVisualizer");
+  const volume = $("specialAudioVolume");
+  const volumeValue = $("specialAudioVolumeValue");
+  const isPlaying = !!(audio && !audio.paused && !audio.ended);
+  state.specialAudioPlaying = isPlaying;
+
+  if (playBtn) playBtn.textContent = isPlaying ? "❚❚" : "▶";
+  if (muteBtn) muteBtn.textContent = state.specialAudioMuted ? "🔇" : "🔊";
+  if (volume) volume.value = String(Math.round((state.specialAudioVolume || 0.3) * 100));
+  if (volumeValue) volumeValue.textContent = `${Math.round((state.specialAudioVolume || 0.3) * 100)}%`;
+
+  if (status) {
+    if (!state.specialAudioActive) {
+      status.textContent = "Deze gebruiker heeft geen partner-audio actief.";
+    } else if (isPlaying && state.specialAudioMuted) {
+      status.textContent = "Qmusic speelt op de achtergrond, maar staat nu gedempt.";
+    } else if (isPlaying) {
+      status.textContent = "Qmusic speelt passief op de achtergrond.";
+    } else {
+      status.textContent = "Qmusic probeert direct te starten op 30%. Druk op play als je browser dat blokkeert.";
+    }
+  }
+
+  if (viz) viz.classList.toggle("playing", isPlaying);
+}
+
+function mountSpecialAudioIfNeeded() {
+  const audio = getSpecialAudioElement();
+  if (!audio || state.specialAudioMounted) return;
+  state.specialAudioMounted = true;
+  audio.src = SPECIAL_AUDIO_STREAM;
+  audio.volume = Number(state.specialAudioVolume || 0.3);
+  audio.muted = !!state.specialAudioMuted;
+  audio.addEventListener("play", syncSpecialAudioUi);
+  audio.addEventListener("pause", syncSpecialAudioUi);
+  audio.addEventListener("error", syncSpecialAudioUi);
+  window.addEventListener("beforeunload", () => {
+    try { audio.pause(); } catch (_e) {}
+  });
+  syncSpecialAudioUi();
+}
+
+async function ensureSpecialAudioAutoplay() {
+  const audio = getSpecialAudioElement();
+  if (!audio || !state.specialAudioActive) return;
+  audio.volume = Number(state.specialAudioVolume || 0.3);
+  audio.muted = !!state.specialAudioMuted;
+  try {
+    await audio.play();
+  } catch (_e) {}
+  syncSpecialAudioUi();
+}
+
+async function toggleSpecialHomepageAudio() {
+  const audio = getSpecialAudioElement();
+  if (!audio || !state.specialAudioActive) return;
+  try {
+    if (audio.paused) {
+      audio.volume = Number(state.specialAudioVolume || 0.3);
+      audio.muted = !!state.specialAudioMuted;
+      await audio.play();
+    } else {
+      audio.pause();
+    }
+  } catch (_e) {}
+  syncSpecialAudioUi();
+}
+
+function toggleSpecialHomepageMute() {
+  const audio = getSpecialAudioElement();
+  state.specialAudioMuted = !state.specialAudioMuted;
+  if (audio) audio.muted = state.specialAudioMuted;
+  saveSpecialAudioPrefs();
+  syncSpecialAudioUi();
+}
+
+function setSpecialHomepageVolume(value) {
+  const audio = getSpecialAudioElement();
+  const normalized = Math.max(0, Math.min(1, Number(value) / 100));
+  state.specialAudioVolume = normalized;
+  if (audio) audio.volume = normalized;
+  saveSpecialAudioPrefs();
+  syncSpecialAudioUi();
+}
+
+
+function getDonationStorageKey() {
+  return `${DONATION_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
+function getDonationModuleState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(getDonationStorageKey()) || "{}");
+    return {
+      promotionBudget: Number(saved.promotionBudget || 0),
+      tipPoints: Number(saved.tipPoints || 0),
+      givenPoints: Number(saved.givenPoints || 0),
+      receivedPoints: Number(saved.receivedPoints || 0),
+      donations: Array.isArray(saved.donations) ? saved.donations : [],
+      receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
     };
+  } catch (_e) {
+    return {
+      promotionBudget: 0,
+      tipPoints: 0,
+      givenPoints: 0,
+      receivedPoints: 0,
+      donations: [],
+      receivedByMaker: {}
+    };
+  }
+}
 
-    const $ = (id) => document.getElementById(id);
+function getCurrentLikeMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
 
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+function getMonthlyLikesState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
+    const monthKey = getCurrentLikeMonthKey();
+    if (saved.monthKey !== monthKey) {
+      return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {}, homepageLikesByUser: {} };
     }
+    return {
+      monthKey,
+      remainingLikes: Number(saved.remainingLikes ?? MONTHLY_LIKES_LIMIT),
+      likesByPost: saved.likesByPost && typeof saved.likesByPost === "object" ? saved.likesByPost : {},
+      homepageLikesByUser: saved.homepageLikesByUser && typeof saved.homepageLikesByUser === "object" ? saved.homepageLikesByUser : {}
+    };
+  } catch (_e) {
+    return { monthKey: getCurrentLikeMonthKey(), remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {}, homepageLikesByUser: {} };
+  }
+}
 
-    async function fetchJson(url, options = {}) {
-      const response = await fetch(url, options);
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.message || "Request mislukt.");
-      return data;
-    }
+function saveMonthlyLikesState(data) {
+  localStorage.setItem(MONTHLY_LIKES_STORAGE_KEY, JSON.stringify(data));
+}
 
-    function getInitials(name = "?") {
-      return String(name)
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((part) => part[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase() || "?";
-    }
+function getRemainingLikesThisMonth() {
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.remainingLikes || 0);
+}
 
-    function getUserById(userId) {
-      return state.users.find((user) => user.id === userId) || null;
-    }
+function getHomepageLikesGivenForUser(userId) {
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.homepageLikesByUser?.[userId] || 0);
+}
 
-    function getUserBackground(user) {
-      if (user?.backgroundUrl) return `url('${encodeURI(user.backgroundUrl)}')`;
-      const heroColor = user?.heroColor || "#5c4734";
-      return `linear-gradient(180deg, rgba(0,0,0,0.10), rgba(8,7,11,0.72)), radial-gradient(circle at top right, rgba(241,223,200,0.14), transparent 30%), radial-gradient(circle at top left, rgba(200,169,126,0.16), transparent 26%), linear-gradient(135deg, ${heroColor}, #151119)`;
-    }
+const $ = (id) => document.getElementById(id);
 
-    function getAvatarHtml(user, className = "avatar") {
-      if (user?.avatarUrl) {
-        return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
-      }
-      return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
-    }
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
-    function getKindLabel(kind) {
-      if (kind === "promoted") return "Promoted";
-      if (kind === "recommended") return "Recommended";
-      return "Normal";
-    }
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Request mislukt.");
+  return data;
+}
 
-    function timeAgo(timestamp) {
-      const diff = Math.max(0, Date.now() - Number(timestamp || 0));
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return "zojuist";
-      if (mins < 60) return `${mins} min geleden`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `${hours} uur geleden`;
-      const days = Math.floor(hours / 24);
-      return `${days} d geleden`;
-    }
+function getInitials(name = "?") {
+  return String(name).trim().split(/\s+/).filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "?";
+}
 
-    function vibrateTick(pattern = [18, 45, 18]) {
-      if (navigator.vibrate) {
-        try { navigator.vibrate(pattern); } catch (_e) {}
-      }
-    }
+function getUserById(userId) {
+  return state.users.find((user) => user.id === userId) || null;
+}
 
-    function setStatusLine(id, message = "", kind = "") {
-      const element = $(id);
-      if (!element) return;
-      element.textContent = message;
-      element.className = `statusLine${kind ? ` ${kind}` : ""}`;
-    }
+function getHeroMediaHtml(user) {
+  if (!user?.backgroundUrl) return "";
+  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" /></div>`;
+}
 
-    function setActiveScreen(screen) {
-      state.activeScreen = screen;
-      ["homeScreen", "feedScreen", "creatorScreen"].forEach((id) => {
-        $(id).classList.toggle("active", id === `${screen}Screen`);
-      });
-    }
+function getPageBackgroundValue(user) {
+  return user?.backgroundUrl ? `url('${encodeURI(user.backgroundUrl)}')` : 'none';
+}
 
-    function switchAccount() {
-      localStorage.removeItem(LOGIN_STORAGE_KEY);
-      localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
-      localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
-      window.location.href = "index.html";
-    }
+function getAvatarHtml(user, className = "avatar") {
+  if (user?.avatarUrl) {
+    return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
+  }
+  return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
+}
 
-    async function loadUsers() {
-      state.users = await fetchJson(`${API_BASE}/users`);
-    }
+function timeAgo(timestamp) {
+  const diff = Math.max(0, Date.now() - Number(timestamp || 0));
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "zojuist";
+  if (mins < 60) return `${mins} min geleden`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} uur geleden`;
+  const days = Math.floor(hours / 24);
+  return `${days} d geleden`;
+}
 
-    async function loadFeed() {
-      const result = await fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(state.activeUserId)}`);
-      state.feedItems = Array.isArray(result.items) ? result.items : [];
-    }
+function setStatusLine(id, message = "", kind = "") {
+  const element = $(id);
+  if (!element) return;
+  element.textContent = message;
+  element.className = `statusLine${kind ? ` ${kind}` : ""}`;
+}
 
-    async function loadOwnFrontpage() {
-      state.ownFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(state.activeUserId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
-    }
+function switchAccount() {
+  localStorage.removeItem(LOGIN_STORAGE_KEY);
+  localStorage.removeItem(LOGIN_NAME_STORAGE_KEY);
+  localStorage.removeItem(REMEMBER_LOGIN_STORAGE_KEY);
+  window.location.href = "index.html";
+}
 
-    async function loadCreatorFrontpage(userId) {
-      state.creatorFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
-      state.viewedCreatorUserId = userId;
-    }
+async function loadUsers() {
+  state.users = await fetchJson(`${API_BASE}/users`);
+}
 
-    function getCurrentFeedItems() {
-      if (state.feedMode === "creator" && state.makerModeUserId) {
-        return state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId);
-      }
+async function loadFeed() {
+  const result = await fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(state.activeUserId)}`);
+  state.feedItems = Array.isArray(result.items) ? result.items : [];
+}
 
-      if (state.homeEntryPostId) {
-        const featured = state.feedItems.find((item) => item.id === state.homeEntryPostId);
-        const remainder = state.feedItems.filter((item) => item.id !== state.homeEntryPostId);
-        return featured ? [featured, ...remainder] : state.feedItems;
-      }
+async function loadOwnFrontpage() {
+  state.ownFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(state.activeUserId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
+}
 
-      if (state.currentFeedScopeUserId) {
-        const scoped = state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId);
-        return scoped.length ? scoped : state.feedItems;
-      }
+async function loadFriendsData() {
+  const [listResult, requestsResult] = await Promise.all([
+    fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(state.activeUserId)}`),
+    fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(state.activeUserId)}`)
+  ]);
+  state.friendsList = Array.isArray(listResult.items) ? listResult.items : [];
+  state.incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
+  state.outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
+}
 
-      return state.feedItems;
-    }
+function homepageHasUpdates() {
+  const incomingCount = Array.isArray(state.incomingFriendRequests) ? state.incomingFriendRequests.length : 0;
+  const pendingCount = Array.isArray(state.ownFrontpage?.pendingReactions) ? state.ownFrontpage.pendingReactions.length : 0;
+  return {
+    friends: incomingCount > 0,
+    pending: pendingCount > 0,
+    feed: incomingCount > 0 || pendingCount > 0
+  };
+}
 
-    function getCurrentFeedItem() {
-      const items = getCurrentFeedItems();
-      if (!items.length) return null;
-      const safeIndex = ((state.currentFeedIndex % items.length) + items.length) % items.length;
-      state.currentFeedIndex = safeIndex;
-      return items[safeIndex] || null;
-    }
+async function publishQuickTextPost() {
+  const textarea = $("homePostInput");
+  if (!textarea) return;
+  const caption = textarea.value.trim();
+  if (!caption) return;
 
-    function moveFeed(step) {
-      const items = getCurrentFeedItems();
-      if (!items.length) return;
-      const len = items.length;
-      state.currentFeedIndex = ((state.currentFeedIndex + step) % len + len) % len;
-      renderFeedScreen();
-    }
+  setStatusLine("homePostStatus", "Bericht wordt geplaatst...", "");
+  try {
+    await fetchJson(`${API_BASE}/posts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ownerUserId: state.activeUserId,
+        caption,
+        imageUrl: "",
+        videoUrl: "",
+        hashtags: [],
+        feedKind: "normal"
+      })
+    });
+    textarea.value = "";
+    await refreshAll();
+    ensureSpecialAudioAutoplay();
+    syncSpecialAudioUi();
+    setStatusLine("homePostStatus", "Bericht geplaatst.", "ok");
+  } catch (error) {
+    setStatusLine("homePostStatus", error.message || "Plaatsen mislukt.", "error");
+  }
+}
 
-    function scrollFeedByIntent(direction) {
-      const now = Date.now();
-      if (now < state.wheelLockUntil) return;
-      state.wheelLockUntil = now + 420;
-      if (direction > 0) moveFeed(1);
-      if (direction < 0) moveFeed(-1);
-    }
+async function sendFrontpageReaction(targetUserId) {
+  const textarea = $("homeReactionInput");
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) return;
 
-    function onFeedWheel(event) {
-      if (state.activeScreen !== "feed") return;
-      if (Math.abs(event.deltaY) < 12) return;
-      event.preventDefault();
-      scrollFeedByIntent(event.deltaY > 0 ? 1 : -1);
-    }
+  try {
+    await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromUserId: state.activeUserId, text })
+    });
+    textarea.value = "";
+    alert("Bericht is naar pending moderatie gestuurd.");
+    await loadOwnFrontpage();
+    renderHomeScreen();
+  } catch (error) {
+    alert(error.message || "Versturen mislukt.");
+  }
+}
 
-    function onFeedTouchStart(event) {
-      if (state.activeScreen !== "feed") return;
-      const target = event.target;
-      if (target && target.closest(".feedVideoControlsInline")) return;
-      state.touchActive = true;
-      state.touchStartY = event.touches?.[0]?.clientY ?? null;
-    }
+async function moderateReaction(reactionId, action) {
+  try {
+    await fetchJson(`${API_BASE}/frontpage/${state.activeUserId}/reactions/${reactionId}/${action}`, { method: "POST" });
+    await loadOwnFrontpage();
+    renderHomeScreen();
+  } catch (error) {
+    alert(error.message || "Moderatie mislukt.");
+  }
+}
 
-    function onFeedTouchMove(event) {
-      if (state.activeScreen !== "feed") return;
-      if (!state.touchActive || state.touchStartY == null) return;
-      const target = event.target;
-      if (target && target.closest(".feedVideoControlsInline")) return;
+async function deletePost(postId) {
+  if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) return;
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerUserId: state.activeUserId })
+    });
+    await refreshAll();
+  } catch (error) {
+    alert(error.message || "Verwijderen mislukt.");
+  }
+}
 
-      const currentY = event.touches?.[0]?.clientY ?? state.touchStartY;
-      const delta = state.touchStartY - currentY;
-      if (Math.abs(delta) < 58) return;
-
-      event.preventDefault();
-      scrollFeedByIntent(delta > 0 ? 1 : -1);
-      state.touchActive = false;
-      state.touchStartY = null;
-    }
-
-    function onFeedTouchEnd() {
-      state.touchActive = false;
-      state.touchStartY = null;
-    }
-
-    function bindFeedGestures() {
-      window.addEventListener("wheel", onFeedWheel, { passive: false });
-      window.addEventListener("touchstart", onFeedTouchStart, { passive: true });
-      window.addEventListener("touchmove", onFeedTouchMove, { passive: false });
-      window.addEventListener("touchend", onFeedTouchEnd, { passive: true });
-      window.addEventListener("touchcancel", onFeedTouchEnd, { passive: true });
-    }
-
-    function normalizeHashtags(input) {
-      return String(input || "")
-        .split(/[\s,]+/)
-        .map((part) => part.trim())
-        .filter(Boolean)
-        .map((part) => (part.startsWith("#") ? part : `#${part}`))
-        .slice(0, 8);
-    }
-
-    async function uploadMedia(file) {
-      const formData = new FormData();
-      formData.append("ownerUserId", state.activeUserId);
-      formData.append("media", file);
-      return fetchJson(`${API_BASE}/upload-media`, { method: "POST", body: formData });
-    }
-
-
-    async function loadFriendsData() {
-      const [listResult, requestsResult] = await Promise.all([
-        fetchJson(`${API_BASE}/friends/list?userId=${encodeURIComponent(state.activeUserId)}`),
-        fetchJson(`${API_BASE}/friends/requests?userId=${encodeURIComponent(state.activeUserId)}`)
-      ]);
-
-      state.friendsList = Array.isArray(listResult.items) ? listResult.items : [];
-      state.incomingFriendRequests = Array.isArray(requestsResult.incoming) ? requestsResult.incoming : [];
-      state.outgoingFriendRequests = Array.isArray(requestsResult.outgoing) ? requestsResult.outgoing : [];
-    }
-
-    async function searchFriends() {
-      const query = $("friendSearchInput")?.value.trim() || "";
-      try {
-        const result = await fetchJson(`${API_BASE}/friends/search?userId=${encodeURIComponent(state.activeUserId)}&q=${encodeURIComponent(query)}`);
-        state.friendSearchResults = Array.isArray(result.items) ? result.items : [];
-        renderHomeScreen();
-      } catch (error) {
-        alert(error.message || "Zoeken mislukt.");
-      }
-    }
-
-    async function acceptFriendRequest(requesterUserId) {
-      try {
-        await fetchJson(`${API_BASE}/friends/accept`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requesterUserId, targetUserId: state.activeUserId })
-        });
-        await refreshAll({ keepScreen: "home" });
-      } catch (error) {
-        alert(error.message || "Accepteren mislukt.");
-      }
-    }
-
-    async function removeFriend(friendUserId) {
-      const ok = confirm("Weet je zeker dat je deze vriend wilt verwijderen?");
-      if (!ok) return;
-
-      try {
-        await fetchJson(`${API_BASE}/friends/remove`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userA: state.activeUserId, userB: friendUserId })
-        });
-        await refreshAll({ keepScreen: "home" });
-      } catch (error) {
-        alert(error.message || "Verwijderen mislukt.");
-      }
-    }
-
-    function renderFriendSearchResults() {
-      if (!state.friendSearchResults.length) {
-        return `<div class="emptyState">Nog geen zoekresultaten. Zoek op naam of @handle.</div>`;
-      }
-
-      return `
-        <div class="reactionList">
-          ${state.friendSearchResults.map((user) => `
-            <div class="reactionItem">
-              <div class="miniRow">
-                <div class="ownerMini">
-                  ${getAvatarHtml(user, "ownerMiniAvatar")}
-                  <div>
-                    <div class="ownerMiniName">${escapeHtml(user.displayName || "Gebruiker")}</div>
-                    <div class="ownerMiniHandle">${escapeHtml(user.handle || "")}</div>
-                  </div>
-                </div>
+function renderReactionList(reactions, showModeration = false) {
+  if (!Array.isArray(reactions) || !reactions.length) {
+    return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+  }
+  return `
+    <div class="reactionList">
+      ${reactions.map((reaction) => {
+        const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+        return `
+          <div class="reactionItem">
+            <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
+            <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
+            <div class="miniRow" style="margin-top:10px;">
+              <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+              ${showModeration ? `
                 <div class="buttonGroup">
-                  ${
-                    user.friendshipStatus === "accepted"
-                      ? `<button class="ghostBtn" onclick="removeFriend('${user.id}')">Verwijder</button>`
-                      : user.friendshipStatus === "pending"
-                      ? `<button class="pill" disabled>Pending</button>`
-                      : `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Toevoegen</button>`
-                  }
+                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
+                  <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
+                  <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
                 </div>
-              </div>
-              <div class="reactionText">${escapeHtml(user.bio || "")}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    function renderIncomingFriendRequests() {
-      if (!state.incomingFriendRequests.length) {
-        return `<div class="emptyState">Nog geen inkomende vriendschapsverzoeken.</div>`;
-      }
-
-      return `
-        <div class="reactionList">
-          ${state.incomingFriendRequests.map((request) => `
-            <div class="reactionItem">
-              <div class="miniRow">
-                <div class="ownerMini">
-                  ${getAvatarHtml(request.requester || {}, "ownerMiniAvatar")}
-                  <div>
-                    <div class="ownerMiniName">${escapeHtml(request.requester?.displayName || "Gebruiker")}</div>
-                    <div class="ownerMiniHandle">${escapeHtml(request.requester?.handle || "")}</div>
-                  </div>
-                </div>
-                <button class="solidBtn" onclick="acceptFriendRequest('${request.requesterUserId}')">Accepteren</button>
-              </div>
-              <div class="smallNote">${escapeHtml(timeAgo(request.createdAt))}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    function renderFriendsList() {
-      if (!state.friendsList.length) {
-        return `<div class="emptyState">Nog geen vrienden toegevoegd.</div>`;
-      }
-
-      return `
-        <div class="reactionList">
-          ${state.friendsList.map((friend) => `
-            <div class="reactionItem">
-              <div class="miniRow">
-                <div class="ownerMini">
-                  ${getAvatarHtml(friend, "ownerMiniAvatar")}
-                  <div>
-                    <div class="ownerMiniName">${escapeHtml(friend.displayName || "Gebruiker")}</div>
-                    <div class="ownerMiniHandle">${escapeHtml(friend.handle || "")}</div>
-                  </div>
-                </div>
-                <button class="ghostBtn" onclick="removeFriend('${friend.id}')">Verwijder</button>
-              </div>
-              <div class="reactionText">${escapeHtml(friend.bio || "")}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-
-    async function publishPost() {
-      if (state.publishBusy) return;
-
-      const caption = $("composeCaption")?.value.trim() || "";
-      const hashtags = normalizeHashtags($("composeHashtags")?.value || "");
-      const file = $("composeMedia")?.files?.[0] || null;
-      const publishKind = $("composeFeedKind")?.value || "normal";
-
-      if (!caption && !file) {
-        setStatusLine("composeStatus", "Voeg eerst tekst of media toe.", "error");
-        return;
-      }
-
-      state.publishBusy = true;
-      setStatusLine("composeStatus", "Bezig met plaatsen...", "");
-
-      try {
-        let imageUrl = "";
-        let videoUrl = "";
-
-        if (file) {
-          const upload = await uploadMedia(file);
-          if (upload.postType === "video") videoUrl = upload.url;
-          else imageUrl = upload.url;
-        }
-
-        await fetchJson(`${API_BASE}/posts`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ownerUserId: state.activeUserId,
-            caption,
-            imageUrl,
-            videoUrl,
-            hashtags,
-            feedKind: publishKind
-          })
-        });
-
-        if ($("composeCaption")) $("composeCaption").value = "";
-        if ($("composeHashtags")) $("composeHashtags").value = "";
-        if ($("composeMedia")) $("composeMedia").value = "";
-        if ($("composeFeedKind")) $("composeFeedKind").value = "normal";
-
-        await refreshAll({ keepScreen: "home" });
-        setStatusLine("composeStatus", "Bericht geplaatst.", "ok");
-      } catch (error) {
-        setStatusLine("composeStatus", error.message || "Plaatsen mislukt.", "error");
-      } finally {
-        state.publishBusy = false;
-      }
-    }
-
-    async function likePost(postId) {
-      try {
-        await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
-        await loadFeed();
-        if (state.activeScreen === "feed") renderFeedScreen();
-        if (state.activeScreen === "home") {
-          await loadOwnFrontpage();
-          renderHomeScreen();
-        }
-        if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
-          await loadCreatorFrontpage(state.viewedCreatorUserId);
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Liken mislukt.");
-      }
-    }
-
-
-    async function deletePost(postId) {
-      const currentIndexBeforeDelete = state.currentFeedIndex;
-
-      if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) {
-        return;
-      }
-
-      try {
-        await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ownerUserId: state.activeUserId })
-        });
-
-        await loadFeed();
-        await loadOwnFrontpage();
-        if (state.viewedCreatorUserId) {
-          await loadCreatorFrontpage(state.viewedCreatorUserId);
-        }
-
-        const updatedItems = getCurrentFeedItems();
-        if (!updatedItems.length) {
-          state.currentFeedIndex = 0;
-          openOwnHomepage();
-          return;
-        }
-
-        state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
-
-        if (state.activeScreen === "feed") {
-          renderFeedScreen();
-        } else if (state.activeScreen === "home") {
-          renderHomeScreen();
-        } else if (state.activeScreen === "creator") {
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Verwijderen mislukt.");
-      }
-    }
-
-    async function dislikePost(postId) {
-      try {
-        await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ viewerUserId: state.activeUserId })
-        });
-        await loadFeed();
-        if (state.activeScreen === "feed") renderFeedScreen();
-      } catch (error) {
-        alert(error.message || "Verbergen mislukt.");
-      }
-    }
-
-    async function likeFrontpage(userId) {
-      try {
-        await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
-        if (userId === state.activeUserId) {
-          await loadOwnFrontpage();
-          renderHomeScreen();
-        } else {
-          await loadCreatorFrontpage(userId);
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Homepage-like mislukt.");
-      }
-    }
-
-    async function sendFrontpageReaction(targetUserId) {
-      const inputId = targetUserId === state.activeUserId ? "homeReactionInput" : "creatorReactionInput";
-      const textarea = $(inputId);
-      if (!textarea) return;
-      const text = textarea.value.trim();
-      if (!text) return;
-
-      try {
-        await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fromUserId: state.activeUserId, text })
-        });
-        textarea.value = "";
-        alert("Bericht is naar pending moderatie gestuurd.");
-        if (targetUserId === state.activeUserId) {
-          await loadOwnFrontpage();
-          renderHomeScreen();
-        } else {
-          await loadCreatorFrontpage(targetUserId);
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Versturen mislukt.");
-      }
-    }
-
-    async function moderateReaction(reactionId, action) {
-      try {
-        await fetchJson(`${API_BASE}/frontpage/${state.activeUserId}/reactions/${reactionId}/${action}`, { method: "POST" });
-        await loadOwnFrontpage();
-        renderHomeScreen();
-      } catch (error) {
-        alert(error.message || "Moderatie mislukt.");
-      }
-    }
-
-    async function sendFriendRequest(targetUserId) {
-      try {
-        await fetchJson(`${API_BASE}/friends/request`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requesterUserId: state.activeUserId, targetUserId })
-        });
-
-        if (state.activeScreen === "home") {
-          await refreshAll({ keepScreen: "home" });
-        } else {
-          await loadCreatorFrontpage(targetUserId);
-          renderCreatorScreen();
-        }
-      } catch (error) {
-        alert(error.message || "Vriendschapsverzoek mislukt.");
-      }
-    }
-
-    async function saveProfile() {
-      const displayName = $("profileDisplayName")?.value.trim() || "";
-      const handleRaw = $("profileHandle")?.value.trim() || "";
-      const bio = $("profileBio")?.value.trim() || "";
-      const password = $("profilePassword")?.value || "";
-
-      if (!displayName) {
-        setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
-        return;
-      }
-
-      if (!handleRaw) {
-        setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
-        return;
-      }
-
-      const payload = {
-        displayName,
-        handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
-        bio
-      };
-
-      if (password.length > 0) {
-        payload.password = password;
-      }
-
-      setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
-
-      try {
-        const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        if (result?.user?.displayName) {
-          localStorage.setItem("socialPrototypeActiveUserName", result.user.displayName);
-        }
-
-        if ($("profilePassword")) {
-          $("profilePassword").value = "";
-        }
-
-        await refreshAll({ keepScreen: "home" });
-        setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
-      } catch (error) {
-        setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
-      }
-    }
-
-    async function uploadProfileBackground() {
-      const file = $("profileBackgroundFile")?.files?.[0] || null;
-      if (!file) {
-        setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
-        return;
-      }
-
-      setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
-
-      try {
-        const formData = new FormData();
-        formData.append("background", file);
-
-        const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
-          method: "POST",
-          body: formData
-        });
-
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.message || "Upload mislukt.");
-
-        if ($("profileBackgroundFile")) {
-          $("profileBackgroundFile").value = "";
-        }
-
-        await refreshAll({ keepScreen: "home" });
-        setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
-      } catch (error) {
-        setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
-      }
-    }
-
-    function openGlobalFeed() {
-      state.feedMode = "global";
-      state.currentFeedScopeUserId = "";
-      state.makerModeUserId = "";
-      state.homeEntryPostId = null;
-      state.currentFeedIndex = 0;
-      setActiveScreen("feed");
-      renderFeedScreen();
-    }
-
-    function openHomepageEntryFeed() {
-      const ownPosts = state.feedItems
-        .filter((item) => item.owner?.id === state.activeUserId)
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      const firstOwnPost = ownPosts[0] || null;
-
-      state.feedMode = "global";
-      state.currentFeedScopeUserId = "";
-      state.makerModeUserId = "";
-      state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
-      state.currentFeedIndex = 0;
-      setActiveScreen("feed");
-      renderFeedScreen();
-    }
-
-    function openOwnHomepage() {
-      state.feedMode = "global";
-      state.currentFeedScopeUserId = "";
-      state.makerModeUserId = "";
-      state.homeEntryPostId = null;
-      state.currentFeedIndex = 0;
-      setActiveScreen("home");
-      renderHomeScreen();
-    }
-
-    function openOwnContentFeed() {
-      state.feedMode = "global";
-      state.currentFeedScopeUserId = state.activeUserId;
-      state.makerModeUserId = "";
-      state.currentFeedIndex = 0;
-      setActiveScreen("feed");
-      renderFeedScreen();
-    }
-
-    async function openCurrentCreatorHomepage() {
-      const current = getCurrentFeedItem();
-      if (!current?.owner?.id) return;
-      await loadCreatorFrontpage(current.owner.id);
-      setActiveScreen("creator");
-      renderCreatorScreen();
-    }
-
-    async function openCreatorHomepageFromCard(userId) {
-      if (!userId) return;
-      await loadCreatorFrontpage(userId);
-      setActiveScreen("creator");
-      renderCreatorScreen();
-    }
-
-    function findFeedIndexByPostId(postId) {
-      if (postId == null) return 0;
-      const index = state.feedItems.findIndex((item) => item.id === postId);
-      return index >= 0 ? index : 0;
-    }
-
-    function enterMakerMode(userId) {
-      if (!userId) return;
-      const current = getCurrentFeedItem();
-      state.makerModeReturnPostId = current?.id ?? null;
-      state.feedMode = "creator";
-      state.makerModeUserId = userId;
-      state.currentFeedScopeUserId = "";
-      state.currentFeedIndex = 0;
-      vibrateTick([18, 40, 18]);
-      renderFeedScreen();
-    }
-
-    function exitMakerModeToFeed() {
-      const returnPostId = state.makerModeReturnPostId;
-      state.feedMode = "global";
-      state.makerModeUserId = "";
-      state.currentFeedScopeUserId = "";
-      const items = getCurrentFeedItems();
-      const indexInCurrentList = items.findIndex((item) => item.id === returnPostId);
-      state.currentFeedIndex = indexInCurrentList >= 0 ? indexInCurrentList : findFeedIndexByPostId(returnPostId);
-      vibrateTick([14, 30, 14]);
-      renderFeedScreen();
-    }
-
-    function jumpFeedUpOne(event) {
-      if (event) event.stopPropagation();
-      moveFeed(-1);
-    }
-
-    function handleFeedLeftArrow() {
-      openOwnHomepage();
-    }
-
-    function handlePostTap(ownerUserId) {
-      const now = Date.now();
-      if (now - state.lastTapAt > 650 || state.tapBurstOwnerId !== ownerUserId) {
-        state.tapBurstCount = 0;
-      }
-      state.lastTapAt = now;
-      state.tapBurstOwnerId = ownerUserId;
-      state.tapBurstCount += 1;
-
-      if (state.tapBurstCount >= 3) {
-        state.tapBurstCount = 0;
-        if (state.feedMode === "creator") {
-          exitMakerModeToFeed();
-        } else {
-          enterMakerMode(ownerUserId);
-        }
-      }
-    }
-
-    function renderPostCard(item, options = {}) {
-      const owner = item.owner || getUserById(item.ownerUserId) || {};
-      const isOwn = owner.id === state.activeUserId;
-      const mediaHtml = item.postType === "image" && item.imageUrl
-        ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
-        : item.postType === "video" && item.videoUrl
-        ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
-        : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
-
-      const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
-        ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
-        : "";
-
-      const caption = item.postType === "text" && !item.imageUrl && !item.videoUrl
-        ? ""
-        : `<div class="caption">${escapeHtml(item.caption || "")}</div>`;
-
-      const ownerAction = options.creatorCard
-        ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
-        : isOwn
-        ? `<button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>`
-        : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
-
-      return `
-        <article class="postCard">
-          ${mediaHtml}
-          <div class="postMeta">
-            <div class="miniRow">
-              <div class="ownerMini">
-                ${getAvatarHtml(owner, "ownerMiniAvatar")}
-                <div>
-                  <div class="ownerMiniName">${escapeHtml(owner.displayName || "Gebruiker")}</div>
-                  <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
-                </div>
-              </div>
-              <span class="kindBadge">${escapeHtml(getKindLabel(item.feedKind || "normal"))}</span>
-            </div>
-            ${caption}
-            ${hashtags}
-            <div class="actionRow">
-              <div class="buttonGroup">
-                <button class="ghostBtn" onclick="likePost(${Number(item.id)})">♥ ${Number(item.likes || 0)}</button>
-                <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
-              </div>
-              ${ownerAction}
-            </div>
-          </div>
-        </article>
-      `;
-
-      if (item.postType === "video" && item.videoUrl) {
-        bindFeedVideoControls();
-      }
-    }
-
-    function renderReactionList(reactions, showModeration = false) {
-      if (!Array.isArray(reactions) || !reactions.length) {
-        return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
-      }
-
-      return `
-        <div class="reactionList">
-          ${reactions.map((reaction) => {
-            const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
-            return `
-              <div class="reactionItem">
-                <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
-                <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
-                <div class="miniRow" style="margin-top:10px;">
-                  <div class="smallNote">${escapeHtml(timeAgo(reaction.createdAt))}</div>
-                  ${showModeration ? `
-                    <div class="buttonGroup">
-                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'approve')">Approve</button>
-                      <button class="ghostBtn" onclick="moderateReaction(${Number(reaction.id)}, 'reject')">Reject</button>
-                      <button class="dangerBtn" onclick="moderateReaction(${Number(reaction.id)}, 'block')">Block</button>
-                    </div>
-                  ` : ""}
-                </div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      `;
-
-      if (item.postType === "video" && item.videoUrl) {
-        bindFeedVideoControls();
-      }
-    }
-
-    function renderHomeScreen() {
-      const frontpage = state.ownFrontpage;
-      const user = frontpage?.user || getUserById(state.activeUserId) || {};
-      const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
-      const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
-      const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
-      const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
-
-      $("homeScreen").innerHTML = `
-        <div class="page">
-          <div class="stack">
-            <div class="topRow">
-              <div>
-                <h1 class="pageTitle">Jouw homepage</h1>
-                <div class="pageIntro">Eleganter en rustiger opgebouwd. Je homepage blijft je rijke basisplek, terwijl de feed fullscreen en loopend blijft.</div>
-              </div>
-              <div class="buttonGroup">
-                <button class="pill" onclick="refreshAll({ keepScreen: 'home' })">Vernieuw</button>
-                <button class="solidBtn" onclick="openHomepageEntryFeed()">Feed</button>
-                <button class="ghostBtn" onclick="switchAccount()">Wissel account</button>
-              </div>
-            </div>
-
-            <section class="card hero" style="background:${getUserBackground(user)};">
-              <div class="avatarRow">
-                ${getAvatarHtml(user)}
-                <div class="identityBlock">
-                  <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
-                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
-                </div>
-              </div>
-              <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw basis</h3>
-                    <div class="sectionText">Van hieruit ga je naar de gewone feed of eerst naar je eigen contentlaag.</div>
-                  </div>
-                  <div class="buttonGroup">
-                    <button class="ghostBtn" onclick="openOwnContentFeed()">Mijn content</button>
-                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                  </div>
-                </div>
-                <div class="gridStats">
-                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Publieke reacties</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Nieuw bericht</h3>
-                    <div class="sectionText">Caption, upload en feedtype staan direct samen zichtbaar in één rustige composer.</div>
-                  </div>
-                </div>
-                <textarea id="composeCaption" class="textarea" placeholder="Schrijf een caption of tekstpost..."></textarea>
-                <div class="uploadBox">
-                  <input id="composeMedia" class="fileInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
-                  <div class="smallNote">Afbeelding of video. De server accepteert jpg, jpeg, png, webp, mp4 en webm.</div>
-                </div>
-                <input id="composeHashtags" class="field" placeholder="#homepage #maker #concept" />
-                <select id="composeFeedKind" class="select">
-                  <option value="normal">Normal</option>
-                  <option value="recommended">Recommended</option>
-                  <option value="promoted">Promoted</option>
-                </select>
-                <div class="composerActions">
-                  <div id="composeStatus" class="statusLine"></div>
-                  <button class="solidBtn" onclick="publishPost()">Plaatsen</button>
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Publieke interactie op je homepage</h3>
-                    <div class="sectionText">Reacties leven hier, niet onder losse posts.</div>
-                  </div>
-                </div>
-                <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen publieke voorpagina..."></textarea>
-                <div class="actionRow">
-                  <div class="smallNote">Berichten komen eerst in pending moderatie.</div>
-                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Naar pending</button>
-                </div>
-                ${renderReactionList(acceptedReactions, false)}
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Pending moderatie</h3>
-                    <div class="sectionText">Hier keur je homepage-reacties goed, af of blokkeer je afzenders.</div>
-                  </div>
-                </div>
-                ${renderReactionList(pendingReactions, true)}
-              </div>
-            </section>
-
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Vrienden</h3>
-                    <div class="sectionText">Zoek naar vrienden, stuur verzoeken, accepteer verzoeken en verwijder vrienden vanaf je homepage.</div>
-                  </div>
-                </div>
-
-                <div class="buttonGroup">
-                  <input id="friendSearchInput" class="field" placeholder="Zoek op naam of @handle" style="flex:1;" />
-                  <button class="ghostBtn" onclick="searchFriends()">Zoeken</button>
-                </div>
-
-                ${renderFriendSearchResults()}
-
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Inkomende verzoeken</h3>
-                  </div>
-                </div>
-
-                ${renderIncomingFriendRequests()}
-
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw vrienden</h3>
-                  </div>
-                </div>
-
-                ${renderFriendsList()}
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Profiel bewerken</h3>
-                    <div class="sectionText">Pas je naam, handle, bio en wachtwoord aan vanaf je eigen homepage.</div>
-                  </div>
-                </div>
-                <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
-                <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
-                <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
-                <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
-                <div class="composerActions">
-                  <div id="profileStatus" class="statusLine"></div>
-                  <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Jouw recente posts</h3>
-                    <div class="sectionText">Je homepage blijft rijker dan die van andere makers.</div>
-                  </div>
-                </div>
-                <div class="postList">
-                  ${posts.length ? posts.map((item) => renderPostCard(item)).join("") : `<div class="emptyState">Nog geen posts op je homepage.</div>`}
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCreatorScreen() {
-      const frontpage = state.creatorFrontpage;
-      const user = frontpage?.user || getUserById(state.viewedCreatorUserId) || {};
-      const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
-      const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
-      const reactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
-      const friendshipStatus = frontpage?.friendshipStatus || "none";
-      const canFriend = user.id && user.id !== state.activeUserId;
-
-      $("creatorScreen").innerHTML = `
-        <div class="page">
-          <div class="stack">
-            <div class="topRow">
-              <div>
-                <h1 class="pageTitle">Maker-homepage</h1>
-                <div class="pageIntro">Lichter en simpeler dan je eigen homepage. Je komt hier via het rechter pijltje vanuit de feed.</div>
-              </div>
-              <div class="buttonGroup">
-                <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
-              </div>
-            </div>
-
-            <section class="card hero" style="background:${getUserBackground(user)}; min-height: 192px;">
-              <div class="avatarRow">
-                ${getAvatarHtml(user)}
-                <div class="identityBlock">
-                  <h2 class="identityName">${escapeHtml(user.displayName || 'Maker')}</h2>
-                  <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
-                </div>
-              </div>
-              <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Korte makerlaag</h3>
-                    <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
-                  </div>
-                  <div class="buttonGroup">
-                    <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
-                    <button class="ghostBtn" onclick="likeFrontpage('${user.id}')">♥ Homepage</button>
-                  </div>
-                </div>
-                <div class="gridStats">
-                  <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.homepageLikes || 0)}</div><div class="statLabel">Likes</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
-                  <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
-                </div>
-                <div class="actionRow">
-                  <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
-                  ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
-                </div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Publieke reactie sturen</h3>
-                    <div class="sectionText">Interactie loopt ook hier via de homepage van de maker.</div>
-                  </div>
-                </div>
-                <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
-                <div class="actionRow">
-                  <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
-                  <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
-                </div>
-                ${renderReactionList(reactions, false)}
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="cardBody stack">
-                <div class="sectionHeader">
-                  <div>
-                    <h3 class="sectionTitle">Content van deze maker</h3>
-                    <div class="sectionText">Compact gehouden, omdat dit een lichte publieke makerspagina is.</div>
-                  </div>
-                </div>
-                <div class="creatorSimpleList">
-                  ${posts.length ? posts.map((item) => renderPostCard(item, { creatorCard: true })).join("") : `<div class="emptyState">Deze maker heeft nog geen content.</div>`}
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      `;
-    }
-
-    function getFeedVideo() {
-      return document.getElementById("feedVideoElement");
-    }
-
-    function updateFeedVideoUi() {
-      const video = getFeedVideo();
-      const playBtn = document.getElementById("feedVideoPlayBtn");
-      const muteBtn = document.getElementById("feedVideoMuteBtn");
-      if (!video || !playBtn || !muteBtn) return;
-      playBtn.textContent = video.paused ? "▶" : "❚❚";
-      muteBtn.textContent = video.muted ? "🔇" : "🔊";
-    }
-
-    function bindFeedVideoControls() {
-      const video = getFeedVideo();
-      if (!video) return;
-      const safeUpdate = () => updateFeedVideoUi();
-      video.addEventListener("play", safeUpdate);
-      video.addEventListener("pause", safeUpdate);
-      video.addEventListener("loadedmetadata", safeUpdate);
-      video.addEventListener("volumechange", safeUpdate);
-      video.addEventListener("ended", safeUpdate);
-      updateFeedVideoUi();
-    }
-
-    function toggleFeedVideoPlay(event) {
-      if (event) event.stopPropagation();
-      const video = getFeedVideo();
-      if (!video) return;
-      if (video.paused) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-      updateFeedVideoUi();
-    }
-
-    function toggleFeedVideoMute(event) {
-      if (event) event.stopPropagation();
-      const video = getFeedVideo();
-      if (!video) return;
-      video.muted = !video.muted;
-      updateFeedVideoUi();
-    }
-
-    function renderFeedScreen() {
-      const items = getCurrentFeedItems();
-      const item = getCurrentFeedItem();
-
-      if (!items.length || !item) {
-        $("feedScreen").innerHTML = `
-          <div class="feedScreen">
-            <div class="page" style="padding-top:calc(var(--safe-top) + 24px);">
-              <div class="emptyState">Nog geen feeditems gevonden.</div>
+              ` : ""}
             </div>
           </div>
         `;
-        return;
-      }
+      }).join("")}
+    </div>
+  `;
+}
 
-      const owner = item.owner || getUserById(item.ownerUserId) || {};
-      const mediaHtml = item.postType === "image" && item.imageUrl
-        ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
-        : item.postType === "video" && item.videoUrl
-        ? `<div class="feedMediaWrap" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"><video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video></div>`
-        : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
+function renderCompactOwnPosts(posts) {
+  if (!Array.isArray(posts) || !posts.length) {
+    return `<div class="emptyState">Nog geen posts op je homepage.</div>`;
+  }
+  return `
+    <div class="compactChatList">
+      ${posts.map((item) => {
+        const thumb = item.postType === "image" && item.imageUrl
+          ? `<div class="compactChatThumb"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+          : item.postType === "video" && item.videoUrl
+          ? `<div class="compactChatThumb"><video src="${escapeHtml(item.videoUrl)}" muted playsinline preload="metadata"></video></div>`
+          : `<div class="compactChatThumb">tekst</div>`;
+        const metaBits = [item.postType === "text" ? "chat" : item.postType, timeAgo(item.createdAt)].filter(Boolean).join(" · ");
+        return `
+          <div class="compactChatItem">
+            ${thumb}
+            <div class="compactChatBody">
+              <div class="compactChatMeta">${escapeHtml(metaBits)}</div>
+              <div class="compactChatText">${escapeHtml(item.caption || "")}</div>
+            </div>
+            <button class="dangerBtn" onclick="deletePost(${Number(item.id)})">×</button>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
 
-      const scopeLabel = state.feedMode === "creator"
-        ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
-        : state.homeEntryPostId && state.currentFeedIndex === 0
-        ? `start vanuit homepage · eerst jouw content`
-        : `gewone feed · ${state.currentFeedIndex + 1}/${items.length}`;
+async function saveProfile() {
+  const displayName = $("profileDisplayName")?.value.trim() || "";
+  const handleRaw = $("profileHandle")?.value.trim() || "";
+  const bio = $("profileBio")?.value.trim() || "";
+  const password = $("profilePassword")?.value || "";
 
-      $("feedScreen").innerHTML = `
-        <div class="feedScreen">
-          <div class="feedCanvas">
-            <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
-              ${mediaHtml}
-              <div class="feedShade"></div>
-              <div class="feedOverlay">
-                <div class="feedOverlayRow" style="justify-content:center;">
-                  <div class="feedInfo">
-                    <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
-                    <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
-                  </div>
-                </div>
+  if (!displayName) {
+    setStatusLine("profileStatus", "Naam mag niet leeg zijn.", "error");
+    return;
+  }
+  if (!handleRaw) {
+    setStatusLine("profileStatus", "Handle mag niet leeg zijn.", "error");
+    return;
+  }
 
-                <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
-                <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
-                <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
+  const payload = { displayName, handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`, bio };
+  if (password.length > 0) payload.password = password;
 
-                <div class="feedBottom">
-                  <div class="feedContentMeta">
-                    <div class="feedStats">
-                      <span class="feedModeBadge">${escapeHtml(getKindLabel(item.feedKind || 'normal'))}</span>
-                      <span class="feedModeBadge">♥ ${Number(item.likes || 0)}</span>
-                      <span class="feedModeBadge">${escapeHtml(timeAgo(item.createdAt))}</span>
-                    </div>
-                    <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
-                    ${Array.isArray(item.hashtags) && item.hashtags.length ? `<div class="feedStats">${item.hashtags.map((tag) => `<span class="feedModeBadge">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
-                  </div>
+  setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+  try {
+    const result = await fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (result?.user?.displayName) localStorage.setItem(LOGIN_NAME_STORAGE_KEY, result.user.displayName);
+    if ($("profilePassword")) $("profilePassword").value = "";
+    await refreshAll();
+    setStatusLine("profileStatus", "Profiel opgeslagen.", "ok");
+  } catch (error) {
+    setStatusLine("profileStatus", error.message || "Profiel opslaan mislukt.", "error");
+  }
+}
 
-                  <div class="bottomActionRow">
-                    <div class="buttonGroup">
-                      <button class="pill likeBtn" onclick="event.stopPropagation(); likePost(${Number(item.id)})">Like</button>
-                      <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
-                      ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
-                      ${item.postType === "video" && item.videoUrl ? `
-                        <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
-                          <button id="feedVideoPlayBtn" class="feedVideoInlineBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
-                          <button id="feedVideoMuteBtn" class="feedVideoInlineBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
-                        </div>
-                      ` : ``}
-                    </div>
-                    <div class="feedLoopHint" onclick="event.stopPropagation();">
-                      Loopende feed · swipe ↑↓
-                    </div>
-                  </div>
+async function uploadProfileBackground() {
+  const file = $("profileBackgroundFile")?.files?.[0] || null;
+  if (!file) {
+    setStatusLine("backgroundStatus", "Kies eerst een achtergrondfoto.", "error");
+    return;
+  }
+  setStatusLine("backgroundStatus", "Achtergrond wordt geüpload...", "");
+  try {
+    const formData = new FormData();
+    formData.append("background", file);
+    const response = await fetch(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile-media`, {
+      method: "POST",
+      body: formData
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.message || "Upload mislukt.");
+    if ($("profileBackgroundFile")) $("profileBackgroundFile").value = "";
+    await refreshAll();
+    setStatusLine("backgroundStatus", "Achtergrond opgeslagen.", "ok");
+  } catch (error) {
+    setStatusLine("backgroundStatus", error.message || "Upload mislukt.", "error");
+  }
+}
 
-                  <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
-                    3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
-                  </div>
-                </div>
-              </div>
-            </article>
+function handleTopBackgroundFileChange(event) {
+  const file = event?.target?.files?.[0] || null;
+  if (!file) return;
+  uploadProfileBackground();
+}
+
+function handleHeroBioTap() {
+  const now = Date.now();
+  if (now - Number(state.heroTitleLastTapAt || 0) > 650) state.heroTitleTapCount = 0;
+  state.heroTitleLastTapAt = now;
+  state.heroTitleTapCount = Number(state.heroTitleTapCount || 0) + 1;
+
+  if (state.heroTitleTapCount >= 3) {
+    state.heroTitleTapCount = 0;
+    openHeroBioEditor();
+  }
+}
+
+function openHeroBioEditor() {
+  const currentUser = state.ownFrontpage?.user || {};
+  const currentBio = currentUser.bio || "";
+
+  const nextBio = window.prompt("Pas de tekst in de hero aan", currentBio);
+  if (nextBio == null) return;
+  const cleanedBio = String(nextBio).trim();
+
+  const profileBio = $("profileBio");
+  if (profileBio) profileBio.value = cleanedBio;
+
+  setStatusLine("profileStatus", "Hero-tekst wordt opgeslagen...", "");
+  fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      displayName: currentUser.displayName || "",
+      handle: currentUser.handle || "",
+      bio: cleanedBio
+    })
+  }).then(async () => {
+    await refreshAll();
+    setStatusLine("profileStatus", "Hero-tekst opgeslagen.", "ok");
+  }).catch((error) => {
+    setStatusLine("profileStatus", error.message || "Opslaan mislukt.", "error");
+  });
+}
+
+function triggerProfileBackgroundUpload() {
+  $("profileBackgroundFile")?.click();
+}
+
+function goToFriendsPage() {
+  window.location.href = "vrienden-module-pagina.html";
+}
+
+function goToMyContentPage() {
+  window.location.href = "mijn-content.html";
+}
+
+function goToDonationsPage() {
+  window.location.href = "budget-donaties-module.html";
+}
+
+function openFeedFromHomepageEntry() {
+  window.location.href = "mobile-feed-maker.html?entry=ownlatest";
+}
+
+function openFeedFromOwnContent() {
+  window.location.href = "mobile-feed-maker.html?scope=me";
+}
+
+function renderHomeScreen() {
+  const frontpage = state.ownFrontpage;
+  const user = frontpage?.user || getUserById(state.activeUserId) || {};
+  const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
+  const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
+  const acceptedReactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
+  const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
+  const homeLamps = homepageHasUpdates();
+  const wallet = getDonationModuleState();
+  const hasSpecialAudio = isSpecialAudioUser(user);
+
+  // SPECIAL USER RULE:
+  // For the special "Muziek" user, the direct content box is permanently replaced by the radio box.
+  // This radio box may never be replaced by another homepage box for this user.
+  state.specialAudioActive = hasSpecialAudio;
+
+  $("homeScreen").innerHTML = `
+    <div class="page pageWithUserBg" style="--page-bg-image:${getPageBackgroundValue(user)};">
+      <div class="stack">
+        <div class="topRow">
+          <div>
+            <h1 class="pageTitle">Homepage</h1>
+            <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
+          </div>
+          <div class="buttonGroup">
+            <span class="navBtnWrap">
+              <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
+              ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
+            </span>
+            <label class="uploadLabelWrap">
+              <input id="profileBackgroundFile" class="uploadLabelInput" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopBackgroundFileChange(event)" />
+              <span class="ghostBtn uploadLabelBtn">Upload achtergrond</span>
+            </label>
+            <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
+            <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
+            <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
+            <span class="navBtnWrap">
+              <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
+              ${homeLamps.friends ? '<span class="tinyLamp"></span>' : ''}
+            </span>
+            <button class="ghostBtn" onclick="window.location.href='app.html'">Desktop</button>
+            <button class="ghostBtn" onclick="switchAccount()">Account</button>
           </div>
         </div>
-      `;
+
+        <section class="card hero" style="padding-top: 86px;">
+          ${getHeroMediaHtml(user)}
+          <div class="heroLikeWrap" onclick="event.stopPropagation();">
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                ♥
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
+                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">${getHomepageLikesGivenForUser(user.id)}</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="avatarRow">
+            ${getAvatarHtml(user)}
+            <div class="identityBlock">
+              <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+              <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+              <div class="smallNote">Tik 3x op de tekst hieronder om alleen de hero-tekst aan te passen.</div>
+            </div>
+          </div>
+          <p class="identityBio" onclick="handleHeroBioTap()" title="Tik 3x om de tekst aan te passen">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
+          <div class="heroMeta">
+            <span class="heroChip">${Number(stats.posts || 0)} posts</span>
+            <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
+          </div>
+        </section>
+
+
+        ${hasSpecialAudio ? `
+        <section class="card partnerAudioCard">
+          <div class="cardBody">
+            <div class="partnerAudioShell">
+              <div class="partnerAudioScreen">
+                <div>
+                  <div class="partnerAudioLabel">Partner homepage audio</div>
+                  <div class="partnerAudioTitle">Qmusic</div>
+                  <div class="partnerAudioStatus" id="specialAudioStatus">Qmusic probeert direct te starten op 30% volume.</div>
+                </div>
+                <div class="partnerAudioVisualizer" id="specialAudioVisualizer" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="partnerAudioControls">
+                <button class="partnerAudioBtn" id="specialAudioPlayBtn" onclick="toggleSpecialHomepageAudio()" aria-label="Play of pauze">▶</button>
+                <button class="partnerAudioBtn" id="specialAudioMuteBtn" onclick="toggleSpecialHomepageMute()" aria-label="Mute">🔊</button>
+                <div class="partnerAudioHint">Alleen op de homepage van <strong>Muziek</strong> bedienbaar. In andere pagina’s speelt Qmusic alleen passief door.</div>
+              </div>
+              <div class="partnerAudioVolumeRow">
+                <input id="specialAudioVolume" type="range" min="0" max="100" value="30" oninput="setSpecialHomepageVolume(this.value)" />
+                <div class="partnerAudioVolumeValue" id="specialAudioVolumeValue">30%</div>
+              </div>
+              <audio id="specialHomepageAudio" preload="none" playsinline></audio>
+            </div>
+          </div>
+        </section>
+        ` : `
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
+                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
+              </div>
+            </div>
+            <div class="compactComposer">
+              <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
+              <div class="actionRow">
+                <div id="homePostStatus" class="statusLine"></div>
+                <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        `}
+
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Jouw wallet</h3>
+                <div class="sectionText">Snel overzicht van promotiebudget, donatiepunten en ontvangen donaties.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="goToDonationsPage()">Open wallet</button>
+              </div>
+            </div>
+            <div class="smallNote">Actieve wallet: <strong>${escapeHtml(state.activeUserId || "guest")}</strong></div>
+            <div class="walletGrid">
+            </div>
+            <div class="walletGrid">
+              <div class="walletStat">
+                <div class="walletStatValue">€${Number(wallet.promotionBudget || 0)}</div>
+                <div class="walletStatLabel">Overgebleven euro’s</div>
+              </div>
+              <div class="walletStat">
+                <div class="walletStatValue">${Number(wallet.tipPoints || 0)}</div>
+                <div class="walletStatLabel">Donatiepunten</div>
+              </div>
+              <div class="walletStat">
+                <div class="walletStatValue">${Number(wallet.receivedPoints || 0)}</div>
+                <div class="walletStatLabel">Ontvangen donaties</div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Reacties</h3>
+                <div class="sectionText">Publieke berichten voor jouw homepage.</div>
+              </div>
+            </div>
+            <textarea id="homeReactionInput" class="textarea" placeholder="Schrijf iets voor je eigen homepage..."></textarea>
+            <div class="actionRow">
+              <div class="smallNote">Nieuwe berichten komen eerst in pending.</div>
+              <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
+            </div>
+            ${renderReactionList(acceptedReactions, false)}
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Pending ${homeLamps.pending ? '<span class="tinyLamp" style="position:static; display:inline-block; margin-left:8px; vertical-align:middle;"></span>' : ''}</h3>
+                <div class="sectionText">Keuren, afwijzen of blokkeren.</div>
+              </div>
+            </div>
+            ${renderReactionList(pendingReactions, true)}
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Jouw content</h3>
+                <div class="sectionText">Compact overzicht van je laatste posts.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="openFeedFromOwnContent()">Open in feed</button>
+              </div>
+            </div>
+            ${renderCompactOwnPosts(posts)}
+          </div>
+        </section>
+
+        <section aria-hidden="true" style="position:absolute !important; left:-9999px !important; top:auto !important; width:1px !important; height:1px !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important;">
+          <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" tabindex="-1" />
+          <input id="profileHandle" value="${escapeHtml(user.handle || '')}" tabindex="-1" />
+          <textarea id="profileBio" tabindex="-1">${escapeHtml(user.bio || '')}</textarea>
+          <input id="profilePassword" type="password" value="" tabindex="-1" />
+          <div id="backgroundStatus" class="statusLine"></div>
+          <div id="profileStatus" class="statusLine"></div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  if (hasSpecialAudio) {
+    state.specialAudioMounted = false;
+    mountSpecialAudioIfNeeded();
+    ensureSpecialAudioAutoplay();
+  } else {
+    state.specialAudioMounted = false;
+  }
+  syncSpecialAudioUi();
+}
+
+function openTesterUitleg() {
+  window.location.href = "testers-uitleg.html";
+}
+
+async function refreshAll() {
+  await loadUsers();
+  await loadFeed();
+  await loadOwnFrontpage();
+  await loadFriendsData();
+  renderHomeScreen();
+}
+
+async function startApp() {
+  try {
+    if (!state.activeUserId) {
+      window.location.href = "index.html";
+      return;
     }
+    await refreshAll();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Kon de mobiele homepage niet laden.");
+  }
+}
 
-    function openCreatorContentFeed(userId) {
-      if (!userId) return;
-      state.feedMode = "creator";
-      state.makerModeUserId = userId;
-      state.makerModeReturnPostId = getCurrentFeedItem()?.id || null;
-      state.currentFeedScopeUserId = "";
-      state.currentFeedIndex = 0;
-      setActiveScreen("feed");
-      renderFeedScreen();
-    }
+startApp();
 
-    async function refreshAll(options = {}) {
-      const keepScreen = options.keepScreen || state.activeScreen;
-      await loadUsers();
-      await loadFeed();
-      await loadOwnFrontpage();
-      await loadFriendsData();
-      if (state.viewedCreatorUserId) {
-        await loadCreatorFrontpage(state.viewedCreatorUserId);
-      }
-
-      if (keepScreen === "feed") {
-        setActiveScreen("feed");
-        renderFeedScreen();
-      } else if (keepScreen === "creator" && state.viewedCreatorUserId) {
-        setActiveScreen("creator");
-        renderCreatorScreen();
-      } else {
-        setActiveScreen("home");
-        renderHomeScreen();
-      }
-    }
-
-    function bindGlobalKeys() {
-      window.addEventListener("keydown", (event) => {
-        if (state.activeScreen !== "feed") return;
-        if (event.key === "ArrowDown") moveFeed(1);
-        if (event.key === "ArrowUp") moveFeed(-1);
-      });
-    }
-
-    async function startApp() {
-      try {
-        if (!state.activeUserId) {
-          window.location.href = "index.html";
-          return;
-        }
-        await refreshAll({ keepScreen: "home" });
-        bindGlobalKeys();
-        bindFeedGestures();
-      } catch (error) {
-        console.error(error);
-        alert(error.message || "Kon de mobiele app niet laden.");
-      }
-    }
-
-    startApp();
   </script>
 </body>
 </html>
