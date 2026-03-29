@@ -346,6 +346,8 @@
       <button class="ghostBtn" onclick="refreshAll()">Vernieuw</button>
     </div>
 
+    <audio id="partnerAudioElement" preload="none" playsinline style="display:none;"></audio>
+
     <section class="hero">
       <div class="eyebrow">Vrienden</div>
       <h1>Sociale updates</h1>
@@ -395,6 +397,14 @@
     const FEED_APP_FILE = "mobile-feed-maker.html";
     const FRIEND_TARGET_KEY = "socialPrototypeFriendTargetUserId";
     const FEED_ENTRY_POST_KEY = "socialPrototypeFriendEntryPostId";
+    const SPECIAL_AUDIO_USER = {
+      id: "muziek",
+      handle: "@muziek",
+      displayName: "Muziek"
+    };
+    const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+    const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+    const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
 
     let activeUserId = localStorage.getItem(ACTIVE_USER_KEY) || "";
     let friendSearchResults = [];
@@ -403,6 +413,49 @@
     let friendsList = [];
     let friendsFeedItems = [];
     let friendsListOpen = false;
+
+    let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+    let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+    let partnerAudioMounted = false;
+
+    function isSpecialAudioUserId(userId) {
+      return String(userId || "") === SPECIAL_AUDIO_USER.id;
+    }
+
+    function getPartnerAudioEl() {
+      return document.getElementById("partnerAudioElement");
+    }
+
+    function syncPartnerAudioUi() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+    }
+
+    function mountPartnerAudioIfNeeded() {
+      const audio = getPartnerAudioEl();
+      if (!audio || partnerAudioMounted || !isSpecialAudioUserId(activeUserId)) return;
+      partnerAudioMounted = true;
+      audio.src = SPECIAL_AUDIO_STREAM;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      window.addEventListener("beforeunload", () => {
+        try { audio.pause(); } catch (_e) {}
+      });
+      syncPartnerAudioUi();
+    }
+
+    async function ensurePartnerAudioAutoplay() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      try {
+        await audio.play();
+      } catch (_e) {}
+      syncPartnerAudioUi();
+    }
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -692,6 +745,9 @@
       renderIncomingRequests();
       renderFriendsList();
       renderFriendsContentGrid();
+      mountPartnerAudioIfNeeded();
+      ensurePartnerAudioAutoplay();
+      syncPartnerAudioUi();
     }
 
     refreshAll().catch((error) => {

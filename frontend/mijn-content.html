@@ -222,6 +222,7 @@
 </head>
 <body>
   <div class="appShell">
+    <audio id="partnerAudioElement" preload="none" playsinline style="display:none;"></audio>
     <div class="stack">
       <div class="topRow">
         <div>
@@ -293,6 +294,14 @@
     const API_BASE = window.location.origin;
     const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
     const LOGIN_NAME_STORAGE_KEY = "socialPrototypeActiveUserName";
+    const SPECIAL_AUDIO_USER = {
+      id: "muziek",
+      handle: "@muziek",
+      displayName: "Muziek"
+    };
+    const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+    const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+    const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
 
     const state = {
       activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
@@ -302,8 +311,51 @@
       previewUrl: ""
     };
 
+    let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+    let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+    let partnerAudioMounted = false;
+
     function $(id) {
       return document.getElementById(id);
+    }
+
+    function isSpecialAudioUserId(userId) {
+      return String(userId || "") === SPECIAL_AUDIO_USER.id;
+    }
+
+    function getPartnerAudioEl() {
+      return $("partnerAudioElement");
+    }
+
+    function syncPartnerAudioUi() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+    }
+
+    function mountPartnerAudioIfNeeded() {
+      const audio = getPartnerAudioEl();
+      if (!audio || partnerAudioMounted || !isSpecialAudioUserId(state.activeUserId)) return;
+      partnerAudioMounted = true;
+      audio.src = SPECIAL_AUDIO_STREAM;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      window.addEventListener("beforeunload", () => {
+        try { audio.pause(); } catch (_e) {}
+      });
+      syncPartnerAudioUi();
+    }
+
+    async function ensurePartnerAudioAutoplay() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      try {
+        await audio.play();
+      } catch (_e) {}
+      syncPartnerAudioUi();
     }
 
     async function fetchJson(url, options = {}) {
@@ -520,6 +572,9 @@
         }
         await refreshPage();
         $("mediaFile")?.addEventListener("change", handleMediaChange);
+        mountPartnerAudioIfNeeded();
+        ensurePartnerAudioAutoplay();
+        syncPartnerAudioUi();
       } catch (error) {
         console.error(error);
         alert(error.message || "Kon Mijn content niet laden.");

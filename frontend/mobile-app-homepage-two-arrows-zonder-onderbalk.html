@@ -1181,6 +1181,133 @@
 
 
 
+    .partnerAudioCard::before {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
+        radial-gradient(circle at top right, rgba(255,220,120,0.14), transparent 28%);
+    }
+
+    .partnerAudioShell {
+      display: grid;
+      gap: 12px;
+    }
+
+    .partnerAudioScreen {
+      min-height: 108px;
+      border-radius: 22px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      background:
+        radial-gradient(circle at left bottom, rgba(255,205,84,0.14), transparent 28%),
+        linear-gradient(180deg, rgba(15,12,27,0.96), rgba(10,9,16,0.90));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .partnerAudioLabel {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.56);
+      font-weight: 800;
+    }
+
+    .partnerAudioTitle {
+      margin-top: 4px;
+      font-size: 22px;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .partnerAudioStatus {
+      margin-top: 6px;
+      min-height: 18px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.74);
+      line-height: 1.4;
+    }
+
+    .partnerAudioVisualizer {
+      display: flex;
+      align-items: end;
+      gap: 4px;
+      height: 28px;
+    }
+
+    .partnerAudioVisualizer span {
+      display: block;
+      width: 5px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,224,124,1), rgba(255,182,53,0.78));
+      animation: partnerAudioPulse 1.1s ease-in-out infinite;
+      animation-play-state: paused;
+      box-shadow: 0 0 12px rgba(255,180,72,0.24);
+    }
+
+    .partnerAudioVisualizer.playing span {
+      animation-play-state: running;
+    }
+
+    .partnerAudioVisualizer span:nth-child(1) { height: 10px; animation-delay: 0s; }
+    .partnerAudioVisualizer span:nth-child(2) { height: 20px; animation-delay: .12s; }
+    .partnerAudioVisualizer span:nth-child(3) { height: 14px; animation-delay: .24s; }
+    .partnerAudioVisualizer span:nth-child(4) { height: 26px; animation-delay: .36s; }
+    .partnerAudioVisualizer span:nth-child(5) { height: 18px; animation-delay: .48s; }
+
+    @keyframes partnerAudioPulse {
+      0%, 100% { transform: scaleY(.55); opacity: .45; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .partnerAudioControls {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .partnerAudioBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .partnerAudioHint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.54);
+      line-height: 1.45;
+    }
+
+    .partnerAudioVolumeRow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .partnerAudioVolumeValue {
+      min-width: 42px;
+      text-align: right;
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+
+
   </style>
 </head>
 <body>
@@ -1197,6 +1324,15 @@ const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
 const MONTHLY_LIKES_LIMIT = 100;
 const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
 
+const SPECIAL_AUDIO_USER = {
+  id: "muziek",
+  handle: "@muziek",
+  displayName: "Muziek"
+};
+const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
+
 const state = {
   activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
   users: [],
@@ -1204,8 +1340,121 @@ const state = {
   ownFrontpage: null,
   incomingFriendRequests: [],
   outgoingFriendRequests: [],
-  friendsList: []
+  friendsList: [],
+  specialAudioActive: false,
+  specialAudioPlaying: false,
+  specialAudioMuted: localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true",
+  specialAudioVolume: Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3),
+  specialAudioMounted: false
 };
+
+
+function isSpecialAudioUser(user) {
+  if (!user) return false;
+  return String(user.id || "") === SPECIAL_AUDIO_USER.id
+    || String(user.handle || "").toLowerCase() === SPECIAL_AUDIO_USER.handle.toLowerCase()
+    || String(user.displayName || "").toLowerCase() === SPECIAL_AUDIO_USER.displayName.toLowerCase();
+}
+
+function getSpecialAudioElement() {
+  return $("specialHomepageAudio");
+}
+
+function saveSpecialAudioPrefs() {
+  localStorage.setItem(SPECIAL_AUDIO_MUTED_KEY, String(!!state.specialAudioMuted));
+  localStorage.setItem(SPECIAL_AUDIO_VOLUME_KEY, String(Number(state.specialAudioVolume || 0.3)));
+}
+
+function syncSpecialAudioUi() {
+  const audio = getSpecialAudioElement();
+  const playBtn = $("specialAudioPlayBtn");
+  const muteBtn = $("specialAudioMuteBtn");
+  const status = $("specialAudioStatus");
+  const viz = $("specialAudioVisualizer");
+  const volume = $("specialAudioVolume");
+  const volumeValue = $("specialAudioVolumeValue");
+  const isPlaying = !!(audio && !audio.paused && !audio.ended);
+  state.specialAudioPlaying = isPlaying;
+
+  if (playBtn) playBtn.textContent = isPlaying ? "❚❚" : "▶";
+  if (muteBtn) muteBtn.textContent = state.specialAudioMuted ? "🔇" : "🔊";
+  if (volume) volume.value = String(Math.round((state.specialAudioVolume || 0.3) * 100));
+  if (volumeValue) volumeValue.textContent = `${Math.round((state.specialAudioVolume || 0.3) * 100)}%`;
+
+  if (status) {
+    if (!state.specialAudioActive) {
+      status.textContent = "Deze gebruiker heeft geen partner-audio actief.";
+    } else if (isPlaying && state.specialAudioMuted) {
+      status.textContent = "Qmusic speelt op de achtergrond, maar staat nu gedempt.";
+    } else if (isPlaying) {
+      status.textContent = "Qmusic speelt passief op de achtergrond.";
+    } else {
+      status.textContent = "Qmusic probeert direct te starten op 30%. Druk op play als je browser dat blokkeert.";
+    }
+  }
+
+  if (viz) viz.classList.toggle("playing", isPlaying);
+}
+
+function mountSpecialAudioIfNeeded() {
+  const audio = getSpecialAudioElement();
+  if (!audio || state.specialAudioMounted) return;
+  state.specialAudioMounted = true;
+  audio.src = SPECIAL_AUDIO_STREAM;
+  audio.volume = Number(state.specialAudioVolume || 0.3);
+  audio.muted = !!state.specialAudioMuted;
+  audio.addEventListener("play", syncSpecialAudioUi);
+  audio.addEventListener("pause", syncSpecialAudioUi);
+  audio.addEventListener("error", syncSpecialAudioUi);
+  window.addEventListener("beforeunload", () => {
+    try { audio.pause(); } catch (_e) {}
+  });
+  syncSpecialAudioUi();
+}
+
+async function ensureSpecialAudioAutoplay() {
+  const audio = getSpecialAudioElement();
+  if (!audio || !state.specialAudioActive) return;
+  audio.volume = Number(state.specialAudioVolume || 0.3);
+  audio.muted = !!state.specialAudioMuted;
+  try {
+    await audio.play();
+  } catch (_e) {}
+  syncSpecialAudioUi();
+}
+
+async function toggleSpecialHomepageAudio() {
+  const audio = getSpecialAudioElement();
+  if (!audio || !state.specialAudioActive) return;
+  try {
+    if (audio.paused) {
+      audio.volume = Number(state.specialAudioVolume || 0.3);
+      audio.muted = !!state.specialAudioMuted;
+      await audio.play();
+    } else {
+      audio.pause();
+    }
+  } catch (_e) {}
+  syncSpecialAudioUi();
+}
+
+function toggleSpecialHomepageMute() {
+  const audio = getSpecialAudioElement();
+  state.specialAudioMuted = !state.specialAudioMuted;
+  if (audio) audio.muted = state.specialAudioMuted;
+  saveSpecialAudioPrefs();
+  syncSpecialAudioUi();
+}
+
+function setSpecialHomepageVolume(value) {
+  const audio = getSpecialAudioElement();
+  const normalized = Math.max(0, Math.min(1, Number(value) / 100));
+  state.specialAudioVolume = normalized;
+  if (audio) audio.volume = normalized;
+  saveSpecialAudioPrefs();
+  syncSpecialAudioUi();
+}
+
 
 function getDonationModuleState() {
   try {
@@ -1389,6 +1638,8 @@ async function publishQuickTextPost() {
     });
     textarea.value = "";
     await refreshAll();
+    ensureSpecialAudioAutoplay();
+    syncSpecialAudioUi();
     setStatusLine("homePostStatus", "Bericht geplaatst.", "ok");
   } catch (error) {
     setStatusLine("homePostStatus", error.message || "Plaatsen mislukt.", "error");
@@ -1467,6 +1718,15 @@ function renderReactionList(reactions, showModeration = false) {
       }).join("")}
     </div>
   `;
+
+  if (hasSpecialAudio) {
+    state.specialAudioMounted = false;
+    mountSpecialAudioIfNeeded();
+    ensureSpecialAudioAutoplay();
+  } else {
+    state.specialAudioMounted = false;
+  }
+  syncSpecialAudioUi();
 }
 
 function renderCompactOwnPosts(posts) {
@@ -1584,6 +1844,12 @@ function renderHomeScreen() {
   const pendingReactions = Array.isArray(frontpage?.pendingReactions) ? frontpage.pendingReactions : [];
   const homeLamps = homepageHasUpdates();
   const wallet = getDonationModuleState();
+  const hasSpecialAudio = isSpecialAudioUser(user);
+
+  // SPECIAL USER RULE:
+  // For the special "Muziek" user, the direct content box is permanently replaced by the radio box.
+  // This radio box may never be replaced by another homepage box for this user.
+  state.specialAudioActive = hasSpecialAudio;
 
   $("homeScreen").innerHTML = `
     <div class="page pageWithUserBg" style="--page-bg-image:${getPageBackgroundValue(user)};">
@@ -1639,6 +1905,54 @@ function renderHomeScreen() {
         </section>
 
 
+        ${hasSpecialAudio ? `
+        <section class="card partnerAudioCard">
+          <div class="cardBody">
+            <div class="partnerAudioShell">
+              <div class="partnerAudioScreen">
+                <div>
+                  <div class="partnerAudioLabel">Partner homepage audio</div>
+                  <div class="partnerAudioTitle">Qmusic</div>
+                  <div class="partnerAudioStatus" id="specialAudioStatus">Qmusic probeert direct te starten op 30% volume.</div>
+                </div>
+                <div class="partnerAudioVisualizer" id="specialAudioVisualizer" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="partnerAudioControls">
+                <button class="partnerAudioBtn" id="specialAudioPlayBtn" onclick="toggleSpecialHomepageAudio()" aria-label="Play of pauze">▶</button>
+                <button class="partnerAudioBtn" id="specialAudioMuteBtn" onclick="toggleSpecialHomepageMute()" aria-label="Mute">🔊</button>
+                <div class="partnerAudioHint">Alleen op de homepage van <strong>Muziek</strong> bedienbaar. In andere pagina’s speelt Qmusic alleen passief door.</div>
+              </div>
+              <div class="partnerAudioVolumeRow">
+                <input id="specialAudioVolume" type="range" min="0" max="100" value="30" oninput="setSpecialHomepageVolume(this.value)" />
+                <div class="partnerAudioVolumeValue" id="specialAudioVolumeValue">30%</div>
+              </div>
+              <audio id="specialHomepageAudio" preload="none" playsinline></audio>
+            </div>
+          </div>
+        </section>
+        ` : `
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
+                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
+              </div>
+            </div>
+            <div class="compactComposer">
+              <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
+              <div class="actionRow">
+                <div id="homePostStatus" class="statusLine"></div>
+                <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        `}
+
+
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">
@@ -1666,25 +1980,6 @@ function renderHomeScreen() {
             </div>
           </div>
         </section>
-
-        <section class="card">
-          <div class="cardBody stack">
-            <div class="sectionHeader">
-              <div>
-                <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
-                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
-              </div>
-            </div>
-            <div class="compactComposer">
-              <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
-              <div class="actionRow">
-                <div id="homePostStatus" class="statusLine"></div>
-                <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">

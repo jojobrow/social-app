@@ -993,9 +993,12 @@
         padding: 32px;
       }
     }
+
   </style>
 </head>
 <body>
+  <audio id="partnerAudioElement" preload="none" playsinline class="hidden"></audio>
+
   <div class="page">
     <div class="viewportShell">
       <div class="floatingModeButtons">
@@ -1022,6 +1025,16 @@
     const MONTHLY_LIKES_LIMIT = 100;
     const PER_FEED_LIKE_LIMIT = 10;
 
+    const SPECIAL_AUDIO_USER = {
+      id: "muziek",
+      handle: "@muziek",
+      displayName: "Muziek"
+    };
+    const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+    const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+    const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
+
+
     let users = [];
     let feedItems = [];
     let activeUserId = localStorage.getItem("socialPrototypeActiveUserId") || "";
@@ -1036,6 +1049,148 @@
     let lastTapAt = 0;
     let tapBurstCount = 0;
     let tapBurstOwnerId = "";
+
+
+    let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+    let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+    let partnerAudioMounted = false;
+
+    function isSpecialAudioUserId(userId) {
+      return String(userId || "") === SPECIAL_AUDIO_USER.id;
+    }
+
+    function getPartnerAudioEl() {
+      return document.getElementById("partnerAudioElement");
+    }
+
+    function savePartnerAudioPrefs() {
+      localStorage.setItem(SPECIAL_AUDIO_VOLUME_KEY, String(partnerAudioVolume));
+      localStorage.setItem(SPECIAL_AUDIO_MUTED_KEY, String(partnerAudioMuted));
+    }
+
+    function syncPartnerAudioUi() {
+      const dock = document.getElementById("partnerAudioDock");
+      const audio = getPartnerAudioEl();
+      const playBtn = document.getElementById("partnerAudioPlayBtn");
+      const muteBtn = document.getElementById("partnerAudioMuteBtn");
+      const status = document.getElementById("partnerAudioStatus");
+      const viz = document.getElementById("partnerAudioVisualizer");
+      const volume = document.getElementById("partnerAudioVolume");
+      const volumeValue = document.getElementById("partnerAudioVolumeValue");
+      const isActive = isSpecialAudioUserId(activeUserId);
+      const isPlaying = !!(audio && !audio.paused && !audio.ended);
+
+      if (dock) dock.classList.toggle("show", isActive);
+      if (!isActive) return;
+
+      if (playBtn) playBtn.textContent = isPlaying ? "❚❚" : "▶";
+      if (muteBtn) muteBtn.textContent = partnerAudioMuted ? "🔇" : "🔊";
+      if (volume) volume.value = String(Math.round(partnerAudioVolume * 100));
+      if (volumeValue) volumeValue.textContent = `${Math.round(partnerAudioVolume * 100)}%`;
+      if (status) {
+        if (isPlaying && partnerAudioMuted) status.textContent = "Qmusic speelt door op desktop, maar staat nu gedempt.";
+        else if (isPlaying) status.textContent = "Qmusic speelt door op desktop.";
+        else status.textContent = "Qmusic probeert hier weer op te pakken. Druk op play als je browser dat blokkeert.";
+      }
+      if (viz) viz.classList.toggle("playing", isPlaying);
+    }
+
+    function mountPartnerAudioIfNeeded() {
+      const audio = getPartnerAudioEl();
+      if (!audio || partnerAudioMounted || !isSpecialAudioUserId(activeUserId)) {
+        syncPartnerAudioUi();
+        return;
+      }
+      partnerAudioMounted = true;
+      audio.src = SPECIAL_AUDIO_STREAM;
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      audio.addEventListener("play", syncPartnerAudioUi);
+      audio.addEventListener("pause", syncPartnerAudioUi);
+      audio.addEventListener("error", syncPartnerAudioUi);
+      window.addEventListener("beforeunload", () => {
+        try { audio.pause(); } catch (_e) {}
+      });
+      syncPartnerAudioUi();
+    }
+
+    async function ensurePartnerAudioAutoplay() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) {
+        syncPartnerAudioUi();
+        return;
+      }
+      audio.volume = partnerAudioVolume;
+      audio.muted = partnerAudioMuted;
+      try {
+        await audio.play();
+      } catch (_e) {}
+      syncPartnerAudioUi();
+    }
+
+    async function togglePartnerAudio() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      try {
+        if (audio.paused) {
+          audio.volume = partnerAudioVolume;
+          audio.muted = partnerAudioMuted;
+          await audio.play();
+        } else {
+          audio.pause();
+        }
+      } catch (_e) {}
+      syncPartnerAudioUi();
+    }
+
+    function togglePartnerAudioMute() {
+      const audio = getPartnerAudioEl();
+      partnerAudioMuted = !partnerAudioMuted;
+      if (audio) audio.muted = partnerAudioMuted;
+      savePartnerAudioPrefs();
+      syncPartnerAudioUi();
+    }
+
+    function setPartnerAudioVolume(value) {
+      const audio = getPartnerAudioEl();
+      partnerAudioVolume = Math.max(0, Math.min(1, Number(value) / 100));
+      if (audio) audio.volume = partnerAudioVolume;
+      savePartnerAudioPrefs();
+      syncPartnerAudioUi();
+    }
+
+    async function toggleHomepageRadioPlay() {
+      const audio = getPartnerAudioEl();
+      if (!audio || !isSpecialAudioUserId(activeUserId)) return;
+      try {
+        if (audio.paused) {
+          audio.volume = partnerAudioVolume;
+          audio.muted = partnerAudioMuted;
+          await audio.play();
+        } else {
+          audio.pause();
+        }
+      } catch (_e) {}
+      syncPartnerAudioUi();
+    }
+
+    function toggleHomepageRadioMute() {
+      const audio = getPartnerAudioEl();
+      if (!isSpecialAudioUserId(activeUserId)) return;
+      partnerAudioMuted = !partnerAudioMuted;
+      if (audio) audio.muted = partnerAudioMuted;
+      savePartnerAudioPrefs();
+      syncPartnerAudioUi();
+    }
+
+    function setHomepageRadioVolume(percent) {
+      const audio = getPartnerAudioEl();
+      if (!isSpecialAudioUserId(activeUserId)) return;
+      partnerAudioVolume = Math.max(0, Math.min(1, Number(percent) / 100));
+      if (audio) audio.volume = partnerAudioVolume;
+      savePartnerAudioPrefs();
+      syncPartnerAudioUi();
+    }
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -1662,6 +1817,20 @@
 
                 <div id="backgroundUploadStatus" class="uploadStatus">Homepage-achtergrond wordt gebruikt op fullscreen én splitscreen homepage.</div>
 
+                ${String(user.id) === "muziek" ? `
+                <div class="homeSection" style="margin-top:4px;">
+                  <div class="sectionTitle">Qmusic homepage-bediening</div>
+                  <div class="moderationNote">Qmusic speelt passief door op andere pagina’s. Bedienen kan alleen hier op de homepage van Muziek.</div>
+                  <div class="postActionOverlay" style="margin-top:10px;">
+                    <button class="btnPrimary" onclick="toggleHomepageRadioPlay()">Play / pauze</button>
+                    <button class="btnSoft" onclick="toggleHomepageRadioMute()">Mute</button>
+                    <button class="btnSoft" onclick="setHomepageRadioVolume(10)">10%</button>
+                    <button class="btnSoft" onclick="setHomepageRadioVolume(30)">30%</button>
+                    <button class="btnSoft" onclick="setHomepageRadioVolume(50)">50%</button>
+                  </div>
+                </div>
+                ` : ``}
+
                 ${renderComposePanel({ inline: true })}
               </div>
 
@@ -1758,6 +1927,9 @@
         currentFocusedPostId = null;
         pauseAllVideos();
         await refreshAll();
+        mountPartnerAudioIfNeeded();
+        ensurePartnerAudioAutoplay();
+        syncPartnerAudioUi();
       });
 
       const backgroundInput = document.getElementById("backgroundUploadInput");
@@ -2137,12 +2309,18 @@
     }
 
     async function refreshAll() {
-      if (!activeUserId) return;
+      if (!activeUserId) {
+        syncPartnerAudioUi();
+        return;
+      }
 
       try {
         await loadFeed();
         await renderFeedStream();
         if (screenMode === "home") await renderOwnHomeScreen();
+        mountPartnerAudioIfNeeded();
+        ensurePartnerAudioAutoplay();
+        syncPartnerAudioUi();
       } catch (error) {
         console.error(error);
         alert(error.message || "Verversen mislukt.");
@@ -2362,6 +2540,7 @@
         await loadUsers();
 
         if (!activeUserId) {
+          syncPartnerAudioUi();
           window.location.href = "index.html";
           return;
         }
@@ -2378,6 +2557,9 @@
           currentFocusedPostId = feedItems[0].id;
           syncActiveLinkedContent();
         }
+        mountPartnerAudioIfNeeded();
+        ensurePartnerAudioAutoplay();
+        syncPartnerAudioUi();
       } catch (error) {
         console.error(error);
         alert("Kon de desktop-app niet laden.");
