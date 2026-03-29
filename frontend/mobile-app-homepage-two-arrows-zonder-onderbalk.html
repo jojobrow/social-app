@@ -1334,6 +1334,17 @@ const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
 const MONTHLY_LIKES_LIMIT = 100;
 const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
 
+const state = {
+  activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+  users: [],
+  feedItems: [],
+  ownFrontpage: null,
+  incomingFriendRequests: [],
+  outgoingFriendRequests: [],
+  friendsList: [],
+  radio: null
+};
+
 const RADIO_STORAGE_KEY = "socialPrototypeHomepageRadio";
 const RADIO_PRESETS = [
   {
@@ -1615,16 +1626,6 @@ function getHomepageLikesGivenForUser(userId) {
   const likeState = getMonthlyLikesState();
   return Number(likeState.homepageLikesByUser?.[userId] || 0);
 }
-
-const state = {
-  activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
-  users: [],
-  feedItems: [],
-  ownFrontpage: null,
-  incomingFriendRequests: [],
-  outgoingFriendRequests: [],
-  friendsList: []
-};
 
 const $ = (id) => document.getElementById(id);
 
