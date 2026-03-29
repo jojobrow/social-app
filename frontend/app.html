@@ -1208,6 +1208,13 @@
       return data;
     }
 
+    function switchAccount() {
+      localStorage.removeItem("socialPrototypeActiveUserId");
+      localStorage.removeItem("socialPrototypeActiveUserName");
+      localStorage.removeItem("socialPrototypeRememberLogin");
+      window.location.href = "index.html";
+    }
+
     function getInitials(name = "?") {
       return name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
     }
@@ -1807,6 +1814,7 @@
                     <button class="btnSoft" onclick="window.location.href='vrienden-module-pagina.html'">Vrienden</button>
                     <button class="btnSoft" onclick="openTesterUitleg()">Uitleg testers</button>
                     <button class="btnSoft" onclick="goToFeed()">Feed</button>
+                    <button class="btnSoft" onclick="switchAccount()">Terug naar inloggen</button>
                   </div>
                 </div>
 
