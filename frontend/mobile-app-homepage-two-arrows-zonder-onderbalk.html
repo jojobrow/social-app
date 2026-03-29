@@ -2155,5 +2155,50 @@ async function startApp() {
 startApp();
 
   </script>
-</body>
+
+    <audio id="specialHomepageAudio" src="https://stream.qmusic.nl/qmusic/mp3" loop="true" autoplay></audio>
+    
+    <script>
+      const radioStream = document.getElementById('specialHomepageAudio');  // De radio stream
+      let isRadioPlaying = true;
+
+      // Pauzeer de radio wanneer een video afspeelt
+      function handleVideoPlay() {
+        if (radioStream && !radioStream.paused) {
+          radioStream.pause();  // Pauzeer de radio als een video wordt afgespeeld
+          isRadioPlaying = false;
+        }
+      }
+
+      // Hervat de radio wanneer de video eindigt
+      function handleVideoEnd() {
+        if (radioStream && !isRadioPlaying) {
+          radioStream.play();  // Hervat de radio zodra de video eindigt
+          isRadioPlaying = true;
+        }
+      }
+
+      // Event listeners voor video's in de feed
+      document.querySelectorAll('video').forEach((video) => {
+        video.addEventListener('play', handleVideoPlay);  // Pauzeer de radio bij het afspelen van een video
+        video.addEventListener('ended', handleVideoEnd);  // Hervat de radio bij het beëindigen van een video
+      });
+
+      // Zorg ervoor dat de audio correct wordt ingesteld bij het starten van de app
+      function syncSpecialAudioUi() {
+        const audio = document.getElementById('specialHomepageAudio');
+        if (audio && !audio.paused) {
+          audio.play();  // Start de audio als het nog niet speelt
+        }
+      }
+
+      // Functie voor het starten van de app
+      function startApp() {
+        syncSpecialAudioUi();
+      }
+
+      startApp();
+    </script>
+    </body>
+    
 </html>
