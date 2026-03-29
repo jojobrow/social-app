@@ -1345,7 +1345,9 @@ const state = {
   specialAudioPlaying: false,
   specialAudioMuted: localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true",
   specialAudioVolume: Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3),
-  specialAudioMounted: false
+  specialAudioMounted: false,
+  heroTitleTapCount: 0,
+  heroTitleLastTapAt: 0
 };
 
 
@@ -1488,13 +1490,9 @@ function getCurrentLikeMonthKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function getMonthlyLikesStorageKey() {
-  return `${MONTHLY_LIKES_STORAGE_KEY}_${state.activeUserId || "guest"}`;
-}
-
 function getMonthlyLikesState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(getMonthlyLikesStorageKey()) || "{}");
+    const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
     const monthKey = getCurrentLikeMonthKey();
     if (saved.monthKey !== monthKey) {
       return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {}, homepageLikesByUser: {} };
@@ -1511,7 +1509,7 @@ function getMonthlyLikesState() {
 }
 
 function saveMonthlyLikesState(data) {
-  localStorage.setItem(getMonthlyLikesStorageKey(), JSON.stringify(data));
+  localStorage.setItem(MONTHLY_LIKES_STORAGE_KEY, JSON.stringify(data));
 }
 
 function getRemainingLikesThisMonth() {
@@ -1814,6 +1812,50 @@ async function uploadProfileBackground() {
   }
 }
 
+function handleHeroTitleTap() {
+  const now = Date.now();
+  if (now - Number(state.heroTitleLastTapAt || 0) > 650) state.heroTitleTapCount = 0;
+  state.heroTitleLastTapAt = now;
+  state.heroTitleTapCount = Number(state.heroTitleTapCount || 0) + 1;
+
+  if (state.heroTitleTapCount >= 3) {
+    state.heroTitleTapCount = 0;
+    openHeroTitleEditor();
+  }
+}
+
+function openHeroTitleEditor() {
+  const currentName = state.ownFrontpage?.user?.displayName || "";
+  const nextName = window.prompt("Pas de hero-tekst aan", currentName);
+  if (nextName == null) return;
+  const cleaned = String(nextName).trim();
+  if (!cleaned) return;
+
+  const handleRaw = $("profileHandle")?.value.trim() || (state.ownFrontpage?.user?.handle || "");
+  const bio = $("profileBio")?.value.trim() || (state.ownFrontpage?.user?.bio || "");
+
+  setStatusLine("profileStatus", "Profiel wordt opgeslagen...", "");
+  fetchJson(`${API_BASE}/users/${encodeURIComponent(state.activeUserId)}/profile`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      displayName: cleaned,
+      handle: handleRaw.startsWith("@") ? handleRaw : `@${handleRaw}`,
+      bio
+    })
+  }).then(async (result) => {
+    if (result?.user?.displayName) localStorage.setItem(LOGIN_NAME_STORAGE_KEY, result.user.displayName);
+    await refreshAll();
+    setStatusLine("profileStatus", "Hero-tekst opgeslagen.", "ok");
+  }).catch((error) => {
+    setStatusLine("profileStatus", error.message || "Opslaan mislukt.", "error");
+  });
+}
+
+function triggerProfileBackgroundUpload() {
+  $("profileBackgroundFile")?.click();
+}
+
 function goToFriendsPage() {
   window.location.href = "vrienden-module-pagina.html";
 }
@@ -1863,6 +1905,7 @@ function renderHomeScreen() {
               <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
               ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
             </span>
+            <button class="ghostBtn" onclick="triggerProfileBackgroundUpload()">Upload achtergrond</button>
             <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
             <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
@@ -1892,8 +1935,9 @@ function renderHomeScreen() {
           <div class="avatarRow">
             ${getAvatarHtml(user)}
             <div class="identityBlock">
-              <h2 class="identityName">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
+              <h2 class="identityName" onclick="handleHeroTitleTap()" title="Tik 3x om aan te passen">${escapeHtml(user.displayName || 'Gebruiker')}</h2>
               <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+              <div class="smallNote">Tik 3x op de naam om de hero-tekst direct aan te passen.</div>
             </div>
           </div>
           <p class="identityBio">${escapeHtml(user.bio || 'Nieuwe gebruiker op het prototype.')}</p>
@@ -2026,31 +2070,14 @@ function renderHomeScreen() {
           </div>
         </section>
 
-        <section class="card">
-          <div class="cardBody stack">
-            <div class="sectionHeader">
-              <div>
-                <h3 class="sectionTitle">Profiel bewerken</h3>
-                <div class="sectionText">Pas je profiel aan en upload je homepage-achtergrond.</div>
-              </div>
-            </div>
-            <input id="profileDisplayName" class="field" value="${escapeHtml(user.displayName || '')}" placeholder="Naam" />
-            <input id="profileHandle" class="field" value="${escapeHtml(user.handle || '')}" placeholder="@handle" />
-            <textarea id="profileBio" class="textarea" placeholder="Korte bio...">${escapeHtml(user.bio || '')}</textarea>
-            <input id="profilePassword" class="field" type="password" placeholder="Nieuw wachtwoord (optioneel)" />
-            <div class="profileUploadRow">
-              <div class="fieldLabel">Homepage-achtergrond</div>
-              <input id="profileBackgroundFile" class="fileInputPlain" type="file" accept="image/jpeg,image/png,image/webp" />
-              <div class="inlineActionRow">
-                <button class="ghostBtn" onclick="uploadProfileBackground()">Achtergrond uploaden</button>
-                <div id="backgroundStatus" class="statusLine"></div>
-              </div>
-            </div>
-            <div class="composerActions">
-              <div id="profileStatus" class="statusLine"></div>
-              <button class="solidBtn" onclick="saveProfile()">Opslaan</button>
-            </div>
-          </div>
+        <section class="hidden" aria-hidden="true" style="display:none !important;">
+          <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" />
+          <input id="profileHandle" value="${escapeHtml(user.handle || '')}" />
+          <textarea id="profileBio">${escapeHtml(user.bio || '')}</textarea>
+          <input id="profilePassword" type="password" value="" />
+          <input id="profileBackgroundFile" type="file" accept="image/jpeg,image/png,image/webp" />
+          <div id="backgroundStatus" class="statusLine"></div>
+          <div id="profileStatus" class="statusLine"></div>
         </section>
       </div>
     </div>
