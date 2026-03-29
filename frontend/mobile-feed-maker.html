@@ -1509,9 +1509,13 @@ function getCurrentLikeMonthKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function getMonthlyLikesStorageKey() {
+  return `${MONTHLY_LIKES_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
 function getMonthlyLikesState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(MONTHLY_LIKES_STORAGE_KEY) || "{}");
+    const saved = JSON.parse(localStorage.getItem(getMonthlyLikesStorageKey()) || "{}");
     const monthKey = getCurrentLikeMonthKey();
     if (saved.monthKey !== monthKey) {
       return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {} };
@@ -1527,7 +1531,7 @@ function getMonthlyLikesState() {
 }
 
 function saveMonthlyLikesState(data) {
-  localStorage.setItem(MONTHLY_LIKES_STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(getMonthlyLikesStorageKey(), JSON.stringify(data));
 }
 
 function getLikesGivenForPost(postId) {
