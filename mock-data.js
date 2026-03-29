@@ -49,10 +49,9 @@ function applyMockData(db, saveDb, hashPassword) {
     { id: "u138", displayName: "Jennifer", handle: "@jennifer", bio: "Warme portretten, lichte kleuren en zachte captions.", avatarColor: "#e4cfc3", heroColor: "#fbefe8", homepageLikes: 21, backgroundUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80" },
     { id: "u139", displayName: "Chantal", handle: "@chantal", bio: "Kleine sociale updates en zachte homepage-sfeer.", avatarColor: "#dfc9bc", heroColor: "#f8ece4", homepageLikes: 15, backgroundUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1600&q=80" },
     { id: "u140", displayName: "Eduard", handle: "@eduard", bio: "Rustige updates, familiebeelden en warme homepage-sfeer.", avatarColor: "#c9b29d", heroColor: "#eadcd0", homepageLikes: 13, backgroundUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80" },
-    { id: "u141", displayName: "Grada", handle: "@grada", bio: "Lieve portretten, zachte kleuren en kleine familiemomenten.", avatarColor: "#e2cdbf", heroColor: "#faeee6", homepageLikes: 17, backgroundUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1600&q=80" }
+    { id: "u141", displayName: "Grada", handle: "@grada", bio: "Lieve portretten, zachte kleuren en kleine familiemomenten.", avatarColor: "#e2cdbf", heroColor: "#faeee6", homepageLikes: 17, backgroundUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1600&q=80" },
+    { id: "muziek", displayName: "Muziek", handle: "@muziek", bio: "Generieke muziek-demo gebruiker voor partnerpitches met ingebakken radiofunctie.", avatarColor: "#f2c14e", heroColor: "#fff0bf", homepageLikes: 42, backgroundUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80" }
   ];
-
-    { id: "muziek", displayName: "Muziek", handle: "@muziek", bio: "Generieke muziek-demo gebruiker voor partnerpitches met ingebakken radiofunctie.", avatarColor: "#f2c14e", heroColor: "#fff0bf", homepageLikes: 42, backgroundUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80" },
 
   const imagePool = [
     "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
