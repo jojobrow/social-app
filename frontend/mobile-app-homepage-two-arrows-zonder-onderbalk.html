@@ -1338,14 +1338,7 @@
 </head>
 <body>
   <div class="appShell">
-    <section class="screen active" id="homeScreen">
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+    <section class="screen active" id="homeScreen"></section>
   </div>
   <script>
 
@@ -1987,14 +1980,7 @@ function renderHomeScreen() {
             <span class="heroChip">${Number(stats.posts || 0)} posts</span>
             <span class="heroChip">${Number(stats.friends || 0)} vrienden</span>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
 
         ${hasSpecialAudio ? `
@@ -2023,14 +2009,7 @@ function renderHomeScreen() {
               <audio id="specialHomepageAudio" preload="none" playsinline></audio>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         ` : `
         <section class="card">
           <div class="cardBody stack">
@@ -2048,14 +2027,7 @@ function renderHomeScreen() {
               </div>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         `}
 
 
@@ -2088,14 +2060,7 @@ function renderHomeScreen() {
               </div>
             </div>
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
         <section class="card">
           <div class="cardBody stack">
             <div class="sectionHeader">
@@ -2111,14 +2076,7 @@ function renderHomeScreen() {
             </div>
             ${renderReactionList(acceptedReactions, false)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
         <section class="card">
           <div class="cardBody stack">
@@ -2130,14 +2088,7 @@ function renderHomeScreen() {
             </div>
             ${renderReactionList(pendingReactions, true)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
         <section class="card">
           <div class="cardBody stack">
@@ -2152,14 +2103,7 @@ function renderHomeScreen() {
             </div>
             ${renderCompactOwnPosts(posts)}
           </div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
 
         <section aria-hidden="true" style="position:absolute !important; left:-9999px !important; top:auto !important; width:1px !important; height:1px !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important;">
           <input id="profileDisplayName" value="${escapeHtml(user.displayName || '')}" tabindex="-1" />
@@ -2168,14 +2112,7 @@ function renderHomeScreen() {
           <input id="profilePassword" type="password" value="" tabindex="-1" />
           <div id="backgroundStatus" class="statusLine"></div>
           <div id="profileStatus" class="statusLine"></div>
-        
-    <!-- Adding the link bar above the feed -->
-    <div class="link-bar">
-      <input type="url" id="linkInput" class="field" placeholder="Voeg een link toe..." />
-      <button class="solidBtn" onclick="handleLinkSubmit(document.getElementById('linkInput').value)">Voeg toe</button>
-    </div>
-    </section>
-    
+        </section>
       </div>
     </div>
   `;
@@ -2217,151 +2154,6 @@ async function startApp() {
 
 startApp();
 
-  
-const blacklistedWords = [
-  'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
-  'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
-  'blood', 'mutilation', 'disturbing', 'gruesome'
-];
-
-function containsBlacklistedWords(url) {
-  return blacklistedWords.some(word => url.toLowerCase().includes(word));
-}
-
-function handleLinkSubmit(url) {
-  if (containsBlacklistedWords(url)) {
-    alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
-  } else {
-    // Ga verder met het verwerken van de link (bijvoorbeeld in de feed)
-  }
-}
-
-
-async function checkLinkAccessibility(url) {
-  try {
-    const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-
-    const headers = response.headers;
-
-    // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
-    if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
-      console.log('The site blocks embedding via iframe.');
-      return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
-    }
-
-    if (response.ok) {
-      console.log('The link is accessible:', url);
-      return { blockedBySite: false, accessible: true }; // The link is accessible
-    } else {
-      console.log('The link is not accessible:', url, 'Status code:', response.status);
-      return { blockedBySite: false, accessible: false }; // The site is not accessible
-    }
-  } catch (error) {
-    console.error('Error opening the link:', url, error);
-    return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
-  }
-}
-
-async function handleLinkSubmit(url) {
-  const { blockedBySite, accessible } = await checkLinkAccessibility(url);
-
-  if (!accessible) {
-    alert('This link cannot be opened due to firewall or network restrictions.');
-    return;
-  }
-
-  if (blockedBySite) {
-    alert('This site blocks embedding content, but the link will be displayed.');
-    // Display the link as text in the feed
-    displayLinkAsText(url);
-  } else {
-    // Continue with processing the link (e.g., displaying media or playing audio)
-    displayLinkAsMedia(url);
-  }
-}
-
-function displayLinkAsText(url) {
-  // Display the link as text in the feed (for inaccessible links or sites that block embedding)
-  console.log('Displaying link as text:', url);
-}
-
-function displayLinkAsMedia(url) {
-  // Display the media (video/audio) in the feed (if accessible)
-  console.log('Displaying link as media:', url);
-}
-
-</script>
-</body>
-</html>
-
-  <script>
-    const blacklistedWords = [
-      'sex', 'porn', 'xxx', 'adult', 'gambling', 'explicit', 
-      'nude', 'escort', 'fetish', 'gore', 'snuf', 'violence',
-      'blood', 'mutilation', 'disturbing', 'gruesome'
-    ];
-
-    function containsBlacklistedWords(url) {
-      return blacklistedWords.some(word => url.toLowerCase().includes(word));
-    }
-
-    async function checkLinkAccessibility(url) {
-      try {
-        const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-        const headers = response.headers;
-
-        // Check if the site blocks embedding via X-Frame-Options or Content-Security-Policy
-        if (headers.get('X-Frame-Options') === 'DENY' || headers.get('Content-Security-Policy')?.includes('frame-ancestors')) {
-          console.log('The site blocks embedding via iframe.');
-          return { blockedBySite: true, accessible: true }; // The site blocks embedding, but the link is accessible
-        }
-
-        if (response.ok) {
-          console.log('The link is accessible:', url);
-          return { blockedBySite: false, accessible: true }; // The link is accessible
-        } else {
-          console.log('The link is not accessible:', url, 'Status code:', response.status);
-          return { blockedBySite: false, accessible: false }; // The site is not accessible
-        }
-      } catch (error) {
-        console.error('Error opening the link:', url, error);
-        return { blockedBySite: false, accessible: false }; // The site is not reachable due to firewall or other issues
-      }
-    }
-
-    function displayLinkAsText(url) {
-      // Display the link as text in the feed (for inaccessible links or sites that block embedding)
-      console.log('Displaying link as text:', url);
-    }
-
-    function displayLinkAsMedia(url) {
-      // Display the media (video/audio) in the feed (if accessible)
-      console.log('Displaying link as media:', url);
-    }
-
-    async function handleLinkSubmit(url) {
-      // First check if the URL is safe (doesn't contain blacklisted words)
-      if (containsBlacklistedWords(url)) {
-        alert('Deze link bevat ongepaste of gewelddadige inhoud en kan niet gedeeld worden.');
-        return;
-      }
-      
-      // Then check if the link is accessible
-      const { blockedBySite, accessible } = await checkLinkAccessibility(url);
-
-      if (!accessible) {
-        alert('Deze link kan niet worden geopend door firewall- of netwerkbeperkingen.');
-        return;
-      }
-
-      if (blockedBySite) {
-        alert('Deze site blokkeert het insluiten van content, maar de link zal als tekst worden weergegeven.');
-        displayLinkAsText(url);
-      } else {
-        // Continue with processing the link (e.g., displaying media or playing audio)
-        displayLinkAsMedia(url);
-      }
-    }
   </script>
 </body>
 </html>
