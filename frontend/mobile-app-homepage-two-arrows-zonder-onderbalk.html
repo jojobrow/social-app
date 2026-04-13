@@ -1449,6 +1449,7 @@
       box-shadow: var(--shadow-soft);
       overflow: hidden;
       position: relative;
+      isolation: isolate;
     }
 
     .quickPostPreviewCard::before {
@@ -1457,6 +1458,26 @@
       inset: 0;
       background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
       pointer-events: none;
+      z-index: 1;
+    }
+
+    .quickPostPreviewBackdrop {
+      position: absolute;
+      inset: -14px;
+      z-index: 0;
+      background-image: var(--quick-post-hero-bg, none);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(18px);
+      transform: scale(1.1);
+      opacity: 0;
+      transition: opacity .2s ease;
+      pointer-events: none;
+    }
+
+    .quickPostPreviewCard.hasHeroBlur .quickPostPreviewBackdrop {
+      opacity: .92;
     }
 
     .quickPostPreviewText {
@@ -1492,6 +1513,17 @@
         radial-gradient(circle at bottom right, rgba(255,120,209,0.16), transparent 34%),
         linear-gradient(135deg, rgba(124,54,255,0.98), rgba(52,19,122,0.98));
       color: #fff9f4;
+    }
+
+    .quickPreviewTheme-heroBlur {
+      background:
+        linear-gradient(135deg, rgba(20,15,31,0.36), rgba(44,28,73,0.62)),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+      color: #fffafc;
+    }
+
+    .quickPreviewTheme-heroBlur .quickPostPreviewText {
+      text-shadow: 0 2px 18px rgba(0,0,0,0.34);
     }
 
     .quickPreviewFont-clean {
@@ -1731,7 +1763,8 @@ function getQuickPostThemeOptions() {
   return [
     { id: "calm", label: "Rustig" },
     { id: "dark", label: "Donker" },
-    { id: "pop", label: "Opvallend" }
+    { id: "pop", label: "Opvallend" },
+    { id: "heroBlur", label: "Hero wazig" }
   ];
 }
 
@@ -1778,8 +1811,12 @@ function renderQuickPostStyleChips(options, activeId, setterName) {
 function updateQuickPostPreview() {
   const previewCard = $("quickPostPreviewCard");
   const previewText = $("quickPostPreviewText");
+  const currentUser = state.ownFrontpage?.user || getUserById(state.activeUserId) || {};
+  const heroBackgroundUrl = currentUser?.backgroundUrl ? `url("${currentUser.backgroundUrl}")` : "none";
+
   if (previewCard) {
-    previewCard.className = `quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}`;
+    previewCard.className = `quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}${state.quickPostTheme === "heroBlur" ? " hasHeroBlur" : ""}`;
+    previewCard.style.setProperty("--quick-post-hero-bg", heroBackgroundUrl);
   }
   if (previewText) {
     previewText.textContent = getQuickPostPreviewText();
@@ -2332,6 +2369,7 @@ function renderHomeScreen() {
               <div class="stylePickerRow">
                 <div class="stylePickerLabel">Achtergrond</div>
                 ${renderQuickPostThemeButtons()}
+                <div class="smallNote">Met <strong>Hero wazig</strong> gebruik je een vervaagde versie van je hero-achtergrond als tekstkaart.</div>
               </div>
 
               <div class="stylePickerRow">
@@ -2341,7 +2379,8 @@ function renderHomeScreen() {
 
               <div class="quickPostPreviewWrap">
                 <div class="stylePickerLabel">Zo ziet je post eruit</div>
-                <div id="quickPostPreviewCard" class="quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}">
+                <div id="quickPostPreviewCard" class="quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}${state.quickPostTheme === 'heroBlur' ? ' hasHeroBlur' : ''}" style="--quick-post-hero-bg:${user?.backgroundUrl ? `url('${encodeURI(user.backgroundUrl)}')` : 'none'};">
+                  <div class="quickPostPreviewBackdrop" aria-hidden="true"></div>
                   <div id="quickPostPreviewText" class="quickPostPreviewText">Zo ziet je tekstpost eruit voordat je hem plaatst.</div>
                 </div>
               </div>
