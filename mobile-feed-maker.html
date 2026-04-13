@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Social Prototype Mobile - Feed & Maker</title>
+  <style>
+
+    :root {
+      --bg: #09070f;
+      --bg-2: #120f19;
+      --bg-3: #19141f;
+      --panel: rgba(20, 17, 25, 0.84);
+      --panel-2: rgba(28, 24, 35, 0.92);
+      --panel-3: rgba(36, 30, 43, 0.96);
+      --glass: rgba(255,255,255,0.07);
+      --line: rgba(255,255,255,0.10);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #f7f3ef;
+      --text-soft: #d8d0c6;
+      --text-dim: #a99f95;
+      --accent: #c8a97e;
+      --accent-2: #f1dfc8;
+      --accent-3: #8e6c4f;
+      --accent-deep: #6f543e;
+      --ok: #94d4b7;
+      --danger: #f0a9a9;
+      --shadow: 0 24px 60px rgba(0,0,0,0.36);
+      --shadow-soft: 0 16px 36px rgba(0,0,0,0.22);
+      --radius: 26px;
+      --radius-sm: 18px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(200,169,126,0.18), transparent 26%),
+        radial-gradient(circle at 82% 14%, rgba(241,223,200,0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .appShell {
+      min-height: 100dvh;
+      max-width: 460px;
+      margin: 0 auto;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(8,7,11,0.58), rgba(18,15,25,0.58)),
+        radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 34%);
+      backdrop-filter: blur(20px);
+    }
+
+    .screen {
+      display: none;
+      min-height: 100dvh;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .page {
+      padding: calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 28px);
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
+        linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0)),
+        radial-gradient(circle at top right, rgba(241,223,200,0.05), transparent 26%);
+      pointer-events: none;
+    }
+
+    .cardBody {
+      position: relative;
+      z-index: 1;
+      padding: 16px;
+    }
+
+    .topRow,
+    .sectionHeader,
+    .feedOverlayRow,
+    .statRow,
+    .actionRow,
+    .composerActions,
+    .miniRow,
+    .bottomActionRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topRow,
+    .sectionHeader {
+      align-items: flex-start;
+    }
+
+    .pageTitle {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+      font-weight: 900;
+    }
+
+    .pageIntro {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 34ch;
+    }
+
+    .buttonGroup {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .navBtnWrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .tinyLamp {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ffcf5a;
+      box-shadow: 0 0 0 2px rgba(9,7,15,0.92), 0 0 14px rgba(255,207,90,0.55);
+      pointer-events: none;
+    }
+
+
+    .pill,
+    .ghostBtn,
+    .solidBtn,
+    .dangerBtn {
+      min-height: 42px;
+      border-radius: 999px;
+      padding: 0 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transition: transform .15s ease, opacity .15s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .pill:active,
+    .ghostBtn:active,
+    .solidBtn:active,
+    .dangerBtn:active,
+    .arrowBtn:active,
+    .feedTapHint:active {
+      transform: scale(0.985);
+    }
+
+    .pill,
+    .ghostBtn {
+      color: var(--text);
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .solidBtn {
+      color: #18130f;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 14px 32px rgba(200,169,126,0.22);
+    }
+
+    .dangerBtn {
+      color: #ffe4e4;
+      background: rgba(240,169,169,0.10);
+      border: 1px solid rgba(240,169,169,0.18);
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px;
+      min-height: 228px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background:
+        linear-gradient(180deg, rgba(18,15,25,0.92), rgba(12,10,18,0.96));
+    }
+
+    .heroMedia {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .heroMedia img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(8,7,11,0.64)),
+        radial-gradient(circle at top right, rgba(241,223,200,0.10), transparent 30%),
+        radial-gradient(circle at top left, rgba(200,169,126,0.08), transparent 28%);
+    }
+
+    .hero > * { position: relative; z-index: 1; }
+
+    .heroLikeWrap {
+      position: absolute !important;
+      top: 16px;
+      right: 16px;
+      z-index: 2 !important;
+    }
+
+    .heroLikeWrap .likeQuotaStack {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: auto;
+      display: inline-flex;
+    }
+
+    .heroLikeWrap .likeCountStack {
+      top: -18px;
+      right: -8px;
+    }
+
+    .avatarRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #fff;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 24px rgba(0,0,0,0.20);
+      flex: 0 0 auto;
+    }
+
+    .avatar img,
+    .ownerMiniAvatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .identityName {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .identityHandle {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+    }
+
+    .identityBio {
+      margin: 12px 0 0;
+      max-width: 92%;
+      color: rgba(255,255,255,0.90);
+      font-size: 14px;
+      line-height: 1.56;
+    }
+
+    .gridStats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .statValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .statLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .sectionTitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .sectionText,
+    .smallNote,
+    .muted {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.56;
+    }
+
+    .muted strong { color: var(--text); }
+
+    .field,
+    .textarea,
+    .fileInput,
+    .select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 18px;
+      color: var(--text);
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.11);
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .field::placeholder,
+    .textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    .textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    .uploadBox {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, rgba(200,169,126,0.12), rgba(255,255,255,0.03));
+      border: 1px dashed rgba(200,169,126,0.26);
+    }
+
+    .statusLine {
+      min-height: 20px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .statusLine.error { color: #ffd1d1; }
+    .statusLine.ok { color: #d1ffdf; }
+
+    .postList,
+    .creatorSimpleList,
+    .reactionList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .postCard {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.045);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .postMedia {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(200,169,126,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(33,27,39,0.96), rgba(17,14,22,0.98));
+    }
+
+    .postMedia img,
+    .postMedia video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .postTextOnly {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+      font-size: 25px;
+      line-height: 1.42;
+      font-weight: 900;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(241,223,200,0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(200,169,126,0.14), transparent 30%),
+        linear-gradient(135deg, rgba(86,67,49,0.95), rgba(22,18,28,0.98));
+    }
+
+    .kindBadge,
+    .makerBadge,
+    .feedModeBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.95);
+      background: rgba(10,9,13,0.44);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .postMeta {
+      padding: 12px 12px 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .ownerMini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ownerMiniAvatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+      flex: 0 0 auto;
+    }
+
+    .ownerMiniName {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ownerMiniHandle {
+      margin-top: 2px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .caption {
+      font-size: 14px;
+      line-height: 1.56;
+      white-space: pre-wrap;
+    }
+
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .reactionItem,
+    .simpleItem {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .reactionAuthor {
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .reactionText {
+      font-size: 13px;
+      line-height: 1.56;
+      color: var(--text-soft);
+      white-space: pre-wrap;
+    }
+
+    .emptyState {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px dashed rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-soft);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .feedScreen {
+      position: relative;
+      height: 100dvh;
+      overflow: hidden;
+      background: #09070f;
+      touch-action: pan-y;
+    }
+
+    .feedCanvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .feedSlide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      background: #110d15;
+    }
+
+    .feedMediaWrap {
+      position: absolute;
+      inset: 0;
+      background: #110d15;
+    }
+
+    .feedMediaWrap img,
+    .feedMediaWrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .feedTextFill {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 34px;
+      text-align: center;
+      font-size: 32px;
+      line-height: 1.34;
+      font-weight: 900;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(241,223,200,0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(200,169,126,0.16), transparent 32%),
+        linear-gradient(135deg, rgba(89,69,50,0.96), rgba(14,12,18,0.98));
+    }
+
+    .feedShade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.05) 28%, rgba(0,0,0,0.34) 100%),
+        radial-gradient(circle at top right, rgba(255,244,232,0.08), transparent 28%);
+    }
+
+    .feedKindStripe {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .feedKindStripe.recommended {
+      background: #ffcf5a;
+    }
+
+    .feedKindStripe.promoted {
+      background: #9b5cff;
+    }
+
+    .feedOverlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 18px);
+      pointer-events: none;
+    }
+
+    .feedOverlay * { pointer-events: auto; }
+
+    .feedInfo {
+      max-width: calc(100% - 132px);
+      padding: 8px 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
+      box-shadow: none;
+    }
+
+    .feedTitle {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -0.03em;
+      font-weight: 900;
+      color: #fffaf6;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.30);
+    }
+
+    .feedSubtitle {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.92);
+      font-size: 11px;
+      line-height: 1.4;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.28);
+    }
+
+    .feedBottom {
+      display: grid;
+      gap: 14px;
+    }
+
+    .feedContentMeta {
+      display: grid;
+      gap: 8px;
+      width: min(100%, 410px);
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
+      box-shadow: none;
+    }
+
+    .feedCaption {
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.98);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.30);
+      white-space: pre-wrap;
+    }
+
+    .feedStats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feedTapHint,
+    .feedLoopHint {
+      align-self: flex-start;
+      padding: 0;
+      border-radius: 0;
+      font-size: 11px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.94);
+      background: transparent;
+      border: 0;
+      backdrop-filter: none;
+    }
+
+    .feedLoopHint {
+      font-weight: 700;
+      color: #fff2e7;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.24);
+    }
+
+    .arrowBtn {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      font-size: 22px;
+      color: #4f3525;
+      background: linear-gradient(180deg, rgba(255,250,246,0.92), rgba(243,229,216,0.80));
+      border: 1px solid rgba(124,88,58,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 28px rgba(72,50,33,0.12);
+    }
+
+    .likeBtn {
+      background: rgba(8,7,11,0.34);
+      color: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+
+    .feedSideArrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 6;
+    }
+
+    .feedSideArrow.leftSide {
+      left: 14px;
+    }
+
+    .feedSideArrow.rightSide {
+      right: 14px;
+    }
+
+    .feedBackUpBtn {
+      position: absolute;
+      right: 18px;
+      bottom: calc(var(--safe-bottom) + 206px);
+      z-index: 6;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.70);
+      color: #5c3f2c;
+      border: 1px solid rgba(120,84,53,0.16);
+      box-shadow: 0 10px 22px rgba(72,50,33,0.10);
+      backdrop-filter: blur(8px);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .feedVideoControlsInline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 16px;
+      background: rgba(255,248,242,0.56);
+      border: 1px solid rgba(120,84,53,0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    .feedVideoInlineBtn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(111,84,62,0.96);
+      color: #fff8f2;
+      border: 1px solid rgba(111,84,62,0.96);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .feedVideoInlineBtn.ghost {
+      background: rgba(255,255,255,0.82);
+      color: #5f4330;
+      border: 1px solid rgba(120,84,53,0.14);
+    }
+    .likeQuotaStack {
+      position: absolute;
+      top: calc(var(--safe-top) + 14px);
+      right: 16px;
+      z-index: 7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .likeIconBtn {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.34);
+      color: rgba(255,255,255,0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+      backdrop-filter: blur(10px);
+      font-size: 18px;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .likeIconCount {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,248,242,0.96);
+      color: #4f3525;
+      border: 1px solid rgba(124,88,58,0.18);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .likeCountStack {
+      position: absolute;
+      top: -18px;
+      right: -8px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      pointer-events: none;
+    }
+
+    .likeCountStack .likeIconCount {
+      position: relative;
+      top: auto;
+      right: auto;
+      min-width: 22px;
+      height: 22px;
+      font-size: 10px;
+    }
+
+    .donationStack {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      align-items: end;
+    }
+
+    .donationInfoBtn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,7,11,0.44);
+      color: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .feedDonateBtn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(201,165,255,0.96), rgba(155,92,255,0.96));
+      color: #140d24;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(155,92,255,0.26);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (min-width: 461px) {
+      .appShell {
+        border-left: 1px solid rgba(255,255,255,0.04);
+        border-right: 1px solid rgba(255,255,255,0.04);
+      }
+    }
+  
+
+
+    .pageWithUserBg {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .pageWithUserBg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: var(--page-bg-image);
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      filter: blur(18px);
+      transform: scale(1.08);
+      opacity: 0.5;
+    }
+
+    .pageWithUserBg > * {
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .homeTopActions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .heroMeta {
+      display: grid;
+      gap: 14px;
+    }
+
+    .heroActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .heroStatStrip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .heroStat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(9, 8, 20, 0.42);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(10px);
+    }
+
+    .heroStatValue {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .heroStatLabel {
+      margin-top: 4px;
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+
+    .compactChatList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .compactChatItem {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .compactChatThumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .compactChatThumb img,
+    .compactChatThumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .compactChatBody {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .compactChatMeta {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .compactChatText {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .compactComposer {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chatComposer {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 4px;
+    }
+
+    .modalOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 18px 16px calc(var(--safe-bottom) + 18px);
+      background: rgba(6, 4, 14, 0.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .modalOverlay.show {
+      display: flex !important;
+    }
+
+    .modalCard {
+      width: min(100%, 460px);
+      max-height: 84dvh;
+      overflow: auto;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        linear-gradient(180deg, rgba(46, 27, 88, 0.98), rgba(24, 15, 46, 0.98));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      padding: 18px;
+    }
+
+    .modalHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .modalTitle {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    .modalClose {
+      width: 42px;
+      min-width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modalStack {
+      display: grid;
+      gap: 12px;
+    }
+
+  
+  </style>
+</head>
+<body>
+  <div class="appShell">
+    <audio id="partnerAudioElement" preload="none" playsinline style="display:none;"></audio>
+    <section class="screen active" id="feedScreen"></section>
+    <section class="screen" id="creatorScreen"></section>
+  </div>
+  <script>
+
+const API_BASE = window.location.origin;
+const LOGIN_STORAGE_KEY = "socialPrototypeActiveUserId";
+const FEED_KIND_OVERRIDE_STORAGE_KEY = "socialPrototypeFeedKindOverrides";
+const PROMOTED_VIEW_STORAGE_KEY = "socialPrototypePromotedViewCharges";
+const params = new URLSearchParams(window.location.search);
+const SPECIAL_AUDIO_USER = {
+  id: "muziek",
+  handle: "@muziek",
+  displayName: "Muziek"
+};
+const SPECIAL_AUDIO_STREAM = "https://stream.qmusic.nl/qmusic/mp3";
+const SPECIAL_AUDIO_VOLUME_KEY = "socialPrototypeSpecialAudioVolume";
+const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
+
+const state = {
+  activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+  donationSummary: null,
+  users: [],
+  feedItems: [],
+  activeScreen: params.get("creator") ? "creator" : "feed",
+  currentFeedIndex: 0,
+  currentFeedScopeUserId: "",
+  feedMode: "global",
+  makerModeUserId: "",
+  makerModeReturnPostId: null,
+  homeEntryPostId: null,
+  viewedCreatorUserId: "",
+  creatorFrontpage: null,
+  lastTapAt: 0,
+  tapBurstCount: 0,
+  tapBurstOwnerId: "",
+  wheelLockUntil: 0,
+  touchStartY: null,
+  touchActive: false
+};
+
+let partnerAudioVolume = Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3);
+let partnerAudioMuted = localStorage.getItem(SPECIAL_AUDIO_MUTED_KEY) === "true";
+let partnerAudioMounted = false;
+
+const $ = (id) => document.getElementById(id);
+
+function isSpecialAudioUserId(userId) {
+  return String(userId || "") === SPECIAL_AUDIO_USER.id;
+}
+
+function getPartnerAudioEl() {
+  return $("partnerAudioElement");
+}
+
+function syncPartnerAudioUi() {
+  const audio = getPartnerAudioEl();
+  if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+}
+
+function mountPartnerAudioIfNeeded() {
+  const audio = getPartnerAudioEl();
+  if (!audio || partnerAudioMounted || !isSpecialAudioUserId(state.activeUserId)) return;
+  partnerAudioMounted = true;
+  audio.src = SPECIAL_AUDIO_STREAM;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+  window.addEventListener("beforeunload", () => {
+    try { audio.pause(); } catch (_e) {}
+  });
+  syncPartnerAudioUi();
+}
+
+async function ensurePartnerAudioAutoplay() {
+  const audio = getPartnerAudioEl();
+  if (!audio || !isSpecialAudioUserId(state.activeUserId)) return;
+  audio.volume = partnerAudioVolume;
+  audio.muted = partnerAudioMuted;
+  try {
+    await audio.play();
+  } catch (_e) {}
+  syncPartnerAudioUi();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Request mislukt.");
+  return data;
+}
+
+function getFeedKindOverrides() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FEED_KIND_OVERRIDE_STORAGE_KEY) || "{}");
+    return saved && typeof saved === "object" ? saved : {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+function saveFeedKindOverrides(data) {
+  localStorage.setItem(FEED_KIND_OVERRIDE_STORAGE_KEY, JSON.stringify(data));
+}
+
+function getEffectiveFeedKind(item) {
+  const overrides = getFeedKindOverrides();
+  const storedKind = overrides[String(item?.id)] || item?.feedKind || "normal";
+
+  if (storedKind === "promoted") {
+    const donationState = getDonationModuleState();
+    if (Number(donationState.promotionBudget || 0) <= 0) {
+      return "normal";
+    }
+  }
+
+  return storedKind;
+}
+
+function setLocalPostFeedKind(postId, feedKind) {
+  const overrides = getFeedKindOverrides();
+  overrides[String(postId)] = feedKind;
+  saveFeedKindOverrides(overrides);
+
+  state.feedItems = state.feedItems.map((item) => {
+    if (String(item.id) !== String(postId)) return item;
+    return { ...item, feedKind };
+  });
+}
+
+function getNextOwnFeedKind(currentKind) {
+  if (currentKind === "recommended") return "promoted";
+  if (currentKind === "promoted") return "normal";
+  return "recommended";
+}
+
+function getOwnFeedKindButtonLabel(kind) {
+  if (kind === "recommended") return "Sequence: Recommended";
+  if (kind === "promoted") return "Sequence: Promoted";
+  return "Sequence: Normal";
+}
+
+function getPromotionBudgetLabel() {
+  const donationState = getDonationModuleState();
+  return `Promotiebudget ${Number(donationState.promotionBudget || 0)}€`;
+}
+
+async function cycleOwnPostFeedKind(postId, event) {
+  if (event) event.stopPropagation();
+
+  const targetItem = state.feedItems.find((item) => String(item.id) === String(postId));
+  if (!targetItem) return;
+
+  const effectiveKind = getEffectiveFeedKind(targetItem);
+  const nextKind = getNextOwnFeedKind(effectiveKind);
+  setLocalPostFeedKind(postId, nextKind);
+
+  if (state.activeScreen === "feed") renderFeedScreen();
+  if (state.activeScreen === "creator") renderCreatorScreen();
+}
+
+function getInitials(name = "?") {
+  return String(name).trim().split(/\s+/).filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "?";
+}
+
+function getUserById(userId) {
+  return state.users.find((user) => user.id === userId) || null;
+}
+
+function getAvatarHtml(user, className = "avatar") {
+  if (user?.avatarUrl) {
+    return `<div class="${className}" style="background:${escapeHtml(user.avatarColor || '#c8a97e')};"><img src="${escapeHtml(user.avatarUrl)}" alt="${escapeHtml(user.displayName || 'avatar')}" /></div>`;
+  }
+  return `<div class="${className}" style="background:linear-gradient(135deg, ${escapeHtml(user?.avatarColor || '#c8a97e')}, #6f543e);">${escapeHtml(getInitials(user?.displayName || '?'))}</div>`;
+}
+
+function getHeroMediaHtml(user) {
+  if (!user?.backgroundUrl) return "";
+  return `<div class="heroMedia"><img src="${escapeHtml(user.backgroundUrl)}" alt="Homepage achtergrond" /></div>`;
+}
+
+function getKindLabel(kind) {
+  if (kind === "promoted") return "Promoted";
+  if (kind === "recommended") return "Recommended";
+  return "Alle";
+}
+
+function timeAgo(timestamp) {
+  const diff = Math.max(0, Date.now() - Number(timestamp || 0));
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "zojuist";
+  if (mins < 60) return `${mins} min geleden`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} uur geleden`;
+  const days = Math.floor(hours / 24);
+  return `${days} d geleden`;
+}
+
+
+const DONATION_STORAGE_KEY = "socialPrototypeBudgetModule";
+
+function getDonationStorageKey() {
+  return `${DONATION_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
+function getDonationModuleState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(getDonationStorageKey()) || "{}");
+    return {
+      promotionBudget: Number(saved.promotionBudget || 0),
+      tipPoints: Number(saved.tipPoints || 0),
+      givenPoints: Number(saved.givenPoints || 0),
+      receivedPoints: Number(saved.receivedPoints || 0),
+      donations: Array.isArray(saved.donations) ? saved.donations : [],
+      receivedByMaker: saved.receivedByMaker && typeof saved.receivedByMaker === "object" ? saved.receivedByMaker : {}
+    };
+  } catch (_e) {
+    return {
+      promotionBudget: 0,
+      tipPoints: 0,
+      givenPoints: 0,
+      receivedPoints: 0,
+      donations: [],
+      receivedByMaker: {}
+    };
+  }
+}
+
+function saveDonationModuleState(data) {
+  localStorage.setItem(getDonationStorageKey(), JSON.stringify(data));
+}
+
+function getAvailableTipPoints() {
+  return getDonationModuleState().tipPoints || 0;
+}
+
+function getServerDonationGivenToMaker(makerId) {
+  return Number(state.donationSummary?.sentDonationPointsByUser?.[makerId] || 0);
+}
+
+async function loadDonationSummary() {
+  if (!state.activeUserId) {
+    state.donationSummary = null;
+    return;
+  }
+  try {
+    state.donationSummary = await fetchJson(`${API_BASE}/donations/summary?userId=${encodeURIComponent(state.activeUserId)}`);
+  } catch (_error) {
+    state.donationSummary = null;
+  }
+}
+
+function getPromotedViewCharges() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROMOTED_VIEW_STORAGE_KEY) || "{}");
+    return saved && typeof saved === "object" ? saved : {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+function savePromotedViewCharges(data) {
+  localStorage.setItem(PROMOTED_VIEW_STORAGE_KEY, JSON.stringify(data));
+}
+
+function chargePromotionViewIfNeeded(item) {
+  if (!item) return;
+  if (getEffectiveFeedKind(item) !== "promoted") return;
+
+  const key = String(item.id);
+  const charged = getPromotedViewCharges();
+  if (charged[key]) return;
+
+  const donationState = getDonationModuleState();
+  donationState.promotionBudget = Math.max(0, Number(donationState.promotionBudget || 0) - 1);
+  saveDonationModuleState(donationState);
+
+  charged[key] = {
+    chargedAt: Date.now(),
+    amount: 1
+  };
+  savePromotedViewCharges(charged);
+
+  if (Number(donationState.promotionBudget || 0) <= 0) {
+    const overrides = getFeedKindOverrides();
+    overrides[key] = "normal";
+    saveFeedKindOverrides(overrides);
+
+    state.feedItems = state.feedItems.map((feedItem) => {
+      if (String(feedItem.id) !== key) return feedItem;
+      return { ...feedItem, feedKind: "normal" };
+    });
+  }
+}
+
+function getGivenPoints() {
+  return getDonationModuleState().givenPoints || 0;
+}
+
+function getGivenPointsForCurrentFeed() {
+  const item = getCurrentFeedItem();
+  const owner = item?.owner || getUserById(item?.ownerUserId) || {};
+  if (!owner?.id) return 0;
+  const serverGiven = getServerDonationGivenToMaker(owner.id);
+  if (serverGiven > 0) return serverGiven;
+  const donationState = getDonationModuleState();
+  return Number((donationState.receivedByMaker && donationState.receivedByMaker[owner.id]) || 0);
+}
+
+async function donatePointToCurrentMaker(event) {
+  if (event) event.stopPropagation();
+  const item = getCurrentFeedItem();
+  const owner = item?.owner || getUserById(item?.ownerUserId) || {};
+  if (!owner?.id) return;
+
+  const donationState = getDonationModuleState();
+  if ((donationState.tipPoints || 0) < 1) {
+    alert("Je hebt geen donatiepunten meer.");
+    return;
+  }
+
+  try {
+    const result = await fetchJson(`${API_BASE}/donations/point`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fromUserId: state.activeUserId,
+        targetUserId: owner.id,
+        sourcePostId: item?.id ?? null,
+        context: "feed"
+      })
+    });
+
+    donationState.tipPoints = Math.max(0, Number(donationState.tipPoints || 0) - 1);
+    donationState.givenPoints = Number(donationState.givenPoints || 0) + 1;
+
+    if (!donationState.receivedByMaker || typeof donationState.receivedByMaker !== "object") {
+      donationState.receivedByMaker = {};
+    }
+    donationState.receivedByMaker[owner.id] = Number(result?.givenToTarget || donationState.receivedByMaker[owner.id] || 0);
+
+    if (!Array.isArray(donationState.donations)) {
+      donationState.donations = [];
+    }
+    donationState.donations.unshift({
+      euros: 0,
+      points: 1,
+      makerId: owner.id,
+      makerName: owner.displayName || "Maker",
+      text: "Donatiepunt via feed",
+      createdAt: Date.now()
+    });
+
+    saveDonationModuleState(donationState);
+    await loadDonationSummary();
+    renderFeedScreen();
+  } catch (error) {
+    alert(error.message || "Doneren mislukt.");
+  }
+}
+
+
+const MONTHLY_LIKES_STORAGE_KEY = "socialPrototypeMonthlyLikes";
+const MONTHLY_LIKES_LIMIT = 100;
+const PER_FEED_LIKE_LIMIT = 10;
+
+function getCurrentLikeMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getMonthlyLikesStorageKey() {
+  return `${MONTHLY_LIKES_STORAGE_KEY}_${state.activeUserId || "guest"}`;
+}
+
+function getMonthlyLikesState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(getMonthlyLikesStorageKey()) || "{}");
+    const monthKey = getCurrentLikeMonthKey();
+    if (saved.monthKey !== monthKey) {
+      return { monthKey, remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {} };
+    }
+    return {
+      monthKey,
+      remainingLikes: Number(saved.remainingLikes ?? MONTHLY_LIKES_LIMIT),
+      likesByPost: saved.likesByPost && typeof saved.likesByPost === "object" ? saved.likesByPost : {}
+    };
+  } catch (_e) {
+    return { monthKey: getCurrentLikeMonthKey(), remainingLikes: MONTHLY_LIKES_LIMIT, likesByPost: {} };
+  }
+}
+
+function saveMonthlyLikesState(data) {
+  localStorage.setItem(getMonthlyLikesStorageKey(), JSON.stringify(data));
+}
+
+function getLikesGivenForPost(postId) {
+  const feedItem = state.feedItems.find((item) => String(item.id) === String(postId));
+  const serverGiven = Number(feedItem?.likesByUser?.[state.activeUserId] || 0);
+  if (serverGiven > 0) return serverGiven;
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.likesByPost?.[postId] || 0);
+}
+
+function getRemainingLikesThisMonth() {
+  const likeState = getMonthlyLikesState();
+  return Number(likeState.remainingLikes || 0);
+}
+
+async function giveLimitedLike(postId) {
+  const likeState = getMonthlyLikesState();
+  const alreadyGiven = Number(likeState.likesByPost?.[postId] || 0);
+
+  if (likeState.remainingLikes <= 0) {
+    alert("Je maandelijkse likes zijn op.");
+    return;
+  }
+  if (alreadyGiven >= PER_FEED_LIKE_LIMIT) {
+    alert("Je hebt het maximum van 10 likes op deze feed bereikt.");
+    return;
+  }
+
+  likeState.remainingLikes -= 1;
+  likeState.likesByPost[postId] = alreadyGiven + 1;
+  saveMonthlyLikesState(likeState);
+
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
+    await loadFeed();
+    if (state.activeScreen === "feed") renderFeedScreen();
+    if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
+      await loadCreatorFrontpage(state.viewedCreatorUserId);
+      renderCreatorScreen();
+    }
+  } catch (error) {
+    likeState.remainingLikes += 1;
+    likeState.likesByPost[postId] = alreadyGiven;
+    if (likeState.likesByPost[postId] <= 0) delete likeState.likesByPost[postId];
+    saveMonthlyLikesState(likeState);
+    alert(error.message || "Liken mislukt.");
+  }
+}
+
+async function loadUsers() {
+  state.users = await fetchJson(`${API_BASE}/users`);
+}
+
+async function loadFeed() {
+  const result = await fetchJson(`${API_BASE}/feed?userId=${encodeURIComponent(state.activeUserId)}`);
+  state.feedItems = Array.isArray(result.items) ? result.items : [];
+}
+
+async function loadCreatorFrontpage(userId) {
+  state.creatorFrontpage = await fetchJson(`${API_BASE}/frontpage/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(state.activeUserId)}`);
+  state.viewedCreatorUserId = userId;
+}
+
+function setActiveScreen(screen) {
+  state.activeScreen = screen;
+  ["feedScreen", "creatorScreen"].forEach((id) => {
+    $(id).classList.toggle("active", id === `${screen}Screen`);
+  });
+}
+
+function sortFeedItemsNewest(items) {
+  return [...items].sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+}
+
+function buildSequencedFeed(items) {
+  const sorted = sortFeedItemsNewest(items);
+  const normalQueue = sorted.filter((item) => getEffectiveFeedKind(item) !== "recommended" && getEffectiveFeedKind(item) !== "promoted");
+  const recommendedQueue = sorted.filter((item) => getEffectiveFeedKind(item) === "recommended");
+  const promotedQueue = sorted.filter((item) => getEffectiveFeedKind(item) === "promoted");
+
+  const sequencePattern = ["normal", "recommended", "normal", "promoted"];
+  const result = [];
+
+  function takeFromBucket(kind) {
+    if (kind === "recommended" && recommendedQueue.length) return recommendedQueue.shift();
+    if (kind === "promoted" && promotedQueue.length) return promotedQueue.shift();
+    if (kind === "normal" && normalQueue.length) return normalQueue.shift();
+    return null;
+  }
+
+  while (normalQueue.length || recommendedQueue.length || promotedQueue.length) {
+    let addedThisRound = false;
+
+    for (const kind of sequencePattern) {
+      const nextItem = takeFromBucket(kind);
+      if (nextItem) {
+        result.push(nextItem);
+        addedThisRound = true;
+      }
+    }
+
+    if (!addedThisRound) break;
+  }
+
+  return result;
+}
+
+function getCurrentFeedItems() {
+  if (state.feedMode === "creator" && state.makerModeUserId) {
+    return sortFeedItemsNewest(state.feedItems.filter((item) => item.owner?.id === state.makerModeUserId));
+  }
+
+  if (state.currentFeedScopeUserId) {
+    const scoped = sortFeedItemsNewest(state.feedItems.filter((item) => item.owner?.id === state.currentFeedScopeUserId));
+    if (scoped.length) return scoped;
+  }
+
+  const sequenced = buildSequencedFeed(state.feedItems);
+
+  if (state.homeEntryPostId) {
+    const featured = sequenced.find((item) => item.id === state.homeEntryPostId);
+    const remainder = sequenced.filter((item) => item.id !== state.homeEntryPostId);
+    return featured ? [featured, ...remainder] : sequenced;
+  }
+
+  return sequenced;
+}
+
+function getCurrentFeedItem() {
+  const items = getCurrentFeedItems();
+  if (!items.length) return null;
+  const safeIndex = ((state.currentFeedIndex % items.length) + items.length) % items.length;
+  state.currentFeedIndex = safeIndex;
+  return items[safeIndex] || null;
+}
+
+function moveFeed(step) {
+  const items = getCurrentFeedItems();
+  if (!items.length) return;
+  const len = items.length;
+  state.currentFeedIndex = ((state.currentFeedIndex + step) % len + len) % len;
+  renderFeedScreen();
+}
+
+function scrollFeedByIntent(direction) {
+  const now = Date.now();
+  if (now < state.wheelLockUntil) return;
+  state.wheelLockUntil = now + 420;
+  if (direction > 0) moveFeed(1);
+  if (direction < 0) moveFeed(-1);
+}
+
+function onFeedWheel(event) {
+  if (state.activeScreen !== "feed") return;
+  if (Math.abs(event.deltaY) < 12) return;
+  event.preventDefault();
+  scrollFeedByIntent(event.deltaY > 0 ? 1 : -1);
+}
+
+function onFeedTouchStart(event) {
+  if (state.activeScreen !== "feed") return;
+  const target = event.target;
+  if (target && target.closest(".feedVideoControlsInline")) return;
+  state.touchActive = true;
+  state.touchStartY = event.touches?.[0]?.clientY ?? null;
+}
+
+function onFeedTouchMove(event) {
+  if (state.activeScreen !== "feed") return;
+  if (!state.touchActive || state.touchStartY == null) return;
+  const target = event.target;
+  if (target && target.closest(".feedVideoControlsInline")) return;
+  const currentY = event.touches?.[0]?.clientY ?? state.touchStartY;
+  const delta = state.touchStartY - currentY;
+  if (Math.abs(delta) < 58) return;
+  event.preventDefault();
+  scrollFeedByIntent(delta > 0 ? 1 : -1);
+  state.touchActive = false;
+  state.touchStartY = null;
+}
+
+function onFeedTouchEnd() {
+  state.touchActive = false;
+  state.touchStartY = null;
+}
+
+function bindFeedGestures() {
+  window.addEventListener("wheel", onFeedWheel, { passive: false });
+  window.addEventListener("touchstart", onFeedTouchStart, { passive: true });
+  window.addEventListener("touchmove", onFeedTouchMove, { passive: false });
+  window.addEventListener("touchend", onFeedTouchEnd, { passive: true });
+  window.addEventListener("touchcancel", onFeedTouchEnd, { passive: true });
+}
+
+async function likePost(postId) {
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
+    await loadFeed();
+    if (state.activeScreen === "feed") renderFeedScreen();
+    if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
+      await loadCreatorFrontpage(state.viewedCreatorUserId);
+      renderCreatorScreen();
+    }
+  } catch (error) {
+    alert(error.message || "Liken mislukt.");
+  }
+}
+
+async function dislikePost(postId) {
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/dislike`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ viewerUserId: state.activeUserId })
+    });
+    await loadFeed();
+    renderFeedScreen();
+  } catch (error) {
+    alert(error.message || "Verbergen mislukt.");
+  }
+}
+
+async function deletePost(postId) {
+  const currentIndexBeforeDelete = state.currentFeedIndex;
+  if (!confirm("Weet je zeker dat je dit bericht wilt verwijderen?")) return;
+  try {
+    await fetchJson(`${API_BASE}/posts/${postId}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerUserId: state.activeUserId })
+    });
+    await loadFeed();
+    if (state.viewedCreatorUserId) await loadCreatorFrontpage(state.viewedCreatorUserId);
+    const updatedItems = getCurrentFeedItems();
+    if (!updatedItems.length) {
+      window.location.href = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+      return;
+    }
+    state.currentFeedIndex = Math.min(currentIndexBeforeDelete, updatedItems.length - 1);
+    if (state.activeScreen === "feed") renderFeedScreen();
+    else renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Verwijderen mislukt.");
+  }
+}
+
+async function likeFrontpage(userId) {
+  try {
+    await fetchJson(`${API_BASE}/frontpage/${userId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
+    await loadCreatorFrontpage(userId);
+    renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Homepage-like mislukt.");
+  }
+}
+
+async function sendFrontpageReaction(targetUserId) {
+  const textarea = $("creatorReactionInput");
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) return;
+  try {
+    await fetchJson(`${API_BASE}/frontpage/${targetUserId}/react`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromUserId: state.activeUserId, text })
+    });
+    textarea.value = "";
+    alert("Bericht is naar pending moderatie gestuurd.");
+    await loadCreatorFrontpage(targetUserId);
+    renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Versturen mislukt.");
+  }
+}
+
+async function sendFriendRequest(targetUserId) {
+  try {
+    await fetchJson(`${API_BASE}/friends/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requesterUserId: state.activeUserId, targetUserId })
+    });
+    await loadCreatorFrontpage(targetUserId);
+    renderCreatorScreen();
+  } catch (error) {
+    alert(error.message || "Vriendschapsverzoek mislukt.");
+  }
+}
+
+function openHomepage() {
+  window.location.href = "mobile-app-homepage-two-arrows-zonder-onderbalk.html";
+}
+
+async function openCurrentCreatorHomepage() {
+  const current = getCurrentFeedItem();
+  if (!current?.owner?.id) return;
+  await loadCreatorFrontpage(current.owner.id);
+  setActiveScreen("creator");
+  renderCreatorScreen();
+}
+
+async function openCreatorHomepageFromCard(userId) {
+  if (!userId) return;
+  await loadCreatorFrontpage(userId);
+  setActiveScreen("creator");
+  renderCreatorScreen();
+}
+
+function findFeedIndexByPostId(postId) {
+  if (postId == null) return 0;
+  const index = state.feedItems.findIndex((item) => item.id === postId);
+  return index >= 0 ? index : 0;
+}
+
+function enterMakerMode(userId) {
+  if (!userId) return;
+  const current = getCurrentFeedItem();
+  state.makerModeReturnPostId = current?.id ?? null;
+  state.feedMode = "creator";
+  state.makerModeUserId = userId;
+  state.currentFeedScopeUserId = "";
+  state.currentFeedIndex = 0;
+  renderFeedScreen();
+}
+
+function exitMakerModeToFeed() {
+  const returnPostId = state.makerModeReturnPostId;
+  state.feedMode = "global";
+  state.makerModeUserId = "";
+  state.currentFeedScopeUserId = "";
+  const items = getCurrentFeedItems();
+  const indexInCurrentList = items.findIndex((item) => item.id === returnPostId);
+  state.currentFeedIndex = indexInCurrentList >= 0 ? indexInCurrentList : findFeedIndexByPostId(returnPostId);
+  renderFeedScreen();
+}
+
+function jumpFeedUpOne(event) {
+  if (event) event.stopPropagation();
+  moveFeed(-1);
+}
+
+function handleFeedLeftArrow() {
+  openHomepage();
+}
+
+function handlePostTap(ownerUserId) {
+  const now = Date.now();
+  if (now - state.lastTapAt > 650 || state.tapBurstOwnerId !== ownerUserId) state.tapBurstCount = 0;
+  state.lastTapAt = now;
+  state.tapBurstOwnerId = ownerUserId;
+  state.tapBurstCount += 1;
+  if (state.tapBurstCount >= 3) {
+    state.tapBurstCount = 0;
+    if (state.feedMode === "creator") exitMakerModeToFeed();
+    else enterMakerMode(ownerUserId);
+  }
+}
+
+function renderPostCard(item, options = {}) {
+  const owner = item.owner || getUserById(item.ownerUserId) || {};
+  const isOwn = owner.id === state.activeUserId;
+  const effectiveFeedKind = getEffectiveFeedKind(item);
+  const mediaHtml = item.postType === "image" && item.imageUrl
+    ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
+    : item.postType === "video" && item.videoUrl
+    ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
+    : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
+  const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
+    ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
+    : "";
+  const caption = item.postType === "text" && !item.imageUrl && !item.videoUrl ? "" : `<div class="caption">${escapeHtml(item.caption || "")}</div>`;
+  const ownerAction = options.creatorCard
+    ? `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Open maker</button>`
+    : isOwn
+    ? `<button class="ghostBtn" onclick="window.location.href='mijn-content.html'">Mijn content</button>`
+    : `<button class="ghostBtn" onclick="openCreatorHomepageFromCard('${owner.id}')">Maker</button>`;
+  return `
+    <article class="postCard" style="position:relative;">
+      ${mediaHtml}
+      ${effectiveFeedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : effectiveFeedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
+      <div class="postMeta">
+        <div class="miniRow">
+          <div class="ownerMini">
+            ${getAvatarHtml(owner, "ownerMiniAvatar")}
+            <div>
+              <div class="ownerMiniName">${escapeHtml(owner.displayName || "Gebruiker")}</div>
+              <div class="ownerMiniHandle">${escapeHtml(owner.handle || "")}</div>
+            </div>
+          </div>
+
+        </div>
+        ${caption}
+        <div class="actionRow">
+          <div class="buttonGroup">
+            <button class="ghostBtn" onclick="giveLimitedLike(${Number(item.id)})">♥ ${Number(item.likes || 0)} · jij ${getLikesGivenForPost(item.id)}/10</button>
+            <button class="ghostBtn" onclick="dislikePost(${Number(item.id)})">Verberg</button>
+            ${isOwn ? `<button class="ghostBtn" onclick="cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
+            ${isOwn && effectiveFeedKind === "promoted" ? `<span class="tag">${getPromotionBudgetLabel()}</span>` : ``}
+          </div>
+          ${ownerAction}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderReactionList(reactions) {
+  if (!Array.isArray(reactions) || !reactions.length) return `<div class="emptyState">Nog geen berichten op deze voorpagina.</div>`;
+  return `
+    <div class="reactionList">
+      ${reactions.map((reaction) => {
+        const fromUser = reaction.fromUser || getUserById(reaction.fromUserId) || {};
+        return `
+          <div class="reactionItem">
+            <div class="reactionAuthor">${escapeHtml(fromUser.displayName || "Gebruiker")} · ${escapeHtml(fromUser.handle || "")}</div>
+            <div class="reactionText">${escapeHtml(reaction.text || "")}</div>
+            <div class="smallNote" style="margin-top:10px;">${escapeHtml(timeAgo(reaction.createdAt))}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function getFeedVideo() {
+  return document.getElementById("feedVideoElement");
+}
+
+function updateFeedVideoUi() {
+  const video = getFeedVideo();
+  const playBtn = document.getElementById("feedVideoPlayBtn");
+  const muteBtn = document.getElementById("feedVideoMuteBtn");
+  if (!video || !playBtn || !muteBtn) return;
+  playBtn.textContent = video.paused ? "▶" : "❚❚";
+  muteBtn.textContent = video.muted ? "🔇" : "🔊";
+}
+
+function toggleFeedVideoPlay(event) {
+  if (event) event.stopPropagation();
+  const video = getFeedVideo();
+  if (!video) return;
+  if (video.paused) video.play().catch(() => {});
+  else video.pause();
+  updateFeedVideoUi();
+}
+
+function toggleFeedVideoMute(event) {
+  if (event) event.stopPropagation();
+  const video = getFeedVideo();
+  if (!video) return;
+  video.muted = !video.muted;
+  updateFeedVideoUi();
+}
+
+function renderFeedScreen() {
+  const items = getCurrentFeedItems();
+  const item = getCurrentFeedItem();
+
+  if (!items.length || !item) {
+    $("feedScreen").innerHTML = `<div class="feedScreen"><div class="page" style="padding-top:calc(var(--safe-top) + 24px);"><div class="emptyState">Nog geen feeditems gevonden.</div></div></div>`;
+    return;
+  }
+
+  chargePromotionViewIfNeeded(item);
+
+  const owner = item.owner || getUserById(item.ownerUserId) || {};
+  const effectiveFeedKind = getEffectiveFeedKind(item);
+  const mediaHtml = item.postType === "image" && item.imageUrl
+    ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
+    : item.postType === "video" && item.videoUrl
+    ? `<div class="feedMediaWrap" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"><video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video></div>`
+    : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
+
+  const scopeLabel = state.feedMode === "creator"
+    ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
+    : state.homeEntryPostId && state.currentFeedIndex === 0
+    ? `start vanuit homepage · eerst jouw content`
+    : `feedsequence normaal · geel · normaal · paars · ${state.currentFeedIndex + 1}/${items.length}`;
+
+  $("feedScreen").innerHTML = `
+    <div class="feedScreen">
+      <div class="feedCanvas">
+        <article class="feedSlide" onclick="handlePostTap('${owner.id || ''}')">
+          ${mediaHtml}
+          <div class="feedShade"></div>
+          ${effectiveFeedKind === "recommended" ? '<div class="feedKindStripe recommended"></div>' : effectiveFeedKind === "promoted" ? '<div class="feedKindStripe promoted"></div>' : ''}
+          <div class="feedOverlay">
+            <div class="feedOverlayRow" style="justify-content:center;">
+              <div class="feedInfo">
+                <h2 class="feedTitle">${escapeHtml(owner.displayName || 'Maker')}</h2>
+                <div class="feedSubtitle">${escapeHtml(owner.handle || '')} · ${escapeHtml(scopeLabel)}</div>
+              </div>
+            </div>
+
+            <button class="arrowBtn feedSideArrow leftSide" onclick="event.stopPropagation(); handleFeedLeftArrow();">←</button>
+            <button class="arrowBtn feedSideArrow rightSide" onclick="event.stopPropagation(); openCurrentCreatorHomepage();">→</button>
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); giveLimitedLike(${Number(item.id)});" aria-label="Geef een like" title="Geef een like">
+                ♥
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Totaal likes op deze post">${Number(item.likes || 0)}</span>
+                  <span class="likeIconCount" title="Door jou gegeven aan deze post">${getLikesGivenForPost(item.id)}</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
+            <button class="feedBackUpBtn" onclick="jumpFeedUpOne(event)">↑</button>
+
+            <div class="feedBottom">
+              <div class="feedContentMeta">
+                <div class="feedCaption">${escapeHtml(item.caption || '')}</div>
+              </div>
+
+              <div class="bottomActionRow">
+                <div class="buttonGroup">
+
+                  <button class="pill likeBtn" onclick="event.stopPropagation(); dislikePost(${Number(item.id)})">Verberg</button>
+                  ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); cycleOwnPostFeedKind(${Number(item.id)}, event)">${getOwnFeedKindButtonLabel(effectiveFeedKind)}</button>` : ``}
+                  ${owner.id === state.activeUserId && effectiveFeedKind === "promoted" ? `<button class="pill likeBtn" onclick="event.stopPropagation();">${getPromotionBudgetLabel()}</button>` : ``}
+                  ${owner.id === state.activeUserId ? `<button class="pill likeBtn" onclick="event.stopPropagation(); deletePost(${Number(item.id)})">Verwijder</button>` : ``}
+                  ${item.postType === "video" && item.videoUrl ? `
+                    <div class="feedVideoControlsInline" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+                      <button id="feedVideoPlayBtn" class="feedVideoInlineBtn" onclick="toggleFeedVideoPlay(event)">▶</button>
+                      <button id="feedVideoMuteBtn" class="feedVideoInlineBtn ghost" onclick="toggleFeedVideoMute(event)">🔇</button>
+                    </div>
+                  ` : ``}
+                </div>
+                <div class="donationStack" onclick="event.stopPropagation();">
+                  <button class="donationInfoBtn" onclick="event.stopPropagation();">Aan deze feed ${getGivenPointsForCurrentFeed()}</button>
+                  <button class="feedDonateBtn" onclick="donatePointToCurrentMaker(event)">💜 Punten ${getAvailableTipPoints()}</button>
+                </div>
+              </div>
+              <div class="feedLoopHint" onclick="event.stopPropagation();">Loopende feed · swipe ↑↓</div>
+
+              <div class="feedTapHint" onclick="event.stopPropagation(); handlePostTap('${owner.id || ''}')">
+                3x tik op content = alleen content van deze maker. Nog eens 3x = terug naar de gewone feed, precies waar je was.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  `;
+  updateFeedVideoUi();
+}
+
+function openCreatorContentFeed(userId) {
+  if (!userId) return;
+  state.feedMode = "creator";
+  state.makerModeUserId = userId;
+  state.makerModeReturnPostId = getCurrentFeedItem()?.id || null;
+  state.currentFeedScopeUserId = "";
+  state.currentFeedIndex = 0;
+  setActiveScreen("feed");
+  renderFeedScreen();
+}
+
+function renderCreatorScreen() {
+  const frontpage = state.creatorFrontpage;
+  const user = frontpage?.user || getUserById(state.viewedCreatorUserId) || {};
+  const stats = frontpage?.stats || { posts: 0, homepageLikes: 0, reactions: 0, friends: 0 };
+  const posts = Array.isArray(frontpage?.recentPosts) ? frontpage.recentPosts : [];
+  const reactions = Array.isArray(frontpage?.acceptedReactions) ? frontpage.acceptedReactions : [];
+  const friendshipStatus = frontpage?.friendshipStatus || "none";
+  const canFriend = user.id && user.id !== state.activeUserId;
+
+  $("creatorScreen").innerHTML = `
+    <div class="page">
+      <div class="stack">
+        <div class="topRow">
+          <div>
+            <h1 class="pageTitle">Maker-homepage</h1>
+            <div class="pageIntro">Deze pagina hoort nu bij dezelfde losse feed-module.</div>
+          </div>
+          <div class="buttonGroup">
+            <button class="pill" onclick="setActiveScreen('feed'); renderFeedScreen();">Terug naar feed</button>
+            <button class="ghostBtn" onclick="openHomepage()">Homepage</button>
+          </div>
+        </div>
+
+        <section class="card hero" style="min-height: 192px; padding-top: 86px;">
+          ${getHeroMediaHtml(user)}
+          <div class="heroLikeWrap" onclick="event.stopPropagation();">
+            <div class="likeQuotaStack" onclick="event.stopPropagation();">
+              <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
+                ♥
+                <span class="likeCountStack" aria-hidden="true">
+                  <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
+                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">${Number(user.homepageLikesByUser?.[state.activeUserId] || 0)}</span>
+                  <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="avatarRow">
+            ${getAvatarHtml(user)}
+            <div class="identityBlock">
+              <h2 class="identityName">${escapeHtml(user.displayName || 'Maker')}</h2>
+              <div class="identityHandle">${escapeHtml(user.handle || '')}</div>
+            </div>
+          </div>
+          <p class="identityBio">${escapeHtml(user.bio || 'Publieke makerspagina.')}</p>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Korte makerlaag</h3>
+                <div class="sectionText">Vanuit hier ga je terug naar de feed of dieper de maker-content in.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="openCreatorContentFeed('${user.id}')">Alle content</button>
+              </div>
+            </div>
+            <div class="gridStats" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+              <div class="stat"><div class="statValue">${Number(stats.posts || 0)}</div><div class="statLabel">Posts</div></div>
+              <div class="stat"><div class="statValue">${Number(stats.reactions || 0)}</div><div class="statLabel">Reacties</div></div>
+              <div class="stat"><div class="statValue">${Number(stats.friends || 0)}</div><div class="statLabel">Vrienden</div></div>
+            </div>
+            <div class="actionRow">
+              <div class="smallNote">Vriendschapsstatus: <strong>${escapeHtml(friendshipStatus)}</strong></div>
+              ${canFriend ? `<button class="solidBtn" onclick="sendFriendRequest('${user.id}')">Vriend toevoegen</button>` : ""}
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Publieke reactie sturen</h3>
+                <div class="sectionText">Interactie loopt hier via de homepage van de maker.</div>
+              </div>
+            </div>
+            <textarea id="creatorReactionInput" class="textarea" placeholder="Schrijf iets aan ${escapeHtml(user.displayName || 'de maker')}..."></textarea>
+            <div class="actionRow">
+              <div class="smallNote">Bericht gaat eerst naar pending moderatie bij de maker.</div>
+              <button class="ghostBtn" onclick="sendFrontpageReaction('${user.id}')">Versturen</button>
+            </div>
+            ${renderReactionList(reactions)}
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Content van deze maker</h3>
+                <div class="sectionText">Compact gehouden, omdat dit een lichte publieke makerspagina is.</div>
+              </div>
+            </div>
+            <div class="creatorSimpleList">
+              ${posts.length ? posts.map((item) => renderPostCard(item, { creatorCard: true })).join("") : `<div class="emptyState">Deze maker heeft nog geen content.</div>`}
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function applyQueryStartMode() {
+  if (params.get("scope") === "me") state.currentFeedScopeUserId = state.activeUserId;
+  if (params.get("entry") === "ownlatest") {
+    const ownPosts = state.feedItems.filter((item) => item.owner?.id === state.activeUserId).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const firstOwnPost = ownPosts[0] || null;
+    state.homeEntryPostId = firstOwnPost ? firstOwnPost.id : null;
+  }
+  const postId = params.get("postId");
+  if (postId) {
+    const idx = state.feedItems.findIndex((item) => String(item.id) === String(postId));
+    if (idx >= 0) state.currentFeedIndex = idx;
+  }
+}
+
+function bindGlobalKeys() {
+  window.addEventListener("keydown", (event) => {
+    if (state.activeScreen !== "feed") return;
+    if (event.key === "ArrowDown") moveFeed(1);
+    if (event.key === "ArrowUp") moveFeed(-1);
+  });
+}
+
+async function startApp() {
+  try {
+    if (!state.activeUserId) {
+      window.location.href = "index.html";
+      return;
+    }
+    await loadUsers();
+    await loadFeed();
+    await loadDonationSummary();
+    applyQueryStartMode();
+
+    if (params.get("creator")) {
+      await loadCreatorFrontpage(params.get("creator"));
+      setActiveScreen("creator");
+      renderCreatorScreen();
+    } else {
+      setActiveScreen("feed");
+      renderFeedScreen();
+    }
+
+    bindGlobalKeys();
+    bindFeedGestures();
+    mountPartnerAudioIfNeeded();
+    ensurePartnerAudioAutoplay();
+    syncPartnerAudioUi();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Kon de feed-module niet laden.");
+  }
+}
+
+startApp();
+
+  </script>
+</body>
+</html>
