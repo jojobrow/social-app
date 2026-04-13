@@ -956,6 +956,35 @@
       gap: 8px;
     }
 
+    .heroUploadWrap {
+      position: absolute;
+      top: 16px;
+      right: 78px;
+      z-index: 2;
+      display: inline-flex;
+      max-width: calc(100% - 160px);
+    }
+
+    .heroUploadWrap .uploadLabelWrap {
+      min-height: 38px;
+      max-width: 100%;
+    }
+
+    .heroUploadWrap .uploadLabelBtn {
+      min-height: 38px;
+      padding: 0 12px;
+      font-size: 12px;
+      background: rgba(8,7,11,0.32);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+    }
+
+    .quickContentCard .cardBody {
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+
     .heroMeta {
       display: grid;
       gap: 14px;
@@ -1937,12 +1966,6 @@ function renderHomeScreen() {
               <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
               ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
             </span>
-            <label class="uploadLabelWrap">
-              <input id="profileBackgroundFile" class="uploadLabelInput" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopBackgroundFileChange(event)" />
-              <span class="ghostBtn uploadLabelBtn">Upload achtergrond</span>
-            </label>
-            <button class="ghostBtn" onclick="goToMyContentPage()">Mijn content</button>
-            <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
             <span class="navBtnWrap">
               <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
@@ -1955,6 +1978,12 @@ function renderHomeScreen() {
 
         <section class="card hero" style="padding-top: 86px;">
           ${getHeroMediaHtml(user)}
+          <div class="heroUploadWrap">
+            <label class="uploadLabelWrap">
+              <input id="profileBackgroundFile" class="uploadLabelInput" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopBackgroundFileChange(event)" />
+              <span class="ghostBtn uploadLabelBtn">Upload achtergrond</span>
+            </label>
+          </div>
           <div class="heroLikeWrap" onclick="event.stopPropagation();">
             <div class="likeQuotaStack" onclick="event.stopPropagation();">
               <button class="likeIconBtn" onclick="event.stopPropagation(); likeFrontpage('${user.id}');" aria-label="Like homepage" title="Like homepage">
@@ -1982,6 +2011,20 @@ function renderHomeScreen() {
           </div>
         </section>
 
+
+        <section class="card quickContentCard">
+          <div class="cardBody stack">
+            <div class="sectionHeader">
+              <div>
+                <h3 class="sectionTitle">Eigen content</h3>
+                <div class="sectionText">Plaats of beheer je foto's, filmpjes en andere eigen posts.</div>
+              </div>
+              <div class="buttonGroup">
+                <button class="ghostBtn" onclick="goToMyContentPage()">Eigen content</button>
+              </div>
+            </div>
+          </div>
+        </section>
 
         ${hasSpecialAudio ? `
         <section class="card partnerAudioCard">
@@ -2058,6 +2101,10 @@ function renderHomeScreen() {
                 <div class="walletStatValue">${Number(wallet.receivedPoints || 0)}</div>
                 <div class="walletStatLabel">Ontvangen donaties</div>
               </div>
+            </div>
+            <div class="actionRow">
+              <div class="smallNote">Open hier het volledige donatie- en budgetoverzicht.</div>
+              <button class="ghostBtn" onclick="goToDonationsPage()">Donaties</button>
             </div>
           </div>
         </section>
