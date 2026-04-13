@@ -1794,6 +1794,12 @@ function getQuickPostPreviewText() {
   return cleaned || "Zo ziet je tekstpost eruit voordat je hem plaatst.";
 }
 
+function getQuickPostBackgroundUrl() {
+  if (state.quickPostTheme !== "heroBlur") return "";
+  const currentUser = state.ownFrontpage?.user || getUserById(state.activeUserId) || {};
+  return String(currentUser?.backgroundUrl || "").trim();
+}
+
 function renderQuickPostStyleChips(options, activeId, setterName) {
   return `
     <div class="styleOptionChips">
@@ -1987,7 +1993,8 @@ async function publishQuickTextPost() {
         hashtags: [],
         feedKind: "normal",
         textTheme: state.quickPostTheme,
-        textFont: state.quickPostFont
+        textFont: state.quickPostFont,
+        textBackgroundUrl: getQuickPostBackgroundUrl()
       })
     });
     textarea.value = "";
