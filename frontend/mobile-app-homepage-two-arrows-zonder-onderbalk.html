@@ -1387,6 +1387,129 @@
     }
 
 
+    .quickPostStyleGrid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stylePickerRow {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stylePickerLabel {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 800;
+    }
+
+    .styleOptionChips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .styleChip {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .styleChip.active {
+      background: rgba(201,165,255,0.18);
+      border-color: rgba(201,165,255,0.42);
+      box-shadow: 0 10px 22px rgba(155,92,255,0.18);
+    }
+
+    .quickPostPreviewWrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quickPostPreviewCard {
+      min-height: 220px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .quickPostPreviewCard::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .quickPostPreviewText {
+      position: relative;
+      z-index: 1;
+      max-width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 28px;
+      line-height: 1.38;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .quickPreviewTheme-calm {
+      background:
+        radial-gradient(circle at top left, rgba(201,165,255,0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.10), transparent 28%),
+        linear-gradient(135deg, rgba(85,52,153,0.98), rgba(34,23,63,0.98));
+      color: #f7f3ff;
+    }
+
+    .quickPreviewTheme-dark {
+      background:
+        radial-gradient(circle at top right, rgba(120,88,203,0.16), transparent 28%),
+        linear-gradient(135deg, rgba(17,14,28,0.98), rgba(50,33,82,0.98));
+      color: #fbf7ff;
+    }
+
+    .quickPreviewTheme-pop {
+      background:
+        radial-gradient(circle at top left, rgba(255,220,120,0.20), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,120,209,0.16), transparent 34%),
+        linear-gradient(135deg, rgba(124,54,255,0.98), rgba(52,19,122,0.98));
+      color: #fff9f4;
+    }
+
+    .quickPreviewFont-clean {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .quickPreviewFont-soft {
+      font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .quickPreviewFont-statement {
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+
   </style>
 </head>
 <body>
@@ -1426,7 +1549,9 @@ const state = {
   specialAudioVolume: Number(localStorage.getItem(SPECIAL_AUDIO_VOLUME_KEY) || 0.3),
   specialAudioMounted: false,
   heroTitleTapCount: 0,
-  heroTitleLastTapAt: 0
+  heroTitleLastTapAt: 0,
+  quickPostTheme: "calm",
+  quickPostFont: "clean"
 };
 
 
@@ -1601,6 +1726,111 @@ function getHomepageLikesGivenForUser(userId) {
   return Number(likeState.homepageLikesByUser?.[userId] || 0);
 }
 
+
+function getQuickPostThemeOptions() {
+  return [
+    { id: "calm", label: "Rustig" },
+    { id: "dark", label: "Donker" },
+    { id: "pop", label: "Opvallend" }
+  ];
+}
+
+function getQuickPostFontOptions() {
+  return [
+    { id: "clean", label: "Strak" },
+    { id: "soft", label: "Zacht" },
+    { id: "statement", label: "Statement" }
+  ];
+}
+
+function setQuickPostTheme(themeId) {
+  const valid = getQuickPostThemeOptions().some((item) => item.id === themeId);
+  state.quickPostTheme = valid ? themeId : "calm";
+  updateQuickPostPreview();
+}
+
+function setQuickPostFont(fontId) {
+  const valid = getQuickPostFontOptions().some((item) => item.id === fontId);
+  state.quickPostFont = valid ? fontId : "clean";
+  updateQuickPostPreview();
+}
+
+function getQuickPostPreviewText() {
+  const rawText = $("homePostInput")?.value || "";
+  const cleaned = rawText.trim();
+  return cleaned || "Zo ziet je tekstpost eruit voordat je hem plaatst.";
+}
+
+function renderQuickPostStyleChips(options, activeId, setterName) {
+  return `
+    <div class="styleOptionChips">
+      ${options.map((option) => `
+        <button
+          type="button"
+          class="styleChip ${option.id === activeId ? "active" : ""}"
+          onclick="${setterName}('${option.id}')"
+        >${escapeHtml(option.label)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function updateQuickPostPreview() {
+  const previewCard = $("quickPostPreviewCard");
+  const previewText = $("quickPostPreviewText");
+  if (previewCard) {
+    previewCard.className = `quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}`;
+  }
+  if (previewText) {
+    previewText.textContent = getQuickPostPreviewText();
+  }
+
+  document.querySelectorAll("[data-style-theme]").forEach((button) => {
+    button.classList.toggle("active", button.getAttribute("data-style-theme") === state.quickPostTheme);
+  });
+  document.querySelectorAll("[data-style-font]").forEach((button) => {
+    button.classList.toggle("active", button.getAttribute("data-style-font") === state.quickPostFont);
+  });
+}
+
+function bindQuickPostPreview() {
+  const textarea = $("homePostInput");
+  if (textarea) {
+    textarea.addEventListener("input", updateQuickPostPreview);
+  }
+  updateQuickPostPreview();
+}
+
+function renderQuickPostThemeButtons() {
+  return `
+    <div class="styleOptionChips">
+      ${getQuickPostThemeOptions().map((option) => `
+        <button
+          type="button"
+          class="styleChip ${option.id === state.quickPostTheme ? "active" : ""}"
+          data-style-theme="${option.id}"
+          onclick="setQuickPostTheme('${option.id}')"
+        >${escapeHtml(option.label)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderQuickPostFontButtons() {
+  return `
+    <div class="styleOptionChips">
+      ${getQuickPostFontOptions().map((option) => `
+        <button
+          type="button"
+          class="styleChip ${option.id === state.quickPostFont ? "active" : ""}"
+          data-style-font="${option.id}"
+          onclick="setQuickPostFont('${option.id}')"
+        >${escapeHtml(option.label)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
 const $ = (id) => document.getElementById(id);
 
 function escapeHtml(value) {
@@ -1718,10 +1948,14 @@ async function publishQuickTextPost() {
         imageUrl: "",
         videoUrl: "",
         hashtags: [],
-        feedKind: "normal"
+        feedKind: "normal",
+        textTheme: state.quickPostTheme,
+        textFont: state.quickPostFont
       })
     });
     textarea.value = "";
+    state.quickPostTheme = "calm";
+    state.quickPostFont = "clean";
     await refreshAll();
     ensureSpecialAudioAutoplay();
     syncSpecialAudioUi();
@@ -2089,11 +2323,29 @@ function renderHomeScreen() {
             <div class="sectionHeader">
               <div>
                 <h3 class="sectionTitle">Direct berichtje voor je feed</h3>
-                <div class="sectionText">Typ iets en zet het direct in je contentfeed.</div>
+                <div class="sectionText">Typ iets, kies een achtergrond en font, en bekijk eerst live hoe je tekst eruit komt te zien.</div>
               </div>
             </div>
-            <div class="compactComposer">
+            <div class="quickPostStyleGrid">
               <textarea id="homePostInput" class="textarea" placeholder="Typ hier je bericht..."></textarea>
+
+              <div class="stylePickerRow">
+                <div class="stylePickerLabel">Achtergrond</div>
+                ${renderQuickPostThemeButtons()}
+              </div>
+
+              <div class="stylePickerRow">
+                <div class="stylePickerLabel">Lettertype</div>
+                ${renderQuickPostFontButtons()}
+              </div>
+
+              <div class="quickPostPreviewWrap">
+                <div class="stylePickerLabel">Zo ziet je post eruit</div>
+                <div id="quickPostPreviewCard" class="quickPostPreviewCard quickPreviewTheme-${state.quickPostTheme} quickPreviewFont-${state.quickPostFont}">
+                  <div id="quickPostPreviewText" class="quickPostPreviewText">Zo ziet je tekstpost eruit voordat je hem plaatst.</div>
+                </div>
+              </div>
+
               <div class="actionRow">
                 <div id="homePostStatus" class="statusLine"></div>
                 <button class="solidBtn" onclick="publishQuickTextPost()">Plaatsen</button>
@@ -2200,6 +2452,7 @@ function renderHomeScreen() {
     ensureSpecialAudioAutoplay();
   } else {
     state.specialAudioMounted = false;
+    bindQuickPostPreview();
   }
   syncSpecialAudioUi();
 }
