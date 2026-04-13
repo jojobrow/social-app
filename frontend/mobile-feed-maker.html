@@ -902,7 +902,6 @@
     }
 
     .donationStack {
-    .donationStack {
       display: grid;
       gap: 8px;
       justify-items: end;
@@ -1183,6 +1182,7 @@ const SPECIAL_AUDIO_MUTED_KEY = "socialPrototypeSpecialAudioMuted";
 
 const state = {
   activeUserId: localStorage.getItem(LOGIN_STORAGE_KEY) || "",
+  donationSummary: null,
   users: [],
   feedItems: [],
   activeScreen: params.get("creator") ? "creator" : "feed",
@@ -1407,6 +1407,22 @@ function getAvailableTipPoints() {
   return getDonationModuleState().tipPoints || 0;
 }
 
+function getServerDonationGivenToMaker(makerId) {
+  return Number(state.donationSummary?.sentDonationPointsByUser?.[makerId] || 0);
+}
+
+async function loadDonationSummary() {
+  if (!state.activeUserId) {
+    state.donationSummary = null;
+    return;
+  }
+  try {
+    state.donationSummary = await fetchJson(`${API_BASE}/donations/summary?userId=${encodeURIComponent(state.activeUserId)}`);
+  } catch (_error) {
+    state.donationSummary = null;
+  }
+}
+
 function getPromotedViewCharges() {
   try {
     const saved = JSON.parse(localStorage.getItem(PROMOTED_VIEW_STORAGE_KEY) || "{}");
@@ -1458,11 +1474,13 @@ function getGivenPointsForCurrentFeed() {
   const item = getCurrentFeedItem();
   const owner = item?.owner || getUserById(item?.ownerUserId) || {};
   if (!owner?.id) return 0;
+  const serverGiven = getServerDonationGivenToMaker(owner.id);
+  if (serverGiven > 0) return serverGiven;
   const donationState = getDonationModuleState();
   return Number((donationState.receivedByMaker && donationState.receivedByMaker[owner.id]) || 0);
 }
 
-function donatePointToCurrentMaker(event) {
+async function donatePointToCurrentMaker(event) {
   if (event) event.stopPropagation();
   const item = getCurrentFeedItem();
   const owner = item?.owner || getUserById(item?.ownerUserId) || {};
@@ -1474,29 +1492,44 @@ function donatePointToCurrentMaker(event) {
     return;
   }
 
-  donationState.tipPoints = Number(donationState.tipPoints || 0) - 1;
-  donationState.givenPoints = Number(donationState.givenPoints || 0) + 1;
-  donationState.receivedPoints = Number(donationState.receivedPoints || 0) + 1;
+  try {
+    const result = await fetchJson(`${API_BASE}/donations/point`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fromUserId: state.activeUserId,
+        targetUserId: owner.id,
+        sourcePostId: item?.id ?? null,
+        context: "feed"
+      })
+    });
 
-  if (!donationState.receivedByMaker || typeof donationState.receivedByMaker !== "object") {
-    donationState.receivedByMaker = {};
+    donationState.tipPoints = Math.max(0, Number(donationState.tipPoints || 0) - 1);
+    donationState.givenPoints = Number(donationState.givenPoints || 0) + 1;
+
+    if (!donationState.receivedByMaker || typeof donationState.receivedByMaker !== "object") {
+      donationState.receivedByMaker = {};
+    }
+    donationState.receivedByMaker[owner.id] = Number(result?.givenToTarget || donationState.receivedByMaker[owner.id] || 0);
+
+    if (!Array.isArray(donationState.donations)) {
+      donationState.donations = [];
+    }
+    donationState.donations.unshift({
+      euros: 0,
+      points: 1,
+      makerId: owner.id,
+      makerName: owner.displayName || "Maker",
+      text: "Donatiepunt via feed",
+      createdAt: Date.now()
+    });
+
+    saveDonationModuleState(donationState);
+    await loadDonationSummary();
+    renderFeedScreen();
+  } catch (error) {
+    alert(error.message || "Doneren mislukt.");
   }
-  donationState.receivedByMaker[owner.id] = Number(donationState.receivedByMaker[owner.id] || 0) + 1;
-
-  if (!Array.isArray(donationState.donations)) {
-    donationState.donations = [];
-  }
-  donationState.donations.unshift({
-    euros: 0,
-    points: 1,
-    makerId: owner.id,
-    makerName: owner.displayName || "Maker",
-    text: "Donatiepunt via feed",
-    createdAt: Date.now()
-  });
-
-  saveDonationModuleState(donationState);
-  renderFeedScreen();
 }
 
 
@@ -1535,6 +1568,9 @@ function saveMonthlyLikesState(data) {
 }
 
 function getLikesGivenForPost(postId) {
+  const feedItem = state.feedItems.find((item) => String(item.id) === String(postId));
+  const serverGiven = Number(feedItem?.likesByUser?.[state.activeUserId] || 0);
+  if (serverGiven > 0) return serverGiven;
   const likeState = getMonthlyLikesState();
   return Number(likeState.likesByPost?.[postId] || 0);
 }
@@ -1562,7 +1598,11 @@ async function giveLimitedLike(postId) {
   saveMonthlyLikesState(likeState);
 
   try {
-    await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+    await fetchJson(`${API_BASE}/posts/${postId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
     await loadFeed();
     if (state.activeScreen === "feed") renderFeedScreen();
     if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
@@ -1725,7 +1765,11 @@ function bindFeedGestures() {
 
 async function likePost(postId) {
   try {
-    await fetchJson(`${API_BASE}/posts/${postId}/like`, { method: "POST" });
+    await fetchJson(`${API_BASE}/posts/${postId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
     await loadFeed();
     if (state.activeScreen === "feed") renderFeedScreen();
     if (state.activeScreen === "creator" && state.viewedCreatorUserId) {
@@ -1777,7 +1821,11 @@ async function deletePost(postId) {
 
 async function likeFrontpage(userId) {
   try {
-    await fetchJson(`${API_BASE}/frontpage/${userId}/like`, { method: "POST" });
+    await fetchJson(`${API_BASE}/frontpage/${userId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: state.activeUserId })
+    });
     await loadCreatorFrontpage(userId);
     renderCreatorScreen();
   } catch (error) {
@@ -2118,7 +2166,7 @@ function renderCreatorScreen() {
                 ♥
                 <span class="likeCountStack" aria-hidden="true">
                   <span class="likeIconCount" title="Homepage likes">${Number(stats.homepageLikes || 0)}</span>
-                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">0</span>
+                  <span class="likeIconCount" title="Door jou gegeven op deze homepage">${Number(user.homepageLikesByUser?.[state.activeUserId] || 0)}</span>
                   <span class="likeIconCount" title="Likes over deze maand">${getRemainingLikesThisMonth()}</span>
                 </span>
               </button>
@@ -2222,6 +2270,7 @@ async function startApp() {
     }
     await loadUsers();
     await loadFeed();
+    await loadDonationSummary();
     applyQueryStartMode();
 
     if (params.get("creator")) {
