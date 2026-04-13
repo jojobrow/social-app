@@ -956,6 +956,30 @@
       gap: 8px;
     }
 
+    .feedCtaCard .cardBody {
+      padding: 12px 0 4px;
+    }
+
+    .feedCtaBtn {
+      width: 100%;
+      min-height: 56px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      justify-content: center;
+      box-shadow: 0 18px 36px rgba(155,92,255,0.26);
+    }
+
+    .feedCtaNote {
+      margin-top: 8px;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+
     .heroUploadWrap {
       position: absolute;
       top: 16px;
@@ -1962,10 +1986,6 @@ function renderHomeScreen() {
             <div class="pageIntro">Jouw plek. Rustig, duidelijk en direct.</div>
           </div>
           <div class="buttonGroup">
-            <span class="navBtnWrap">
-              <button class="solidBtn" onclick="openFeedFromHomepageEntry()">Feed</button>
-              ${homeLamps.feed ? '<span class="tinyLamp"></span>' : ''}
-            </span>
             <button class="ghostBtn" onclick="openTesterUitleg()">Uitleg</button>
             <span class="navBtnWrap">
               <button class="ghostBtn" onclick="goToFriendsPage()">Vrienden</button>
@@ -1975,6 +1995,16 @@ function renderHomeScreen() {
             <button class="ghostBtn" onclick="switchAccount()">Account</button>
           </div>
         </div>
+
+        <section class="card feedCtaCard">
+          <div class="cardBody">
+            <span class="navBtnWrap" style="display:block;">
+              <button class="solidBtn feedCtaBtn" onclick="openFeedFromHomepageEntry()">Bekijk content</button>
+              ${homeLamps.feed ? '<span class="tinyLamp" style="top:8px; right:8px;"></span>' : ''}
+            </span>
+            <div class="feedCtaNote">Ga direct naar je feed en bekijk alle content.</div>
+          </div>
+        </section>
 
         <section class="card hero" style="padding-top: 86px;">
           ${getHeroMediaHtml(user)}
