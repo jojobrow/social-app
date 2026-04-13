@@ -111,8 +111,7 @@ function createInitialData() {
       nextUserId: 4,
       nextPostId: 7,
       nextReactionId: 7,
-      nextFriendRequestId: 1,
-      nextDonationId: 1
+      nextFriendRequestId: 1
     },
     users: [
       {
@@ -125,11 +124,7 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 14,
-        homepageLikesByUser: {},
         blockedUsers: [],
-        sentDonationPoints: 0,
-        receivedDonationPoints: 0,
-        sentDonationPointsByUser: {},
         passwordSalt: "seed-johannes-salt",
         passwordHash: "5eae07ccf419e24015a4d0492386b1c262b11f29ed029596e1be9f80e295cef2"
       },
@@ -143,11 +138,7 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 21,
-        homepageLikesByUser: {},
-        blockedUsers: [],
-        sentDonationPoints: 0,
-        receivedDonationPoints: 0,
-        sentDonationPointsByUser: {}
+        blockedUsers: []
       },
       {
         id: "u3",
@@ -159,11 +150,7 @@ function createInitialData() {
         avatarUrl: "",
         backgroundUrl: "",
         homepageLikes: 9,
-        homepageLikesByUser: {},
-        blockedUsers: [],
-        sentDonationPoints: 0,
-        receivedDonationPoints: 0,
-        sentDonationPointsByUser: {}
+        blockedUsers: []
       }
     ],
     posts: [
@@ -178,7 +165,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "recommended",
         likes: 12,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#homepage", "#visual", "#creator"],
         createdAt: Date.now() - 100000
@@ -194,7 +180,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "normal",
         likes: 6,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#concept", "#social", "#frontpage"],
         createdAt: Date.now() - 90000
@@ -210,7 +195,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "normal",
         likes: 7,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#prototype", "#split", "#design"],
         createdAt: Date.now() - 80000
@@ -226,7 +210,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "promoted",
         likes: 18,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#video", "#format", "#prototype"],
         createdAt: Date.now() - 70000
@@ -242,7 +225,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "recommended",
         likes: 4,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#context", "#community"],
         createdAt: Date.now() - 60000
@@ -258,7 +240,6 @@ function createInitialData() {
         mediaHeight: 3,
         feedKind: "normal",
         likes: 5,
-        likesByUser: {},
         dislikes: [],
         hashtags: ["#upload", "#local", "#build"],
         createdAt: Date.now() - 50000
@@ -311,47 +292,10 @@ function createInitialData() {
       }
     ],
     friendRequests: [],
-    donationLedger: [],
     friendships: [
       { userA: "u1", userB: "u2", status: "accepted" },
       { userA: "u1", userB: "u3", status: "accepted" }
     ]
-  };
-}
-
-
-function normalizeCounterMap(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return Object.entries(value).reduce((acc, [key, rawValue]) => {
-    const safeKey = String(key || "").trim();
-    if (!safeKey) return acc;
-    const numericValue = Number(rawValue || 0);
-    if (numericValue > 0) {
-      acc[safeKey] = numericValue;
-    }
-    return acc;
-  }, {});
-}
-
-function normalizePost(post, fallbackPost = {}) {
-  return {
-    id: Number(post?.id) || Number(fallbackPost.id) || 0,
-    ownerUserId: post?.ownerUserId || fallbackPost.ownerUserId || "",
-    caption: String(post?.caption ?? fallbackPost.caption ?? ""),
-    postType: post?.postType || fallbackPost.postType || "text",
-    imageUrl: post?.imageUrl || fallbackPost.imageUrl || "",
-    videoUrl: post?.videoUrl || fallbackPost.videoUrl || "",
-    textTheme: String(post?.textTheme || fallbackPost.textTheme || "calm"),
-    textFont: String(post?.textFont || fallbackPost.textFont || "clean"),
-    textBackgroundUrl: String(post?.textBackgroundUrl || fallbackPost.textBackgroundUrl || ""),
-    mediaWidth: Number(post?.mediaWidth) || Number(fallbackPost.mediaWidth) || 4,
-    mediaHeight: Number(post?.mediaHeight) || Number(fallbackPost.mediaHeight) || 3,
-    feedKind: post?.feedKind || fallbackPost.feedKind || "normal",
-    likes: Number(post?.likes) || Number(fallbackPost.likes) || 0,
-    likesByUser: normalizeCounterMap(post?.likesByUser || fallbackPost.likesByUser),
-    dislikes: Array.isArray(post?.dislikes) ? post.dislikes : Array.isArray(fallbackPost.dislikes) ? fallbackPost.dislikes : [],
-    hashtags: Array.isArray(post?.hashtags) ? post.hashtags : Array.isArray(fallbackPost.hashtags) ? fallbackPost.hashtags : [],
-    createdAt: Number(post?.createdAt) || Number(fallbackPost.createdAt) || Date.now()
   };
 }
 
@@ -366,11 +310,7 @@ function normalizeUser(user, fallbackUser = {}) {
     avatarUrl: user?.avatarUrl || fallbackUser.avatarUrl || "",
     backgroundUrl: user?.backgroundUrl || fallbackUser.backgroundUrl || "",
     homepageLikes: Number(user?.homepageLikes) || 0,
-    homepageLikesByUser: normalizeCounterMap(user?.homepageLikesByUser || fallbackUser.homepageLikesByUser),
     blockedUsers: Array.isArray(user?.blockedUsers) ? user.blockedUsers : [],
-    sentDonationPoints: Number(user?.sentDonationPoints) || Number(fallbackUser.sentDonationPoints) || 0,
-    receivedDonationPoints: Number(user?.receivedDonationPoints) || Number(fallbackUser.receivedDonationPoints) || 0,
-    sentDonationPointsByUser: normalizeCounterMap(user?.sentDonationPointsByUser || fallbackUser.sentDonationPointsByUser),
     passwordSalt: user?.passwordSalt || fallbackUser.passwordSalt || "",
     passwordHash: user?.passwordHash || fallbackUser.passwordHash || ""
   };
@@ -387,6 +327,27 @@ function normalizeUser(user, fallbackUser = {}) {
   return normalized;
 }
 
+function normalizePost(post, fallbackPost = {}) {
+  return {
+    id: Number(post?.id) || Number(fallbackPost.id) || 0,
+    ownerUserId: post?.ownerUserId || fallbackPost.ownerUserId || "",
+    caption: String(post?.caption ?? fallbackPost.caption ?? ""),
+    postType: post?.postType || fallbackPost.postType || "text",
+    imageUrl: post?.imageUrl || fallbackPost.imageUrl || "",
+    videoUrl: post?.videoUrl || fallbackPost.videoUrl || "",
+    mediaWidth: Number(post?.mediaWidth) || Number(fallbackPost.mediaWidth) || 4,
+    mediaHeight: Number(post?.mediaHeight) || Number(fallbackPost.mediaHeight) || 3,
+    feedKind: post?.feedKind || fallbackPost.feedKind || "normal",
+    textTheme: String(post?.textTheme ?? fallbackPost.textTheme ?? "calm"),
+    textFont: String(post?.textFont ?? fallbackPost.textFont ?? "clean"),
+    textBackgroundUrl: String(post?.textBackgroundUrl ?? fallbackPost.textBackgroundUrl ?? ""),
+    likes: Number(post?.likes) || Number(fallbackPost.likes) || 0,
+    dislikes: Array.isArray(post?.dislikes) ? post.dislikes : Array.isArray(fallbackPost.dislikes) ? fallbackPost.dislikes : [],
+    hashtags: Array.isArray(post?.hashtags) ? post.hashtags : Array.isArray(fallbackPost.hashtags) ? fallbackPost.hashtags : [],
+    createdAt: Number(post?.createdAt) || Number(fallbackPost.createdAt) || Date.now()
+  };
+}
+
 function normalizeDb(raw) {
   const fallback = createInitialData();
 
@@ -396,9 +357,7 @@ function normalizeDb(raw) {
       nextPostId: Number(raw?.counters?.nextPostId) || fallback.counters.nextPostId,
       nextReactionId: Number(raw?.counters?.nextReactionId) || fallback.counters.nextReactionId,
       nextFriendRequestId:
-        Number(raw?.counters?.nextFriendRequestId) || fallback.counters.nextFriendRequestId,
-      nextDonationId:
-        Number(raw?.counters?.nextDonationId) || fallback.counters.nextDonationId
+        Number(raw?.counters?.nextFriendRequestId) || fallback.counters.nextFriendRequestId
     },
     users: Array.isArray(raw?.users)
       ? raw.users.map((user, index) => normalizeUser(user, fallback.users[index] || {}))
@@ -406,7 +365,6 @@ function normalizeDb(raw) {
     posts: Array.isArray(raw?.posts)
       ? raw.posts.map((post, index) => normalizePost(post, fallback.posts[index] || {}))
       : fallback.posts.map((post) => normalizePost(post)),
-
     acceptedReactions: Array.isArray(raw?.acceptedReactions)
       ? raw.acceptedReactions
       : fallback.acceptedReactions,
@@ -414,7 +372,6 @@ function normalizeDb(raw) {
       ? raw.pendingReactions
       : fallback.pendingReactions,
     friendRequests: Array.isArray(raw?.friendRequests) ? raw.friendRequests : fallback.friendRequests,
-    donationLedger: Array.isArray(raw?.donationLedger) ? raw.donationLedger : fallback.donationLedger,
     friendships: Array.isArray(raw?.friendships) ? raw.friendships : fallback.friendships
   };
 }
@@ -448,22 +405,6 @@ function saveDb() {
 
 function findUser(userId) {
   return db.users.find((user) => user.id === userId);
-}
-
-
-function getActorUserId(req) {
-  return String(
-    req.body?.userId ||
-      req.body?.viewerUserId ||
-      req.body?.fromUserId ||
-      req.query?.userId ||
-      req.query?.viewerUserId ||
-      ""
-  ).trim();
-}
-
-function getStoredCount(map, key) {
-  return Number((map && map[key]) || 0);
 }
 
 function toSafeUser(user) {
@@ -781,25 +722,24 @@ app.post("/posts", (req, res) => {
   if (videoUrl) postType = "video";
   else if (imageUrl) postType = "image";
 
-  const newPost = {
+  const newPost = normalizePost({
     id: db.counters.nextPostId++,
     ownerUserId,
     caption,
     postType,
     imageUrl,
     videoUrl,
-    textTheme: String(textTheme || "calm"),
-    textFont: String(textFont || "clean"),
-    textBackgroundUrl: String(textBackgroundUrl || ""),
     mediaWidth: 4,
     mediaHeight: 3,
     feedKind,
+    textTheme,
+    textFont,
+    textBackgroundUrl: postType === "text" ? textBackgroundUrl : "",
     likes: 0,
-    likesByUser: {},
     dislikes: [],
     hashtags: Array.isArray(hashtags) ? hashtags : [],
     createdAt: Date.now()
-  };
+  });
 
   db.posts.push(newPost);
   saveDb();
@@ -839,43 +779,13 @@ app.post("/upload-media", upload.single("media"), (req, res) => {
 
 app.post("/posts/:postId/like", (req, res) => {
   const post = db.posts.find((item) => item.id === Number(req.params.postId));
-  const userId = getActorUserId(req);
-
   if (!post) {
     return res.status(404).json({ message: "Post niet gevonden." });
   }
 
-  if (!userId) {
-    return res.status(400).json({ message: "userId ontbreekt." });
-  }
-
-  const actor = findUser(userId);
-  if (!actor) {
-    return res.status(404).json({ message: "Gebruiker niet gevonden." });
-  }
-
-  if (post.ownerUserId === userId) {
-    return res.status(403).json({ message: "Je kunt je eigen post niet liken." });
-  }
-
-  if (!post.likesByUser || typeof post.likesByUser !== "object") {
-    post.likesByUser = {};
-  }
-
-  const given = getStoredCount(post.likesByUser, userId);
-  if (given >= 10) {
-    return res.status(400).json({ message: "Je hebt het maximum van 10 likes op deze post bereikt." });
-  }
-
-  post.likesByUser[userId] = given + 1;
-  post.likes = Number(post.likes || 0) + 1;
-
+  post.likes += 1;
   saveDb();
-  res.json({
-    success: true,
-    likes: post.likes,
-    given: post.likesByUser[userId]
-  });
+  res.json({ success: true, likes: post.likes });
 });
 
 app.post("/posts/:postId/dislike", (req, res) => {
@@ -935,44 +845,14 @@ app.post("/posts/:postId/delete", (req, res) => {
 });
 
 app.post("/frontpage/:userId/like", (req, res) => {
-  const targetUser = findUser(req.params.userId);
-  const viewerUserId = getActorUserId(req);
-
-  if (!targetUser) {
+  const user = findUser(req.params.userId);
+  if (!user) {
     return res.status(404).json({ message: "Gebruiker niet gevonden." });
   }
 
-  if (!viewerUserId) {
-    return res.status(400).json({ message: "userId ontbreekt." });
-  }
-
-  const viewer = findUser(viewerUserId);
-  if (!viewer) {
-    return res.status(404).json({ message: "Gebruiker niet gevonden." });
-  }
-
-  if (viewerUserId === targetUser.id) {
-    return res.status(403).json({ message: "Je kunt jezelf niet liken." });
-  }
-
-  if (!targetUser.homepageLikesByUser || typeof targetUser.homepageLikesByUser !== "object") {
-    targetUser.homepageLikesByUser = {};
-  }
-
-  const given = getStoredCount(targetUser.homepageLikesByUser, viewerUserId);
-  if (given >= 10) {
-    return res.status(400).json({ message: "Je hebt het maximum van 10 likes op deze homepage bereikt." });
-  }
-
-  targetUser.homepageLikesByUser[viewerUserId] = given + 1;
-  targetUser.homepageLikes = Number(targetUser.homepageLikes || 0) + 1;
-
+  user.homepageLikes += 1;
   saveDb();
-  res.json({
-    success: true,
-    homepageLikes: targetUser.homepageLikes,
-    given: targetUser.homepageLikesByUser[viewerUserId]
-  });
+  res.json({ success: true, homepageLikes: user.homepageLikes });
 });
 
 app.post("/frontpage/:userId/react", (req, res) => {
@@ -1268,81 +1148,6 @@ app.post("/friends/request", (req, res) => {
   res.json({ success: true });
 });
 
-
-app.post("/donations/point", (req, res) => {
-  const fromUserId = String(req.body?.fromUserId || "").trim();
-  const targetUserId = String(req.body?.targetUserId || "").trim();
-  const sourcePostId = req.body?.sourcePostId != null ? Number(req.body.sourcePostId) : null;
-  const context = String(req.body?.context || "feed").trim();
-
-  if (!fromUserId || !targetUserId) {
-    return res.status(400).json({ message: "fromUserId en targetUserId zijn verplicht." });
-  }
-
-  if (fromUserId === targetUserId) {
-    return res.status(403).json({ message: "Je kunt jezelf geen donatie geven." });
-  }
-
-  const fromUser = findUser(fromUserId);
-  const targetUser = findUser(targetUserId);
-
-  if (!fromUser || !targetUser) {
-    return res.status(404).json({ message: "Gebruiker niet gevonden." });
-  }
-
-  if (!fromUser.sentDonationPointsByUser || typeof fromUser.sentDonationPointsByUser !== "object") {
-    fromUser.sentDonationPointsByUser = {};
-  }
-
-  const givenToTarget = getStoredCount(fromUser.sentDonationPointsByUser, targetUserId);
-  if (givenToTarget >= 10) {
-    return res.status(400).json({ message: "Je hebt het maximum van 10 donatiepunten aan deze maker bereikt." });
-  }
-
-  fromUser.sentDonationPointsByUser[targetUserId] = givenToTarget + 1;
-  fromUser.sentDonationPoints = Number(fromUser.sentDonationPoints || 0) + 1;
-  targetUser.receivedDonationPoints = Number(targetUser.receivedDonationPoints || 0) + 1;
-
-  db.donationLedger.push({
-    id: db.counters.nextDonationId++,
-    fromUserId,
-    targetUserId,
-    points: 1,
-    sourcePostId: Number.isFinite(sourcePostId) ? sourcePostId : null,
-    context,
-    createdAt: Date.now()
-  });
-
-  saveDb();
-  res.json({
-    success: true,
-    fromUserId,
-    targetUserId,
-    givenToTarget: fromUser.sentDonationPointsByUser[targetUserId],
-    targetReceivedDonationPoints: targetUser.receivedDonationPoints
-  });
-});
-
-app.get("/donations/summary", (req, res) => {
-  const userId = String(req.query.userId || "").trim();
-
-  if (!userId) {
-    return res.status(400).json({ message: "userId ontbreekt." });
-  }
-
-  const user = findUser(userId);
-  if (!user) {
-    return res.status(404).json({ message: "Gebruiker niet gevonden." });
-  }
-
-  res.json({
-    userId,
-    sentDonationPoints: Number(user.sentDonationPoints || 0),
-    receivedDonationPoints: Number(user.receivedDonationPoints || 0),
-    sentDonationPointsByUser: normalizeCounterMap(user.sentDonationPointsByUser)
-  });
-});
-
 app.get("/debug/db", (_req, res) => {
   res.json({
     dbPath,
@@ -1353,7 +1158,6 @@ app.get("/debug/db", (_req, res) => {
       acceptedReactions: db.acceptedReactions.length,
       pendingReactions: db.pendingReactions.length,
       friendRequests: db.friendRequests.length,
-      donationLedger: db.donationLedger.length,
       friendships: db.friendships.length
     }
   });
