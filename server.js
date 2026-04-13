@@ -341,6 +341,9 @@ function normalizePost(post, fallbackPost = {}) {
     postType: post?.postType || fallbackPost.postType || "text",
     imageUrl: post?.imageUrl || fallbackPost.imageUrl || "",
     videoUrl: post?.videoUrl || fallbackPost.videoUrl || "",
+    textTheme: String(post?.textTheme || fallbackPost.textTheme || "calm"),
+    textFont: String(post?.textFont || fallbackPost.textFont || "clean"),
+    textBackgroundUrl: String(post?.textBackgroundUrl || fallbackPost.textBackgroundUrl || ""),
     mediaWidth: Number(post?.mediaWidth) || Number(fallbackPost.mediaWidth) || 4,
     mediaHeight: Number(post?.mediaHeight) || Number(fallbackPost.mediaHeight) || 3,
     feedKind: post?.feedKind || fallbackPost.feedKind || "normal",
@@ -763,7 +766,10 @@ app.post("/posts", (req, res) => {
     imageUrl = "",
     videoUrl = "",
     hashtags = [],
-    feedKind = "normal"
+    feedKind = "normal",
+    textTheme = "calm",
+    textFont = "clean",
+    textBackgroundUrl = ""
   } = req.body;
 
   const owner = findUser(ownerUserId);
@@ -782,6 +788,9 @@ app.post("/posts", (req, res) => {
     postType,
     imageUrl,
     videoUrl,
+    textTheme: String(textTheme || "calm"),
+    textFont: String(textFont || "clean"),
+    textBackgroundUrl: String(textBackgroundUrl || ""),
     mediaWidth: 4,
     mediaHeight: 3,
     feedKind,
