@@ -473,6 +473,90 @@
         linear-gradient(135deg, rgba(86,67,49,0.95), rgba(22,18,28,0.98));
     }
 
+
+    .textPostCard,
+    .textFeedFill {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .textPostBackdrop,
+    .textFeedBackdrop {
+      position: absolute;
+      inset: -16px;
+      z-index: 0;
+      background-image: var(--text-post-bg, none);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(18px);
+      transform: scale(1.12);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .textPostCard.hasHeroBlur .textPostBackdrop,
+    .textFeedFill.hasHeroBlur .textFeedBackdrop {
+      opacity: 0.94;
+    }
+
+    .textPostCard > *,
+    .textFeedFill > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .textTheme-calm {
+      background:
+        radial-gradient(circle at top left, rgba(201,165,255,0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.10), transparent 28%),
+        linear-gradient(135deg, rgba(85,52,153,0.98), rgba(34,23,63,0.98));
+      color: #f7f3ff;
+    }
+
+    .textTheme-dark {
+      background:
+        radial-gradient(circle at top right, rgba(120,88,203,0.16), transparent 28%),
+        linear-gradient(135deg, rgba(17,14,28,0.98), rgba(50,33,82,0.98));
+      color: #fbf7ff;
+    }
+
+    .textTheme-pop {
+      background:
+        radial-gradient(circle at top left, rgba(255,220,120,0.20), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,120,209,0.16), transparent 34%),
+        linear-gradient(135deg, rgba(124,54,255,0.98), rgba(52,19,122,0.98));
+      color: #fff9f4;
+    }
+
+    .textTheme-heroBlur {
+      background:
+        linear-gradient(135deg, rgba(20,15,31,0.36), rgba(44,28,73,0.62)),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+      color: #fffafc;
+    }
+
+    .textTheme-heroBlur .textPostContent,
+    .textTheme-heroBlur .textFeedContent {
+      text-shadow: 0 2px 18px rgba(0,0,0,0.34);
+    }
+
+    .textFont-clean {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .textFont-soft {
+      font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .textFont-statement {
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
     .kindBadge,
     .makerBadge,
     .feedModeBadge {
@@ -1976,6 +2060,39 @@ function handlePostTap(ownerUserId) {
   }
 }
 
+function getTextThemeClass(item) {
+  const theme = String(item?.textTheme || "calm").trim();
+  if (theme === "dark" || theme === "pop" || theme === "heroBlur") return `textTheme-${theme}`;
+  return "textTheme-calm";
+}
+
+function getTextFontClass(item) {
+  const font = String(item?.textFont || "clean").trim();
+  if (font === "soft" || font === "statement") return `textFont-${font}`;
+  return "textFont-clean";
+}
+
+function getTextBackgroundStyle(item) {
+  const bg = String(item?.textBackgroundUrl || "").trim();
+  return bg ? ` style="--text-post-bg:url('${escapeHtml(bg)}');"` : "";
+}
+
+function renderTextPostCard(item) {
+  const themeClass = getTextThemeClass(item);
+  const fontClass = getTextFontClass(item);
+  const hasHeroBlur = String(item?.textTheme || "") === "heroBlur";
+  return `<div class="postTextOnly textPostCard ${themeClass} ${fontClass}${hasHeroBlur ? ' hasHeroBlur' : ''}"${getTextBackgroundStyle(item)}>${hasHeroBlur ? '<div class="textPostBackdrop" aria-hidden="true"></div>' : ''}<div class="textPostContent">${escapeHtml(item.caption || "Tekstpost")}</div></div>`;
+}
+
+function renderTextFeedFill(item) {
+  const themeClass = getTextThemeClass(item);
+  const fontClass = getTextFontClass(item);
+  const hasHeroBlur = String(item?.textTheme || "") === "heroBlur";
+  const bg = String(item?.textBackgroundUrl || "").trim();
+  const styleAttr = bg ? ` style="--text-post-bg:url('${escapeHtml(bg)}');"` : "";
+  return `<div class="feedTextFill textFeedFill ${themeClass} ${fontClass}${hasHeroBlur ? ' hasHeroBlur' : ''}"${styleAttr}>${hasHeroBlur ? '<div class="textFeedBackdrop" aria-hidden="true"></div>' : ''}<div class="textFeedContent">${escapeHtml(item.caption || 'Tekstpost')}</div></div>`;
+}
+
 function renderPostCard(item, options = {}) {
   const owner = item.owner || getUserById(item.ownerUserId) || {};
   const isOwn = owner.id === state.activeUserId;
@@ -1984,7 +2101,7 @@ function renderPostCard(item, options = {}) {
     ? `<div class="postMedia"><img src="${escapeHtml(item.imageUrl)}" alt="post" /></div>`
     : item.postType === "video" && item.videoUrl
     ? `<div class="postMedia"><video src="${escapeHtml(item.videoUrl)}" controls playsinline preload="metadata"></video></div>`
-    : `<div class="postTextOnly">${escapeHtml(item.caption || "Tekstpost")}</div>`;
+    : renderTextPostCard(item);
   const hashtags = Array.isArray(item.hashtags) && item.hashtags.length
     ? `<div class="hashtags">${item.hashtags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
     : "";
@@ -2089,7 +2206,7 @@ function renderFeedScreen() {
     ? `<div class="feedMediaWrap"><img src="${escapeHtml(item.imageUrl)}" alt="feed" /></div>`
     : item.postType === "video" && item.videoUrl
     ? `<div class="feedMediaWrap" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"><video id="feedVideoElement" src="${escapeHtml(item.videoUrl)}" autoplay muted loop playsinline preload="metadata" onclick="event.stopPropagation();" ontouchstart="event.stopPropagation();" onpointerdown="event.stopPropagation();"></video></div>`
-    : `<div class="feedTextFill">${escapeHtml(item.caption || 'Tekstpost')}</div>`;
+    : renderTextFeedFill(item);
 
   const scopeLabel = state.feedMode === "creator"
     ? `maker-contentmodus · ${escapeHtml(owner.displayName || 'maker')}`
